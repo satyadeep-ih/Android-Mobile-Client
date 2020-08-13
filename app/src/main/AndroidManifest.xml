@@ -201,6 +201,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.homeActivity.HomeActivity" />
         </activity>
+        <activity android:name=".activities.languageSelectActivity.LanguageSelectActivity"
+            android:label="@string/title_activity_select_language"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
         <activity
             android:name=".activities.splash_activity.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode"

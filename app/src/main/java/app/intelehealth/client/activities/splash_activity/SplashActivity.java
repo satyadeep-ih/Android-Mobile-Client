@@ -22,6 +22,7 @@ import java.util.Locale;
 import app.intelehealth.client.R;
 import app.intelehealth.client.activities.IntroActivity.IntroActivity;
 import app.intelehealth.client.activities.homeActivity.HomeActivity;
+import app.intelehealth.client.activities.languageSelectActivity.LanguageSelectActivity;
 import app.intelehealth.client.dataMigration.SmoothUpgrade;
 import app.intelehealth.client.utilities.Logger;
 import app.intelehealth.client.utilities.SessionManager;
@@ -133,9 +134,12 @@ public class SplashActivity extends AppCompatActivity {
             }
 
         } else {
-            Logger.logD(LOG_TAG, "Starting setup");
+            /*Logger.logD(LOG_TAG, "Starting setup");
             Intent intent = new Intent(this, IntroActivity.class);
             startActivity(intent);
+            finish();*/
+            Intent lngActivityIntent = new Intent(this, LanguageSelectActivity.class);
+            startActivity(lngActivityIntent);
             finish();
         }
     }

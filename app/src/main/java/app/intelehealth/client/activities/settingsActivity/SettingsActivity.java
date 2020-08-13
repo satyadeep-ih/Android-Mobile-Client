@@ -53,7 +53,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-
+    public static String TAG = "SettingsActivity : ";
     SessionManager sessionManager = null;
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
             new Preference.OnPreferenceChangeListener() {
@@ -123,15 +123,27 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * @see #sBindPreferenceSummaryToValueListener
      */
     private static void bindPreferenceSummaryToValue(Preference preference) {
+        Log.e(TAG,"bindPreferenceSummaryToValue Called...");
+        ListPreference listPreference = (ListPreference) preference;
+        int lngIndex = listPreference.findIndexOfValue(IntelehealthApplication.prefs.getString("Language","en"));
+        Log.e(TAG,"lngIndex : "+lngIndex);
+        Log.e(TAG,"listPreference.getEntries()[lngIndex] : "+listPreference.getEntries()[lngIndex]);
+        preference.setSummary(
+                lngIndex >= 0
+                        ? listPreference.getEntries()[lngIndex]
+                        : null);
+
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+        ((ListPreference) preference).setValueIndex(lngIndex);
 
+        //Log.e(TAG,"bindPreferenceSummaryToValue : ")
         // Trigger the listener immediately with the preference's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+        /*sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+                        .getString(IntelehealthApplication.prefs.getString("Language","en"), ""));*/
     }
 
     public static void displayLoginDialog(Context context) {

@@ -253,6 +253,7 @@
 
 
     <string name="title_activity_setup" translatable="false">Setup</string>
+    <string name="title_activity_select_language" translatable="false">Select Language</string>
 
     <string name="title_activity_camera" translatable="false">Camera</string>
     <string name="title_activity_today_patient" translatable="false">"Today's Visits"</string>

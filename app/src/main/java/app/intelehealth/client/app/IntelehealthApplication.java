@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -41,6 +42,8 @@ public class IntelehealthApplication extends MultiDexApplication implements Appl
     public static Context getAppContext() {
         return mContext;
     }
+    public static SharedPreferences prefs;
+    public static SharedPreferences.Editor editor ;
 
     public static String getAndroidId() {
         return androidId;
@@ -60,6 +63,10 @@ public class IntelehealthApplication extends MultiDexApplication implements Appl
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         mContext = getApplicationContext();
         sessionManager = new SessionManager(this);
+
+        prefs = getSharedPreferences("Intelehealth", Context.MODE_PRIVATE);
+        editor = prefs.edit();
+        editor.commit();
 
         configureCrashReporting();
 
