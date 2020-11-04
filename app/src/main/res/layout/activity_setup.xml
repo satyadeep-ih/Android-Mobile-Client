@@ -207,6 +207,7 @@
                             android:layout_height="wrap_content"
                             android:hint="@string/prompt_email"
                             android:imeOptions="actionNext"
+                            android:maxLength="12"
                             android:inputType="textEmailAddress"
                             android:maxLines="1"
                             android:textSize="14sp"
@@ -217,16 +218,17 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        app:passwordToggleEnabled="true">
 
                         <EditText
                             android:id="@+id/password"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/prompt_password"
-                            android:imeActionId="@+id/admin_password"
                             android:imeOptions="actionNext"
                             android:inputType="textPassword"
+                            android:maxLength="16"
                             android:maxLines="1"
                             android:singleLine="true"
                             android:textSize="14sp"

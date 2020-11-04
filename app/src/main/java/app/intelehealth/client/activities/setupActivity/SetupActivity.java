@@ -185,6 +185,45 @@ public class SetupActivity extends AppCompatActivity {
         DialogUtils dialogUtils = new DialogUtils();
         dialogUtils.showOkDialog(this, getString(R.string.generic_warning), getString(R.string.setup_internet), getString(R.string.generic_ok));
 
+        mEmailView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                //do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(charSequence.length()<3 && charSequence.length()>0)
+                    mEmailView.setError("Min. length allowed is 3");
+                else if(charSequence.length()==12)
+                    mEmailView.setError("Max. length allowed is 12");
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //do nothing
+            }
+        });
+        mPasswordView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                //do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(charSequence.length()<8 && charSequence.length()>0 )
+                    mPasswordView.setError("Min. length allowed is 8");
+                else if(charSequence.length()==16)
+                    mPasswordView.setError("Max. length allowed is 16");
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //do nothing
+            }
+        });
+
         mUrlField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -339,8 +378,6 @@ public class SetupActivity extends AppCompatActivity {
     }
 
     private void showProgressbar() {
-
-
 // instantiate it within the onCreate method
         mProgressDialog = new ProgressDialog(SetupActivity.this);
         mProgressDialog.setMessage(getString(R.string.download_protocols));
