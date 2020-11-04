@@ -27,10 +27,12 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -69,6 +71,7 @@ import app.intelehealth.client.utilities.NetworkConnection;
 import app.intelehealth.client.utilities.SessionManager;
 import app.intelehealth.client.utilities.StringEncryption;
 import app.intelehealth.client.utilities.UrlModifiers;
+import app.intelehealth.client.widget.materialprogressbar.CircleProgressBar;
 import app.intelehealth.client.widget.materialprogressbar.CustomProgressDialog;
 
 import app.intelehealth.client.activities.homeActivity.HomeActivity;
@@ -84,11 +87,11 @@ public class SetupActivity extends AppCompatActivity {
 
     private static final String TAG = SetupActivity.class.getSimpleName();
     private boolean isLocationFetched;
+    private boolean listFetched;
     String BASE_URL = "";
     private static final int PERMISSION_ALL = 1;
     private long createdRecordsCount = 0;
     ProgressDialog mProgressDialog;
-
     //    protected AccountManager manager;
     UrlModifiers urlModifiers = new UrlModifiers();
     Base64Utils base64Utils = new Base64Utils();
@@ -103,7 +106,7 @@ public class SetupActivity extends AppCompatActivity {
     private List<Location> mLocations = new ArrayList<>();
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private EditText mAdminPasswordView;
+   // private EditText mAdminPasswordView;
     private EditText mUrlField;
     private Button mLoginButton;
     private Spinner mDropdownLocation;
@@ -112,7 +115,6 @@ public class SetupActivity extends AppCompatActivity {
     private RadioButton r2;
     final Handler mHandler = new Handler();
     boolean click_box = false;
-
     Context context;
     private String mindmapURL = "";
     private DownloadMindMaps mTask;
@@ -140,32 +142,31 @@ public class SetupActivity extends AppCompatActivity {
         mLoginButton = findViewById(R.id.setup_submit_button);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 attemptLogin();
+                closeKeyboard();
             }
         });
 
         r1 = findViewById(R.id.demoMindmap);
         r2 = findViewById(R.id.downloadMindmap);
-
         mPasswordView = findViewById(R.id.password);
-
-        mAdminPasswordView = findViewById(R.id.admin_password);
-
+      // mAdminPasswordView = findViewById(R.id.admin_password);
         Button submitButton = findViewById(R.id.setup_submit_button);
 
         mUrlField = findViewById(R.id.editText_URL);
         mDropdownLocation = findViewById(R.id.spinner_location);
-        mAdminPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.admin_password || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+//        mAdminPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+//                if (id == R.id.admin_password || id == EditorInfo.IME_NULL) {
+//                    attemptLogin();
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
 
         mAndroidIdTextView = findViewById(R.id.textView_Aid);
         String deviceID = "Device Id: " + IntelehealthApplication.getAndroidId();
@@ -175,6 +176,7 @@ public class SetupActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 attemptLogin();
+                closeKeyboard();
                 //progressBar.setVisibility(View.VISIBLE);
                 //progressBar.setProgress(0);
 
@@ -185,9 +187,7 @@ public class SetupActivity extends AppCompatActivity {
 
         mUrlField.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -198,33 +198,50 @@ public class SetupActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-
                 mHandler.removeCallbacksAndMessages(null);
                 mHandler.postDelayed(userStoppedTyping, 1500); // 1.5 second
-
-
             }
 
             Runnable userStoppedTyping = new Runnable() {
 
                 @Override
                 public void run() {
+                    ProgressDialog progress;
+                    String value = "";
+                    progress = new ProgressDialog(SetupActivity.this, R.style.AlertDialogStyle);
                     // user didn't typed for 1.5 seconds, do whatever you want
                     if (!mUrlField.getText().toString().trim().isEmpty() && mUrlField.getText().toString().length() >= 12) {
+
                         if (Patterns.WEB_URL.matcher(mUrlField.getText().toString()).matches()) {
                             String BASE_URL = "https://" + mUrlField.getText().toString() + "/openmrs/ws/rest/v1/";
-                            if (URLUtil.isValidUrl(BASE_URL) && !isLocationFetched)
+                            if (URLUtil.isValidUrl(BASE_URL) && !isLocationFetched) {
+                                progress.setTitle(getString(R.string.please_wait_progress));
+                                progress.setMessage("Fetching Locations...");
+                                progress.show();
                                 getLocationFromServer(BASE_URL);
+                            }
+                            if(!isLocationFetched) {
+                                progress.dismiss();
+                            }
                             else
                                 Toast.makeText(SetupActivity.this, getString(R.string.url_invalid), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
             };
-
         });
-
         showProgressbar();
+
+    }
+    //This function closes or opens up the soft keyboard on view click: By Nishita
+    private void closeKeyboard()
+    {
+        View view = this.getCurrentFocus();
+        if(view!=null)
+        {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(),0);
+        }
     }
 
     /**
@@ -241,37 +258,50 @@ public class SetupActivity extends AppCompatActivity {
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
-        mAdminPasswordView.setError(null);
-
+        //mAdminPasswordView.setError(null);
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
-        String admin_password = mAdminPasswordView.getText().toString();
+        //String admin_password = mAdminPasswordView.getText().toString();
+        String url = mUrlField.getText().toString();
 
 
         boolean cancel = false;
         View focusView = null;
 
+        if(TextUtils.isEmpty(url))
+        {
+            mUrlField.setError(getString(R.string.error_field_required));
+            focusView = mUrlField;
+            cancel = true;
+        }
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             cancel = true;
         }
 
-        if (!TextUtils.isEmpty(admin_password) && !isPasswordValid(admin_password)) {
-            mAdminPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mAdminPasswordView;
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password_length));
+            focusView = mPasswordView;
             cancel = true;
         }
+//
+//        if (!TextUtils.isEmpty(admin_password) && !isPasswordValid(admin_password)) {
+//            mAdminPasswordView.setError(getString(R.string.error_invalid_password_length));
+//            focusView = mAdminPasswordView;
+//            cancel = true;
+//        }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
+        }
+        else if (!isEmailValid(email)) {
+            mEmailView.setError(getString(R.string.error_invalid_username_length));
             focusView = mEmailView;
 
         }
@@ -279,7 +309,12 @@ public class SetupActivity extends AppCompatActivity {
 
         if (mDropdownLocation.getSelectedItemPosition() <= 0) {
             cancel = true;
-            Toast.makeText(SetupActivity.this, getString(R.string.error_location_not_selected), Toast.LENGTH_LONG);
+            if(isEmailValid(email) || isPasswordValid(password))
+            {
+                DialogUtils dialogUtils = new DialogUtils();
+                dialogUtils.showOkDialog(SetupActivity.this,"Error",getString(R.string.error_location_not_selected), getString(R.string.generic_ok));
+            }
+
         } else {
             location = mLocations.get(mDropdownLocation.getSelectedItemPosition() - 1);
         }
@@ -287,6 +322,7 @@ public class SetupActivity extends AppCompatActivity {
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
+
             if (focusView != null)
                 focusView.requestFocus();
         } else {
@@ -295,7 +331,8 @@ public class SetupActivity extends AppCompatActivity {
             if (location != null) {
                 Log.i(TAG, location.getDisplay());
                 String urlString = mUrlField.getText().toString();
-                TestSetup(urlString, email, password, admin_password, location);
+               TestSetup(urlString, email, password, location); // TestSetup(urlString, email, password, admin_password, location);
+
                 Log.d(TAG, "attempting setup");
             }
         }
@@ -314,12 +351,18 @@ public class SetupActivity extends AppCompatActivity {
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return true;
+        boolean length_correct = false;
+        if(email.length()>=3 && email.length()<=12 )
+            length_correct = true;
+        return length_correct ;
     }
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        boolean length_correct = false;
+        if(password.length()>=8 && password.length()<=16 )
+            length_correct = true;
+        return length_correct ;
     }
 
     /**
@@ -342,6 +385,9 @@ public class SetupActivity extends AppCompatActivity {
                                 Results<Location> locationList = locationResults;
                                 mLocations = locationList.getResults();
                                 List<String> items = getLocationStringList(locationList.getResults());
+//                                listFetched = true;
+//                                String value = String.valueOf(listFetched);
+//                                Toast.makeText(SetupActivity.this,value,Toast.LENGTH_SHORT).show();
                                 LocationArrayAdapter adapter = new LocationArrayAdapter(SetupActivity.this, items);
                                 mDropdownLocation.setAdapter(adapter);
                                 isLocationFetched = true;
@@ -349,6 +395,7 @@ public class SetupActivity extends AppCompatActivity {
                                 isLocationFetched = false;
                                 Toast.makeText(SetupActivity.this, getString(R.string.error_location_not_fetched), Toast.LENGTH_SHORT).show();
                             }
+
                         }
 
                         @Override
@@ -367,7 +414,6 @@ public class SetupActivity extends AppCompatActivity {
             FirebaseCrashlytics.getInstance().recordException(e);
             mUrlField.setError(getString(R.string.url_invalid));
         }
-
     }
 
 
@@ -466,7 +512,6 @@ public class SetupActivity extends AppCompatActivity {
 //                                        DownloadProtocolsTask downloadProtocolsTask = new DownloadProtocolsTask(SetupActivity.this);
 //                                        downloadProtocolsTask.execute(key);
                                                         getMindmapDownloadURL("https://" + licenseUrl + ":3004/");
-
                                                     }
                                                 } else {
                                                     Toast.makeText(SetupActivity.this, getString(R.string.url_invalid), Toast.LENGTH_SHORT).show();
@@ -474,10 +519,10 @@ public class SetupActivity extends AppCompatActivity {
                                                 }
                                             } else {
                                                 //invalid url || invalid url and key.
-                                                Toast.makeText(SetupActivity.this, "Enter valid License Url", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(SetupActivity.this, R.string.enter_valid_license_url, Toast.LENGTH_SHORT).show();
                                             }
                                         } else {
-                                            Toast.makeText(SetupActivity.this, "Please enter URL and Key", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
                                         }
 
                                     }
@@ -528,7 +573,7 @@ public class SetupActivity extends AppCompatActivity {
      * If successful cretes a new {@link Account}
      * If unsuccessful details are saved in SharedPreferences.
      */
-    public void TestSetup(String CLEAN_URL, String USERNAME, String PASSWORD, String ADMIN_PASSWORD, Location location) {
+    public void TestSetup(String CLEAN_URL, String USERNAME, String PASSWORD, Location location) { //String ADMIN_PASSWORD
 
         ProgressDialog progress;
 
@@ -587,7 +632,7 @@ public class SetupActivity extends AppCompatActivity {
                                             sessionManager.setSetupComplete(true);
 
                                             // OfflineLogin.getOfflineLogin().setUpOfflineLogin(USERNAME, PASSWORD);
-                                            AdminPassword.getAdminPassword().setUp(ADMIN_PASSWORD);
+                                           //AdminPassword.getAdminPassword().setUp(ADMIN_PASSWORD);
 
                                             Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
                                                     .applicationId(AppConstants.IMAGE_APP_ID)
@@ -666,7 +711,6 @@ public class SetupActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onComplete() {
-
                                 }
                             });
                 }
@@ -675,11 +719,24 @@ public class SetupActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 Logger.logD(TAG, "Login Failure" + e.getMessage());
+                String password = mPasswordView.getText().toString();
+                String email = mEmailView.getText().toString();
                 progress.dismiss();
-                DialogUtils dialogUtils = new DialogUtils();
-                dialogUtils.showerrorDialog(SetupActivity.this, "Error Login", getString(R.string.error_incorrect_password), "ok");
-                mEmailView.requestFocus();
-                mPasswordView.requestFocus();
+                if(isPasswordValid(password) || isEmailValid(email))
+                {
+                    DialogUtils dialogUtils = new DialogUtils();
+                    dialogUtils.showerrorDialog(SetupActivity.this, "Error Login", getString(R.string.error_incorrect_password), "ok");
+                    mEmailView.requestFocus();
+                    mPasswordView.requestFocus();
+                }
+                else if (!isPasswordValid(password))
+                {
+                    mPasswordView.setError(getString(R.string.error_invalid_password_length));
+                }
+                else if (!isEmailValid(email))
+                {
+                    mEmailView.setError(getString(R.string.error_invalid_username_length));
+                }
             }
 
             @Override

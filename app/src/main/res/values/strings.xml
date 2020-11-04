@@ -52,7 +52,7 @@
     <string name="error_incorrect_password" translatable="false">please check username and password entered</string>
     <string name="error_field_required" translatable="false">This field is required</string>
     <string name="error_network" translatable="false">Network Error</string>
-    <string name="error_location_not_selected" translatable="false">Please select a value form the location dropdown</string>
+    <string name="error_location_not_selected" translatable="false">Please select a value from the location dropdown</string>
     <string name="error_location_not_fetched" translatable="false">Unable to fetch locations</string>
     <string name="permission_rationale" translatable="false">Contacts permissions are needed for providing email completions.
     </string>
@@ -617,5 +617,9 @@
     <string name="days">days</string>
     <string name="contact">Contact</string>
     <string name="has_a_new_prescription">has a new prescription</string>
+    <string name="error_invalid_password_length">This password is invalid \nMin. length allowed is 8 \nMax. length allowed is 16</string>
+    <string name="error_invalid_username_length">This username is invalid \nMin. length allowed is 3 \nMax. length allowed is 12</string>
+
+
 
 </resources>

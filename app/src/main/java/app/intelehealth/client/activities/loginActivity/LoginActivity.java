@@ -211,12 +211,17 @@ public class LoginActivity extends AppCompatActivity {
             mPasswordView.requestFocus();
             return;
         }
-
-        if (password.length() < 4) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
+        if (!isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password_length));
             mPasswordView.requestFocus();
             return;
         }
+
+//        if (password.length() < 4) {
+//            mPasswordView.setError(getString(R.string.error_invalid_password));
+//            mPasswordView.requestFocus();
+//            return;
+//        }
 
         if (NetworkConnection.isOnline(this)) {
             // Show a progress spinner, and kick off a background task to
@@ -236,7 +241,11 @@ public class LoginActivity extends AppCompatActivity {
      */
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        boolean length_correct = false;
+        if(password.length()>=8 && password.length()<=16 )
+            length_correct = true;
+        return length_correct ;
+//        return password.length() > 4;
     }
 
     public void cant_log() {
