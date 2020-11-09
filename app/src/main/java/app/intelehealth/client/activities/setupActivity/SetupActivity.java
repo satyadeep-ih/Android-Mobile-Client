@@ -654,8 +654,8 @@ public class SetupActivity extends AppCompatActivity {
                                         else if(url.getText().toString().trim().isEmpty() || text.getText().toString().trim().isEmpty()) {
                                             url.setError(getString(R.string.enter_server_url));
                                             text.setError(getString(R.string.enter_license_key));
-                                            Toast.makeText(SetupActivity.this,url.getText().toString() + text.getText().toString(), Toast.LENGTH_SHORT).show();
- //                                          Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
+                                           // Toast.makeText(SetupActivity.this,url.getText().toString() + text.getText().toString(), Toast.LENGTH_SHORT).show();
+                                           Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 })
