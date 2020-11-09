@@ -273,13 +273,15 @@ public class SetupActivity extends AppCompatActivity {
 
 
 //
-        if(mDropdownLocation.getSelectedItemPosition()<=0 && !isLocationFetched && !TextUtils.isEmpty(url))
+        if(mDropdownLocation.getSelectedItemPosition()<=0 && !isLocationFetched && !TextUtils.isEmpty(url) && !url.endsWith(".org"))
         {
             mUrlField.requestFocus();
             //url_textInputLayout.setError(getString(R.string.error_field_required));
             mUrlField.setError("Enter Valid Url");
             cancel = true;
+            return;
         }
+
         if(mDropdownLocation.getSelectedItemPosition()<=0 && isLocationFetched)
         {
             //location_textInputLayout.setError(getString(R.string.error_field_required));
