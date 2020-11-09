@@ -19,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -40,9 +42,12 @@ import android.widget.Toast;
 
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 import com.parse.Parse;
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -111,6 +116,7 @@ public class SetupActivity extends AppCompatActivity {
     private Button mLoginButton;
     private Spinner mDropdownLocation;
     private TextView mAndroidIdTextView;
+    //TextInputLayout url_textInputLayout, location_textInputLayout, email_textInputLayout, password_textInputLayout;
     private RadioButton r1;
     private RadioButton r2;
     final Handler mHandler = new Handler();
@@ -118,7 +124,10 @@ public class SetupActivity extends AppCompatActivity {
     Context context;
     private String mindmapURL = "";
     private DownloadMindMaps mTask;
+    View focusView = null;
     CustomProgressDialog customProgressDialog;
+   // TextView errorText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,11 +143,9 @@ public class SetupActivity extends AppCompatActivity {
         toolbar.setTitleTextColor(Color.WHITE);
         context = SetupActivity.this;
         customProgressDialog = new CustomProgressDialog(context);
-
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
         // populateAutoComplete(); TODO: create our own autocomplete code
-
         mLoginButton = findViewById(R.id.setup_submit_button);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,7 +161,6 @@ public class SetupActivity extends AppCompatActivity {
         mPasswordView = findViewById(R.id.password);
       // mAdminPasswordView = findViewById(R.id.admin_password);
         Button submitButton = findViewById(R.id.setup_submit_button);
-
         mUrlField = findViewById(R.id.editText_URL);
         mDropdownLocation = findViewById(R.id.spinner_location);
 //        mAdminPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -167,8 +173,12 @@ public class SetupActivity extends AppCompatActivity {
 //                return false;
 //            }
 //        });
-
+//        url_textInputLayout = findViewById(R.id.url_textInputLayout);
+//        location_textInputLayout = findViewById(R.id.location_textInputLayout);
+//        email_textInputLayout = findViewById(R.id.email_textInputLayout);
+//        password_textInputLayout = findViewById(R.id.password_textInputLayout);
         mAndroidIdTextView = findViewById(R.id.textView_Aid);
+        //errorText = (TextView)mDropdownLocation.getSelectedView();
         String deviceID = "Device Id: " + IntelehealthApplication.getAndroidId();
         mAndroidIdTextView.setText(deviceID);
 
@@ -179,51 +189,10 @@ public class SetupActivity extends AppCompatActivity {
                 closeKeyboard();
                 //progressBar.setVisibility(View.VISIBLE);
                 //progressBar.setProgress(0);
-
             }
         });
         DialogUtils dialogUtils = new DialogUtils();
         dialogUtils.showOkDialog(this, getString(R.string.generic_warning), getString(R.string.setup_internet), getString(R.string.generic_ok));
-
-        mEmailView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                //do nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.length()<3 && charSequence.length()>0)
-                    mEmailView.setError("Min. length allowed is 3");
-                else if(charSequence.length()==12)
-                    mEmailView.setError("Max. length allowed is 12");
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //do nothing
-            }
-        });
-        mPasswordView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                //do nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.length()<8 && charSequence.length()>0 )
-                    mPasswordView.setError("Min. length allowed is 8");
-                else if(charSequence.length()==16)
-                    mPasswordView.setError("Max. length allowed is 16");
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //do nothing
-            }
-        });
-
         mUrlField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -234,7 +203,6 @@ public class SetupActivity extends AppCompatActivity {
                 LocationArrayAdapter adapter = new LocationArrayAdapter(SetupActivity.this, new ArrayList<String>());
                 mDropdownLocation.setAdapter(adapter);
             }
-
             @Override
             public void afterTextChanged(Editable s) {
                 mHandler.removeCallbacksAndMessages(null);
@@ -242,7 +210,6 @@ public class SetupActivity extends AppCompatActivity {
             }
 
             Runnable userStoppedTyping = new Runnable() {
-
                 @Override
                 public void run() {
                     ProgressDialog progress;
@@ -250,7 +217,6 @@ public class SetupActivity extends AppCompatActivity {
                     progress = new ProgressDialog(SetupActivity.this, R.style.AlertDialogStyle);
                     // user didn't typed for 1.5 seconds, do whatever you want
                     if (!mUrlField.getText().toString().trim().isEmpty() && mUrlField.getText().toString().length() >= 12) {
-
                         if (Patterns.WEB_URL.matcher(mUrlField.getText().toString()).matches()) {
                             String BASE_URL = "https://" + mUrlField.getText().toString() + "/openmrs/ws/rest/v1/";
                             if (URLUtil.isValidUrl(BASE_URL) && !isLocationFetched) {
@@ -270,7 +236,6 @@ public class SetupActivity extends AppCompatActivity {
             };
         });
         showProgressbar();
-
     }
     //This function closes or opens up the soft keyboard on view click: By Nishita
     private void closeKeyboard()
@@ -288,13 +253,13 @@ public class SetupActivity extends AppCompatActivity {
      * Get user selected location.
      */
     private void attemptLogin() {
-
-//        if (mAuthTask != null) {
-//            return;
-//        }
-
-
         // Reset errors.
+//        errorText.setError(null);
+//       url_textInputLayout.setError(null);
+//       location_textInputLayout.setError(null);
+//       email_textInputLayout.setError(null);
+//       password_textInputLayout.setError(null);
+        mUrlField.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
         //mAdminPasswordView.setError(null);
@@ -303,28 +268,126 @@ public class SetupActivity extends AppCompatActivity {
         String password = mPasswordView.getText().toString();
         //String admin_password = mAdminPasswordView.getText().toString();
         String url = mUrlField.getText().toString();
-
-
         boolean cancel = false;
-        View focusView = null;
+        Location location = null;
 
-        if(TextUtils.isEmpty(url))
+
+//
+        if(mDropdownLocation.getSelectedItemPosition()<=0 && !isLocationFetched && !TextUtils.isEmpty(url))
         {
-            mUrlField.setError(getString(R.string.error_field_required));
-            focusView = mUrlField;
+            mUrlField.requestFocus();
+            //url_textInputLayout.setError(getString(R.string.error_field_required));
+            mUrlField.setError("Enter Valid Url");
             cancel = true;
         }
-        // Check for a valid password, if the user entered one.
-        if (TextUtils.isEmpty(password)) {
+        if(mDropdownLocation.getSelectedItemPosition()<=0 && isLocationFetched)
+        {
+            //location_textInputLayout.setError(getString(R.string.error_field_required));
+            TextView errorText = (TextView)mDropdownLocation.getSelectedView();
+            errorText.setError("");
+            errorText.setTextColor(Color.RED);//just to highlight that this is an error
+            errorText.setText(R.string.error_field_required);//changes the selected item text to this
+            cancel = true;
+        }
+        else if (mDropdownLocation.getSelectedItemPosition()>0)
+            location = mLocations.get(mDropdownLocation.getSelectedItemPosition() - 1);
+
+        if(TextUtils.isEmpty(password))
+        {
+            //password_textInputLayout.setError(getString(R.string.error_field_required));
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             cancel = true;
         }
 
+        if(TextUtils.isEmpty(email))
+        {
+            //email_textInputLayout.setError(getString(R.string.error_field_required));
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        if(TextUtils.isEmpty(url))
+        {
+            //url_textInputLayout.setError(getString(R.string.error_field_required));
+            mUrlField.setError(getString(R.string.error_field_required));
+            focusView = mUrlField;
+            cancel = true;
+        }
+        if(mUrlField.getText().toString().equals("") && mEmailView.getText().toString().equals("") && mPasswordView.getText().toString().equals(""))
+        {
+            Toast.makeText(this,R.string.identification_screen_required_fields,Toast.LENGTH_SHORT).show();
+        }
+
+
+//        if(TextUtils.isEmpty(url) && TextUtils.isEmpty(email) && TextUtils.isEmpty(password))
+//        {
+//            mUrlField.setError(getString(R.string.error_field_required));
+//            mEmailView.setError(getString(R.string.error_field_required));
+//            mPasswordView.setError(getString(R.string.error_field_required));
+//            cancel = true;
+//            return;
+//        }
+//        if(TextUtils.isEmpty(url) && ((!TextUtils.isEmpty(email) || !TextUtils.isEmpty(password))))
+//        {
+//            mUrlField.requestFocus();
+//            mUrlField.setError(getString(R.string.error_field_required));
+//            cancel = true;
+//            return;
+//        }
+
+//        if (mDropdownLocation.getSelectedItemPosition() <= 0) {
+//            cancel = true;
+//            mDropdownLocation.requestFocus();
+//            if(!TextUtils.isEmpty(url) && isLocationFetched)
+//            {
+//                //setError for Location Spinner: Nishita
+//                TextView errorText = (TextView)mDropdownLocation.getSelectedView();
+//                errorText.setError("");
+//                errorText.setTextColor(Color.RED);//just to highlight that this is an error
+//                errorText.setText(R.string.error_field_required);//changes the selected item text to this
+//                return;
+//            }
+//            else if(!isLocationFetched)
+//                mUrlField.requestFocus();
+//                mUrlField.setError("Enter Valid Url");
+//                return;
+//        }
+//        else {
+//            location = mLocations.get(mDropdownLocation.getSelectedItemPosition() - 1);
+//        }
+
+//        if (TextUtils.isEmpty(email) && !TextUtils.isEmpty(url)) {
+//            mEmailView.requestFocus();
+//            mEmailView.setError(getString(R.string.error_field_required));
+//            focusView = mEmailView;
+//            cancel = true;
+//            return;
+//        }
+//
+//        // Check for a valid password, if the user entered one.
+//        if (TextUtils.isEmpty(password) && !TextUtils.isEmpty(email)) {
+//            mPasswordView.requestFocus();
+//            mPasswordView.setError(getString(R.string.error_field_required));
+//            focusView = mPasswordView;
+//            cancel = true;
+//        }
+        if (!TextUtils.isEmpty(email) && !isEmailValid(email)) {
+            mEmailView.requestFocus();
+            //email_textInputLayout.setError(getString(R.string.error_invalid_username_length));
+            mEmailView.setError(getString(R.string.error_invalid_username_length));
+            cancel = true;
+            return;
+        }
+
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+            mPasswordView.requestFocus();
+            //password_textInputLayout.setError(getString(R.string.error_invalid_password_length));
             mPasswordView.setError(getString(R.string.error_invalid_password_length));
             focusView = mPasswordView;
             cancel = true;
+            return;
         }
 //
 //        if (!TextUtils.isEmpty(admin_password) && !isPasswordValid(admin_password)) {
@@ -334,34 +397,9 @@ public class SetupActivity extends AppCompatActivity {
 //        }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        }
-        else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_username_length));
-            focusView = mEmailView;
-
-        }
-        Location location = null;
-
-        if (mDropdownLocation.getSelectedItemPosition() <= 0) {
-            cancel = true;
-            if(isEmailValid(email) || isPasswordValid(password))
-            {
-                DialogUtils dialogUtils = new DialogUtils();
-                dialogUtils.showOkDialog(SetupActivity.this,"Error",getString(R.string.error_location_not_selected), getString(R.string.generic_ok));
-            }
-
-        } else {
-            location = mLocations.get(mDropdownLocation.getSelectedItemPosition() - 1);
-        }
-
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
-
             if (focusView != null)
                 focusView.requestFocus();
         } else {
@@ -432,13 +470,13 @@ public class SetupActivity extends AppCompatActivity {
                                 isLocationFetched = false;
                                 Toast.makeText(SetupActivity.this, getString(R.string.error_location_not_fetched), Toast.LENGTH_SHORT).show();
                             }
-
                         }
 
                         @Override
                         public void onError(Throwable e) {
                             isLocationFetched = false;
                             Toast.makeText(SetupActivity.this, getString(R.string.error_location_not_fetched), Toast.LENGTH_SHORT).show();
+
 
                         }
 
@@ -479,7 +517,6 @@ public class SetupActivity extends AppCompatActivity {
                     r2.setChecked(false);
                 }
                 break;
-
             case R.id.downloadMindmap:
                 if (NetworkConnection.isOnline(this)) {
                     if (checked) {
@@ -488,52 +525,107 @@ public class SetupActivity extends AppCompatActivity {
                         // AlertDialog.Builder dialog = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
                         LayoutInflater li = LayoutInflater.from(this);
                         View promptsView = li.inflate(R.layout.dialog_mindmap_cred, null);
-
-
                         dialog.setTitle(getString(R.string.enter_license_key))
-                                .setView(promptsView)
-
+                                .setView(promptsView)     //
+//                        TextView OK = (TextView)promptsView.findViewById(R.id.dialogOk);
+//                        OK.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                EditText text = promptsView.findViewById(R.id.licensekey);
+//                                EditText url = promptsView.findViewById(R.id.licenseurl);
+//                                if (!url.getText().toString().trim().isEmpty()) {
+//                                    if (Patterns.WEB_URL.matcher(url.getText().toString().trim()).matches()) {
+//                                        String url_field = "https://" + url.getText().toString() + ":3004/";
+//                                        if (URLUtil.isValidUrl(url_field)) {
+//                                            key = text.getText().toString().trim();
+//                                            licenseUrl = url.getText().toString().trim();
+//                                            if (licenseUrl.isEmpty()) {
+//                                                url.setError(getResources().getString(R.string.enter_server_url));
+//                                                url.requestFocus();
+//                                                return;
+//                                            }
+//                                            if (licenseUrl.contains(":")) {
+//                                                url.setError(getResources().getString(R.string.invalid_url));
+//                                                url.requestFocus();
+//                                                return;
+//                                            }
+//                                            if (key.isEmpty()) {
+//                                                text.setError(getResources().getString(R.string.enter_license_key));
+//                                                text.requestFocus();
+//                                                return;
+//                                            }
+//                                            sessionManager.setMindMapServerUrl(licenseUrl);
+//                                            //Toast.makeText(SetupActivity.this, "" + key, Toast.LENGTH_SHORT).show();
+//                                            if (keyVerified(key)) {
+//                                                // create a shared pref to store the key
+//
+//                                                // SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("pref",MODE_PRIVATE);
+//
+//                                                //DOWNLOAD MIND MAP FILE LIST
+//                                                //upnew getJSONFile().execute(null, "AllFiles", "TRUE");
+//
+//                                                // UpdateProtocolsTask updateProtocolsTask = new UpdateProtocolsTask(SetupActivity.this);
+//                                                // updateProtocolsTask.execute(null, "AllFiles", "TRUE");
+////                                        DownloadProtocolsTask downloadProtocolsTask = new DownloadProtocolsTask(SetupActivity.this);
+////                                        downloadProtocolsTask.execute(key);
+//                                                getMindmapDownloadURL("https://" + licenseUrl + ":3004/");
+//                                            }
+//                                        } else
+//                                        { Toast.makeText(SetupActivity.this, getString(R.string.url_invalid), Toast.LENGTH_SHORT).show(); }
+//                                    } else
+//                                    {  //invalid url || invalid url and key.
+//                                        Toast.makeText(SetupActivity.this, R.string.enter_valid_license_url, Toast.LENGTH_SHORT).show();
+//                                    }
+//                                }
+//                                else if(url.getText().toString().trim().isEmpty() || text.getText().toString().trim().isEmpty()) {
+//                                    url.setError(getString(R.string.enter_server_url));
+//                                    text.setError(getString(R.string.enter_license_key));
+//                                    Toast.makeText(SetupActivity.this,url.getText().toString() + text.getText().toString(), Toast.LENGTH_SHORT).show();
+//                                    //                                          Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
+//                                }
+//                            }
+//                        });
+//                        dialog.show();
                                 .setPositiveButton(getString(R.string.button_ok), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         Dialog d = (Dialog) dialog;
-
                                         EditText text = d.findViewById(R.id.licensekey);
                                         EditText url = d.findViewById(R.id.licenseurl);
                                         if (text.getText().toString().isEmpty() && text.getText() == null || url.getText().toString().isEmpty() && url.getText() == null) {
                                             text.setFocusable(true);
                                             text.setError(getResources().getString(R.string.enter_license_key));
                                         }
-
                                         if (sessionManager.getLicenseKey() != null && sessionManager.getLicenseKey().equalsIgnoreCase("https://mindmaps.intelehealth.io:4040")) {
                                             text.setText(sessionManager.getLicenseKey());
                                             url.setText(sessionManager.getMindMapServerUrl());
                                         }
-
-
+//                                        EditText text = promptsView.findViewById(R.id.licensekey);
+//                                        EditText url = promptsView.findViewById(R.id.licenseurl);
                                         if (!url.getText().toString().trim().isEmpty()) {
                                             if (Patterns.WEB_URL.matcher(url.getText().toString().trim()).matches()) {
                                                 String url_field = "https://" + url.getText().toString() + ":3004/";
                                                 if (URLUtil.isValidUrl(url_field)) {
                                                     key = text.getText().toString().trim();
                                                     licenseUrl = url.getText().toString().trim();
-
-                                                    if (licenseUrl.isEmpty()) {
-                                                        url.setError(getResources().getString(R.string.enter_server_url));
-                                                        url.requestFocus();
-                                                        return;
+                                                    if (licenseUrl.isEmpty()) {                       //invalid or unnecessary code: Comment
+//                                                        url.setError(getResources().getString(R.string.enter_server_url));
+//                                                        url.requestFocus();
+                                                        Toast.makeText(SetupActivity.this,licenseUrl,Toast.LENGTH_SHORT).show();
+                                                       return;
                                                     }
                                                     if (licenseUrl.contains(":")) {
-                                                        url.setError(getResources().getString(R.string.invalid_url));
-                                                        url.requestFocus();
+//                                                        url.setError(getResources().getString(R.string.invalid_url));
+//                                                        url.requestFocus();
+                                                        Toast.makeText(SetupActivity.this,licenseUrl,Toast.LENGTH_SHORT).show();
                                                         return;
                                                     }
                                                     if (key.isEmpty()) {
-                                                        text.setError(getResources().getString(R.string.enter_license_key));
-                                                        text.requestFocus();
+//                                                        text.setError(getResources().getString(R.string.enter_license_key));
+//                                                        text.requestFocus();
+                                                        Toast.makeText(SetupActivity.this,key,Toast.LENGTH_SHORT).show();
                                                         return;
                                                     }
-
                                                     sessionManager.setMindMapServerUrl(licenseUrl);
                                                     //Toast.makeText(SetupActivity.this, "" + key, Toast.LENGTH_SHORT).show();
                                                     if (keyVerified(key)) {
@@ -550,49 +642,46 @@ public class SetupActivity extends AppCompatActivity {
 //                                        downloadProtocolsTask.execute(key);
                                                         getMindmapDownloadURL("https://" + licenseUrl + ":3004/");
                                                     }
-                                                } else {
-                                                    Toast.makeText(SetupActivity.this, getString(R.string.url_invalid), Toast.LENGTH_SHORT).show();
-
-                                                }
-                                            } else {
-                                                //invalid url || invalid url and key.
+                                                } else
+                                                    { Toast.makeText(SetupActivity.this, getString(R.string.url_invalid), Toast.LENGTH_SHORT).show(); }
+                                            } else
+                                                {  //invalid url || invalid url and key.
                                                 Toast.makeText(SetupActivity.this, R.string.enter_valid_license_url, Toast.LENGTH_SHORT).show();
                                             }
-                                        } else {
-                                            Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
                                         }
-
+                                        else if(url.getText().toString().trim().isEmpty() || text.getText().toString().trim().isEmpty()) {
+                                            url.setError(getString(R.string.enter_server_url));
+                                            text.setError(getString(R.string.enter_license_key));
+                                            Toast.makeText(SetupActivity.this,url.getText().toString() + text.getText().toString(), Toast.LENGTH_SHORT).show();
+ //                                          Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
+                                        }
                                     }
                                 })
-
                                 .setNegativeButton(getString(R.string.button_cancel), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();
                                         r2.setChecked(false);
                                         r1.setChecked(true);
-
                                     }
                                 });
+                       // dialog.show();
                         AlertDialog alertDialog = dialog.create();
                         alertDialog.setView(promptsView, 20, 0, 20, 0);
                         alertDialog.show();
-                        // Get the alert dialog buttons reference
+                         //Get the alert dialog buttons reference
                         Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
                         Button negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
                         // Change the alert dialog buttons text and background color
                         positiveButton.setTextColor(getResources().getColor(R.color.colorPrimary));
                         // positiveButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-
                         negativeButton.setTextColor(getResources().getColor(R.color.colorPrimary));
                         //negativeButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-
                         IntelehealthApplication.setAlertDialogCustomTheme(this, alertDialog);
 
-
                     }
-                } else {
+                }
+                else {
                     ((RadioButton) v).setChecked(false);
                     Toast.makeText(context, getString(R.string.mindmap_internect_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -756,24 +845,14 @@ public class SetupActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 Logger.logD(TAG, "Login Failure" + e.getMessage());
-                String password = mPasswordView.getText().toString();
-                String email = mEmailView.getText().toString();
+//                String password = mPasswordView.getText().toString();
+//                String email = mEmailView.getText().toString();
                 progress.dismiss();
-                if(isPasswordValid(password) || isEmailValid(email))
-                {
                     DialogUtils dialogUtils = new DialogUtils();
                     dialogUtils.showerrorDialog(SetupActivity.this, "Error Login", getString(R.string.error_incorrect_password), "ok");
                     mEmailView.requestFocus();
                     mPasswordView.requestFocus();
-                }
-                else if (!isPasswordValid(password))
-                {
-                    mPasswordView.setError(getString(R.string.error_invalid_password_length));
-                }
-                else if (!isEmailValid(email))
-                {
-                    mEmailView.setError(getString(R.string.error_invalid_username_length));
-                }
+                    return;
             }
 
             @Override

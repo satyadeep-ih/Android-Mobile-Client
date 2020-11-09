@@ -186,19 +186,15 @@ public class IdentificationActivity extends AppCompatActivity {
 
         mLastName = findViewById(R.id.identification_last_name);
         mLastName.setFilters(new InputFilter[]{new InputFilter.LengthFilter(25), inputFilter_Name}); //maxlength 25
-
         mDOB = findViewById(R.id.identification_birth_date_text_view);
         mPhoneNum = findViewById(R.id.identification_phone_number);
         mAge = findViewById(R.id.identification_age);
         mAddress1 = findViewById(R.id.identification_address1);
         mAddress1.setFilters(new InputFilter[]{new InputFilter.LengthFilter(50), inputFilter_Name}); //maxlength 50
-
         mAddress2 = findViewById(R.id.identification_address2);
         mAddress2.setFilters(new InputFilter[]{new InputFilter.LengthFilter(50), inputFilter_Name}); //maxlength 50
-
         mCity = findViewById(R.id.identification_city);
         mCity.setFilters(new InputFilter[]{new InputFilter.LengthFilter(25), inputFilter_Others}); //maxlength 25
-
         stateText = findViewById(R.id.identification_state);
         mState = findViewById(R.id.spinner_state);
         mPostal = findViewById(R.id.identification_postal_code);
@@ -208,17 +204,14 @@ public class IdentificationActivity extends AppCompatActivity {
         mGenderF = findViewById(R.id.identification_gender_female);
         mRelationship = findViewById(R.id.identification_relationship);
         mRelationship.setFilters(new InputFilter[]{new InputFilter.LengthFilter(25), inputFilter_Others}); //maxlength 25
-
         mOccupation = findViewById(R.id.identification_occupation);
         mOccupation.setFilters(new InputFilter[]{new InputFilter.LengthFilter(25), inputFilter_Others}); //maxlength 25
-
         mCaste = findViewById(R.id.spinner_caste);
         mEducation = findViewById(R.id.spinner_education);
         mEconomicStatus = findViewById(R.id.spinner_economic_status);
         casteText = findViewById(R.id.identification_caste);
         educationText = findViewById(R.id.identification_education);
         economicText = findViewById(R.id.identification_econiomic_status);
-
         casteLayout = findViewById(R.id.identification_txtlcaste);
         economicLayout = findViewById(R.id.identification_txtleconomic);
         educationLayout = findViewById(R.id.identification_txtleducation);
@@ -1024,7 +1017,6 @@ public class IdentificationActivity extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-
         if (dob.equals("") || dob.toString().equals("")) {
             if (dob.after(today)) {
                 MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(IdentificationActivity.this);
@@ -1124,7 +1116,6 @@ public class IdentificationActivity extends AppCompatActivity {
                 });
                 AlertDialog alertDialog = alertDialogBuilder.create();
                 alertDialog.show();
-
                 Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 positiveButton.setTextColor(getResources().getColor(R.color.colorPrimary));
                 //positiveButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
