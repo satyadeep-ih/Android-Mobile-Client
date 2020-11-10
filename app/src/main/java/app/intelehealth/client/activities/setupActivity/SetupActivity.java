@@ -53,6 +53,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -588,85 +589,85 @@ public class SetupActivity extends AppCompatActivity {
 //                            }
 //                        });
 //                        dialog.show();
-                                .setPositiveButton(getString(R.string.button_ok), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Dialog d = (Dialog) dialog;
-                                        EditText text = d.findViewById(R.id.licensekey);
-                                        EditText url = d.findViewById(R.id.licenseurl);
-                                        if (text.getText().toString().isEmpty() && text.getText() == null || url.getText().toString().isEmpty() && url.getText() == null) {
-                                            text.setFocusable(true);
-                                            text.setError(getResources().getString(R.string.enter_license_key));
-                                        }
-                                        if (sessionManager.getLicenseKey() != null && sessionManager.getLicenseKey().equalsIgnoreCase("https://mindmaps.intelehealth.io:4040")) {
-                                            text.setText(sessionManager.getLicenseKey());
-                                            url.setText(sessionManager.getMindMapServerUrl());
-                                        }
-//                                        EditText text = promptsView.findViewById(R.id.licensekey);
-//                                        EditText url = promptsView.findViewById(R.id.licenseurl);
-                                        if (!url.getText().toString().trim().isEmpty()) {
-                                            if (Patterns.WEB_URL.matcher(url.getText().toString().trim()).matches()) {
-                                                String url_field = "https://" + url.getText().toString() + ":3004/";
-                                                if (URLUtil.isValidUrl(url_field)) {
-                                                    key = text.getText().toString().trim();
-                                                    licenseUrl = url.getText().toString().trim();
-                                                    if (licenseUrl.isEmpty()) {                       //invalid or unnecessary code: Comment
-//                                                        url.setError(getResources().getString(R.string.enter_server_url));
-//                                                        url.requestFocus();
-                                                        Toast.makeText(SetupActivity.this,licenseUrl,Toast.LENGTH_SHORT).show();
-                                                       return;
-                                                    }
-                                                    if (licenseUrl.contains(":")) {
-//                                                        url.setError(getResources().getString(R.string.invalid_url));
-//                                                        url.requestFocus();
-                                                        Toast.makeText(SetupActivity.this,licenseUrl,Toast.LENGTH_SHORT).show();
-                                                        return;
-                                                    }
-                                                    if (key.isEmpty()) {
-//                                                        text.setError(getResources().getString(R.string.enter_license_key));
-//                                                        text.requestFocus();
-                                                        Toast.makeText(SetupActivity.this,key,Toast.LENGTH_SHORT).show();
-                                                        return;
-                                                    }
-                                                    sessionManager.setMindMapServerUrl(licenseUrl);
-                                                    //Toast.makeText(SetupActivity.this, "" + key, Toast.LENGTH_SHORT).show();
-                                                    if (keyVerified(key)) {
-                                                        // create a shared pref to store the key
-
-                                                        // SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("pref",MODE_PRIVATE);
-
-                                                        //DOWNLOAD MIND MAP FILE LIST
-                                                        //upnew getJSONFile().execute(null, "AllFiles", "TRUE");
-
-                                                        // UpdateProtocolsTask updateProtocolsTask = new UpdateProtocolsTask(SetupActivity.this);
-                                                        // updateProtocolsTask.execute(null, "AllFiles", "TRUE");
-//                                        DownloadProtocolsTask downloadProtocolsTask = new DownloadProtocolsTask(SetupActivity.this);
-//                                        downloadProtocolsTask.execute(key);
-                                                        getMindmapDownloadURL("https://" + licenseUrl + ":3004/");
-                                                    }
-                                                } else
-                                                    { Toast.makeText(SetupActivity.this, getString(R.string.url_invalid), Toast.LENGTH_SHORT).show(); }
-                                            } else
-                                                {  //invalid url || invalid url and key.
-                                                Toast.makeText(SetupActivity.this, R.string.enter_valid_license_url, Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                        else if(url.getText().toString().trim().isEmpty() || text.getText().toString().trim().isEmpty()) {
-                                            url.setError(getString(R.string.enter_server_url));
-                                            text.setError(getString(R.string.enter_license_key));
-                                           // Toast.makeText(SetupActivity.this,url.getText().toString() + text.getText().toString(), Toast.LENGTH_SHORT).show();
-                                           Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                })
-                                .setNegativeButton(getString(R.string.button_cancel), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                        r2.setChecked(false);
-                                        r1.setChecked(true);
-                                    }
-                                });
+                                .setPositiveButton(getString(R.string.button_ok), null) //new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        Dialog d = (Dialog) dialog;
+//                                        EditText text = d.findViewById(R.id.licensekey);
+//                                        EditText url = d.findViewById(R.id.licenseurl);
+//                                        if (text.getText().toString().isEmpty() && text.getText() == null || url.getText().toString().isEmpty() && url.getText() == null) {
+//                                            text.setFocusable(true);
+//                                            text.setError(getResources().getString(R.string.enter_license_key));
+//                                        }
+//                                        if (sessionManager.getLicenseKey() != null && sessionManager.getLicenseKey().equalsIgnoreCase("https://mindmaps.intelehealth.io:4040")) {
+//                                            text.setText(sessionManager.getLicenseKey());
+//                                            url.setText(sessionManager.getMindMapServerUrl());
+//                                        }
+////                                        EditText text = promptsView.findViewById(R.id.licensekey);
+////                                        EditText url = promptsView.findViewById(R.id.licenseurl);
+//                                        if (!url.getText().toString().trim().isEmpty()) {
+//                                            if (Patterns.WEB_URL.matcher(url.getText().toString().trim()).matches()) {
+//                                                String url_field = "https://" + url.getText().toString() + ":3004/";
+//                                                if (URLUtil.isValidUrl(url_field)) {
+//                                                    key = text.getText().toString().trim();
+//                                                    licenseUrl = url.getText().toString().trim();
+//                                                    if (licenseUrl.isEmpty()) {                       //invalid or unnecessary code: Comment
+////                                                        url.setError(getResources().getString(R.string.enter_server_url));
+////                                                        url.requestFocus();
+//                                                        Toast.makeText(SetupActivity.this,licenseUrl,Toast.LENGTH_SHORT).show();
+//                                                       return;
+//                                                    }
+//                                                    if (licenseUrl.contains(":")) {
+////                                                        url.setError(getResources().getString(R.string.invalid_url));
+////                                                        url.requestFocus();
+//                                                        Toast.makeText(SetupActivity.this,licenseUrl,Toast.LENGTH_SHORT).show();
+//                                                        return;
+//                                                    }
+//                                                    if (key.isEmpty()) {
+////                                                        text.setError(getResources().getString(R.string.enter_license_key));
+////                                                        text.requestFocus();
+//                                                        Toast.makeText(SetupActivity.this,key,Toast.LENGTH_SHORT).show();
+//                                                        return;
+//                                                    }
+//                                                    sessionManager.setMindMapServerUrl(licenseUrl);
+//                                                    //Toast.makeText(SetupActivity.this, "" + key, Toast.LENGTH_SHORT).show();
+//                                                    if (keyVerified(key)) {
+//                                                        // create a shared pref to store the key
+//
+//                                                        // SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("pref",MODE_PRIVATE);
+//
+//                                                        //DOWNLOAD MIND MAP FILE LIST
+//                                                        //upnew getJSONFile().execute(null, "AllFiles", "TRUE");
+//
+//                                                        // UpdateProtocolsTask updateProtocolsTask = new UpdateProtocolsTask(SetupActivity.this);
+//                                                        // updateProtocolsTask.execute(null, "AllFiles", "TRUE");
+////                                        DownloadProtocolsTask downloadProtocolsTask = new DownloadProtocolsTask(SetupActivity.this);
+////                                        downloadProtocolsTask.execute(key);
+//                                                        getMindmapDownloadURL("https://" + licenseUrl + ":3004/");
+//                                                    }
+//                                                } else
+//                                                    { Toast.makeText(SetupActivity.this, getString(R.string.url_invalid), Toast.LENGTH_SHORT).show(); }
+//                                            } else
+//                                                {  //invalid url || invalid url and key.
+//                                                Toast.makeText(SetupActivity.this, R.string.enter_valid_license_url, Toast.LENGTH_SHORT).show();
+//                                            }
+//                                        }
+//                                        else if(url.getText().toString().trim().isEmpty() || text.getText().toString().trim().isEmpty()) {
+//                                            url.setError(getString(R.string.enter_server_url));
+//                                            text.setError(getString(R.string.enter_license_key));
+//                                           // Toast.makeText(SetupActivity.this,url.getText().toString() + text.getText().toString(), Toast.LENGTH_SHORT).show();
+//                                           Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    }
+         //                       })
+                               .setNegativeButton(getString(R.string.button_cancel), null); //new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        dialog.dismiss();
+//                                        r2.setChecked(false);
+//                                        r1.setChecked(true);
+//                                    }
+//                                });
                        // dialog.show();
                         AlertDialog alertDialog = dialog.create();
                         alertDialog.setView(promptsView, 20, 0, 20, 0);
@@ -677,8 +678,132 @@ public class SetupActivity extends AppCompatActivity {
                         // Change the alert dialog buttons text and background color
                         positiveButton.setTextColor(getResources().getColor(R.color.colorPrimary));
                         // positiveButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                        positiveButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+//                                                                  Dialog d = (Dialog) dialog;
+//                                                                  EditText text = promptsView.findViewById(R.id.licensekey);
+//                                                                  EditText url = promptsView.findViewById(R.id.licenseurl);
+//                                                                  if (text.getText().toString().isEmpty() && text.getText() == null || url.getText().toString().isEmpty() && url.getText() == null) {
+//                                                                      text.setFocusable(true);
+//                                                                      text.setError(getResources().getString(R.string.enter_license_key));
+//                                                                  }
+//                                                                  if (sessionManager.getLicenseKey() != null && sessionManager.getLicenseKey().equalsIgnoreCase("https://mindmaps.intelehealth.io:4040")) {
+//                                                                      text.setText(sessionManager.getLicenseKey());
+//                                                                      url.setText(sessionManager.getMindMapServerUrl());
+//                                                                  }
+                                EditText text = promptsView.findViewById(R.id.licensekey);
+                                EditText url = promptsView.findViewById(R.id.licenseurl);
+                                url.setError(null);
+                                text.setError(null);
+                                if (!url.getText().toString().trim().isEmpty()) {
+                                   if (Patterns.WEB_URL.matcher(url.getText().toString().trim()).matches()) {
+                                  // if(url.getText().toString().trim().equals("afitraining.intelehealth.org")){
+//                                        if(isValid("https://" + url.getText().toString() + ":3004/")){
+                                        String url_field = "https://" + url.getText().toString() + ":3004/";
+                                        if (URLUtil.isValidUrl(url_field)) {
+                                            key = text.getText().toString().trim();
+                                            licenseUrl = url.getText().toString().trim();
+//                                                    if (licenseUrl.isEmpty()) {                       //invalid or unnecessary code: Comment
+//                                                      url.setError(getResources().getString(R.string.enter_server_url));
+//                                                      url.requestFocus();
+//                                                      //Toast.makeText(SetupActivity.this, licenseUrl, Toast.LENGTH_SHORT).show();
+//                                                        return;
+//                                                    }
+//                                                    if (licenseUrl.contains(":")) {
+//                                                      url.setError(getResources().getString(R.string.invalid_url));
+//                                                      url.requestFocus();
+//                                                        return;
+//                                                    }
+                                            if (key.isEmpty()) {
+                                                text.requestFocus();
+                                                text.setError(getResources().getString(R.string.enter_license_key));
+                                                //Toast.makeText(SetupActivity.this, key, Toast.LENGTH_SHORT).show();
+                                                return;
+                                            }
+                                            if (!key.isEmpty()) {
+                                                sessionManager.setMindMapServerUrl(licenseUrl);
+                                                if (keyVerified(key)) {
+                                                    // create a shared pref to store the key
+
+                                                    // SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("pref",MODE_PRIVATE);
+
+                                                    //DOWNLOAD MIND MAP FILE LIST
+                                                    //upnew getJSONFile().execute(null, "AllFiles", "TRUE");
+
+                                                    // UpdateProtocolsTask updateProtocolsTask = new UpdateProtocolsTask(SetupActivity.this);
+                                                    // updateProtocolsTask.execute(null, "AllFiles", "TRUE");
+                                                    //                                        DownloadProtocolsTask downloadProtocolsTask = new DownloadProtocolsTask(SetupActivity.this);
+                                                    //                                        downloadProtocolsTask.execute(key);
+                                                    getMindmapDownloadURL("https://" + licenseUrl + ":3004/");
+                                                }
+                                                else
+                                                {
+                                                    text.requestFocus();
+                                                    Toast.makeText(SetupActivity.this, "Enter Valid License key", Toast.LENGTH_SHORT).show();
+                                                    return;
+                                                }
+                                            }
+
+                                        } else {
+                                            if (text.getText().toString().isEmpty()) {
+                                                text.requestFocus();
+                                                text.setError(getResources().getString(R.string.enter_license_key));
+
+                                            }
+                                            else
+                                            {
+                                                url.requestFocus();
+                                                Toast.makeText(SetupActivity.this, getString(R.string.enter_valid_license_url) , Toast.LENGTH_SHORT).show();
+                                            }
+                                            return;
+                                        }
+                                    } else {  //invalid url || invalid url and key.
+                                        if (text.getText().toString().isEmpty()) {
+                                            text.requestFocus();
+                                            text.setError(getResources().getString(R.string.enter_license_key));
+                                            //Toast.makeText(SetupActivity.this, key, Toast.LENGTH_SHORT).show();
+                                        }
+                                        else
+                                        {
+                                            url.requestFocus();
+                                            Toast.makeText(SetupActivity.this, getString(R.string.enter_valid_license_url) , Toast.LENGTH_SHORT).show();
+                                        }
+                                        return;
+
+                                    }
+                                } else {
+                                    if (url.getText().toString().trim().isEmpty() && text.getText().toString().trim().isEmpty()) {
+                                        url.requestFocus();
+                                        url.setError(getString(R.string.enter_server_url));
+                                        text.setError(getString(R.string.enter_license_key));
+                                        Toast.makeText(SetupActivity.this, R.string.please_enter_url_and_key, Toast.LENGTH_SHORT).show();
+                                        return;
+                                    } else if (url.getText().toString().trim().isEmpty()) {
+                                        url.requestFocus();
+                                        url.setError(getString(R.string.enter_server_url));
+                                        return;
+                                    } else if (text.getText().toString().trim().isEmpty()) {
+                                        text.requestFocus();
+                                        text.setError(getString(R.string.enter_server_url));
+                                        return;
+                                    }
+                                }
+                                alertDialog.dismiss();
+                            }
+                        });
+
                         negativeButton.setTextColor(getResources().getColor(R.color.colorPrimary));
                         //negativeButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                        negativeButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                alertDialog.dismiss();
+                                r2.setChecked(false);
+                                r1.setChecked(true);
+//                                Toast.makeText(SetupActivity.this,"Cancel Clicked",Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         IntelehealthApplication.setAlertDialogCustomTheme(this, alertDialog);
 
                     }
@@ -691,9 +816,27 @@ public class SetupActivity extends AppCompatActivity {
         }
     }
 
+    public static boolean isValid(String url)
+    {
+        /* Try creating a valid URL */
+        try {
+            new URL(url).toURI();
+            return true;
+        }
+
+        // If there was an Exception
+        // while creating URL object
+        catch (Exception e) {
+            return false;
+        }
+    }
+
     private boolean keyVerified(String key) {
         //TODO: Verify License Key
+        if(key.equals("afimm2020"))
         return true;
+        else
+            return false;
     }
 
     /**
