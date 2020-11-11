@@ -261,10 +261,12 @@
     <string name="visit_summary_patient_details" translatable="false">Visit details</string>
 
     <!--Setup Activity-->
-    <string name="setup_internet" translatable="false">A strong Internet connection is required for setup.</string>
+    <string name="setup_internet_available" translatable="false">A strong Internet connection is required for setup.</string>
+    <string name="setup_internet_not_available" translatable="false">You are not connected to the Internet.</string>
     <string name="generic_manual_entry" translatable="false">Manual Entry</string>
     <string name="generic_erase_redo" translatable="false">Erase and Re-Do</string>
     <string name="visit_summary_edit_vitals" translatable="false">You can re-do the vitals from the vitals screen</string>
+    <string name="generic_info" translatable="false">Info!</string>
 
     //Camera Permissions
     <string name="permission_camera_rationale" translatable="false">Camera permission is needed to show the camera preview.</string>

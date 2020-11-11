@@ -121,11 +121,9 @@ public class TodayPatientActivity extends AppCompatActivity {
         }
 
         if (listPatientUUID.size() > 0) {
-
             hsPatientUUID.addAll(listPatientUUID);
             listPatientUUID.clear();
             listPatientUUID.addAll(hsPatientUUID);
-
         }
     }
 

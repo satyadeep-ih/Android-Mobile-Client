@@ -1,15 +1,17 @@
 package app.intelehealth.client.activities.setupActivity;
 
 import android.accounts.Account;
-import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -17,24 +19,21 @@ import android.os.StrictMode;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 
 import android.text.Editable;
-import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,12 +41,10 @@ import android.widget.Toast;
 
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 import com.parse.Parse;
-
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -58,6 +55,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.intelehealth.client.Network.NetworkChangeListener;
 import app.intelehealth.client.R;
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.app.IntelehealthApplication;
@@ -68,7 +66,6 @@ import app.intelehealth.client.models.loginModel.LoginModel;
 import app.intelehealth.client.models.loginProviderModel.LoginProviderModel;
 import app.intelehealth.client.networkApiCalls.ApiClient;
 import app.intelehealth.client.networkApiCalls.ApiInterface;
-import app.intelehealth.client.utilities.AdminPassword;
 import app.intelehealth.client.utilities.Base64Utils;
 import app.intelehealth.client.utilities.DialogUtils;
 import app.intelehealth.client.utilities.DownloadMindMaps;
@@ -77,7 +74,6 @@ import app.intelehealth.client.utilities.NetworkConnection;
 import app.intelehealth.client.utilities.SessionManager;
 import app.intelehealth.client.utilities.StringEncryption;
 import app.intelehealth.client.utilities.UrlModifiers;
-import app.intelehealth.client.widget.materialprogressbar.CircleProgressBar;
 import app.intelehealth.client.widget.materialprogressbar.CustomProgressDialog;
 
 import app.intelehealth.client.activities.homeActivity.HomeActivity;
@@ -127,8 +123,8 @@ public class SetupActivity extends AppCompatActivity {
     private DownloadMindMaps mTask;
     View focusView = null;
     CustomProgressDialog customProgressDialog;
-   // TextView errorText;
-
+    private BroadcastReceiver MyReceiver = null;
+    CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +134,7 @@ public class SetupActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
         // Persistent login information
 //        manager = AccountManager.get(SetupActivity.this);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextAppearance(this, R.style.ToolbarTheme);
@@ -150,8 +147,7 @@ public class SetupActivity extends AppCompatActivity {
         mLoginButton = findViewById(R.id.setup_submit_button);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 attemptLogin();
                 closeKeyboard();
             }
@@ -160,7 +156,7 @@ public class SetupActivity extends AppCompatActivity {
         r1 = findViewById(R.id.demoMindmap);
         r2 = findViewById(R.id.downloadMindmap);
         mPasswordView = findViewById(R.id.password);
-      // mAdminPasswordView = findViewById(R.id.admin_password);
+        // mAdminPasswordView = findViewById(R.id.admin_password);
         Button submitButton = findViewById(R.id.setup_submit_button);
         mUrlField = findViewById(R.id.editText_URL);
         mDropdownLocation = findViewById(R.id.spinner_location);
@@ -182,18 +178,25 @@ public class SetupActivity extends AppCompatActivity {
         //errorText = (TextView)mDropdownLocation.getSelectedView();
         String deviceID = "Device Id: " + IntelehealthApplication.getAndroidId();
         mAndroidIdTextView.setText(deviceID);
+        isOnline();
+
+        MyReceiver = new NetworkChangeListener () {
+            @Override
+            protected void onNetworkChange(String status) {
+                Snackbar.make(coordinatorLayout, status, Snackbar.LENGTH_SHORT)
+                        .setTextColor(getResources().getColor(R.color.white)).show();
+            }
+        };
+
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
                 closeKeyboard();
-                //progressBar.setVisibility(View.VISIBLE);
-                //progressBar.setProgress(0);
             }
         });
-        DialogUtils dialogUtils = new DialogUtils();
-        dialogUtils.showOkDialog(this, getString(R.string.generic_warning), getString(R.string.setup_internet), getString(R.string.generic_ok));
+
         mUrlField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -247,6 +250,38 @@ public class SetupActivity extends AppCompatActivity {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(),0);
         }
+    }
+
+    public boolean isOnline () {
+        ConnectivityManager conMgr = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
+        if(netInfo == null || !netInfo.isConnected() || !netInfo.isAvailable()){
+            DialogUtils dialogUtils = new DialogUtils();
+            dialogUtils.showOkDialog(this, getString(R.string.generic_info), getString(R.string.setup_internet_not_available), getString(R.string.generic_ok));            return false;
+        }
+        else
+        {
+            DialogUtils dialogUtils = new DialogUtils();
+            dialogUtils.showOkDialog(this, getString(R.string.generic_warning), getString(R.string.setup_internet_available), getString(R.string.generic_ok));
+            return true;
+        }
+//        return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        broadcastIntent();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(MyReceiver);
+    }
+
+    public void broadcastIntent() {
+        registerReceiver(MyReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     /**
