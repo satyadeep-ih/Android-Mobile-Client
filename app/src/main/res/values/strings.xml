@@ -360,7 +360,7 @@
 
     <!-- Vitals Screen Error-->
 
-    <string name="weight_error" translatable="false">Weight should be less than %1$s kg</string>
+    <string name="weight_error" translatable="false">Weight should not be more than %1$s kg</string>
     <string name="height_error" translatable="false">Height should be between 0 and %1$s cm</string>
     <string name="spo2_error" translatable="false">SpO2 should be in between %1$s and %2$s</string>
     <string name="pulse_error" translatable="false">Pulse should be in between %1$s and %2$s</string>
@@ -377,7 +377,6 @@
     <string name="exit_survey_skip" translatable="false">SKIP</string>
     <string name="exit_survey_submit" translatable="false">Submit</string>
     <string name="exit_survey_toast">Please select a smiley before submitting</string>
-
 
     <!--DB Backup-->
 
