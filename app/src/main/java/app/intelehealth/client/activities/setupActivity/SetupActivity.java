@@ -20,7 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat;
+
 
 import android.text.Editable;
 import android.text.TextUtils;
@@ -55,7 +55,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.intelehealth.client.Network.NetworkChangeListener;
 import app.intelehealth.client.R;
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.app.IntelehealthApplication;
@@ -70,6 +69,7 @@ import app.intelehealth.client.utilities.Base64Utils;
 import app.intelehealth.client.utilities.DialogUtils;
 import app.intelehealth.client.utilities.DownloadMindMaps;
 import app.intelehealth.client.utilities.Logger;
+import app.intelehealth.client.utilities.NetworkChangeListener;
 import app.intelehealth.client.utilities.NetworkConnection;
 import app.intelehealth.client.utilities.SessionManager;
 import app.intelehealth.client.utilities.StringEncryption;
@@ -180,7 +180,7 @@ public class SetupActivity extends AppCompatActivity {
         mAndroidIdTextView.setText(deviceID);
         isOnline();
 
-        MyReceiver = new NetworkChangeListener () {
+        MyReceiver = new NetworkChangeListener() {
             @Override
             protected void onNetworkChange(String status) {
                 Snackbar.make(coordinatorLayout, status, Snackbar.LENGTH_SHORT)
