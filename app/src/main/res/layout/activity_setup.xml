@@ -20,9 +20,10 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
+
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!--<include layout="@layout/content_setup" />-->
+    <!--<include layout="@layout/content_setup" />-->
         <LinearLayout
             android:id="@+id/content_setup"
             android:layout_width="match_parent"
@@ -42,6 +43,7 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
+
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardview1"
                         android:layout_width="match_parent"
@@ -58,6 +60,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:padding="10dp">
+
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"

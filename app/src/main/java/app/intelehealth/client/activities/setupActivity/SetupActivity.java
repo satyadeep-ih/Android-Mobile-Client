@@ -34,6 +34,7 @@ import android.webkit.URLUtil;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -89,11 +90,11 @@ public class SetupActivity extends AppCompatActivity {
 
     private static final String TAG = SetupActivity.class.getSimpleName();
     private boolean isLocationFetched;
-    private boolean listFetched;
+//    private boolean listFetched;
     String BASE_URL = "";
     private static final int PERMISSION_ALL = 1;
     private long createdRecordsCount = 0;
-    ProgressDialog mProgressDialog;
+    ProgressDialog mProgressDialog, customProgressDialog;
     //    protected AccountManager manager;
     UrlModifiers urlModifiers = new UrlModifiers();
     Base64Utils base64Utils = new Base64Utils();
@@ -113,7 +114,6 @@ public class SetupActivity extends AppCompatActivity {
     private Button mLoginButton;
     private Spinner mDropdownLocation;
     private TextView mAndroidIdTextView;
-    //TextInputLayout url_textInputLayout, location_textInputLayout, email_textInputLayout, password_textInputLayout;
     private RadioButton r1;
     private RadioButton r2;
     final Handler mHandler = new Handler();
@@ -122,9 +122,9 @@ public class SetupActivity extends AppCompatActivity {
     private String mindmapURL = "";
     private DownloadMindMaps mTask;
     View focusView = null;
-    CustomProgressDialog customProgressDialog;
     private BroadcastReceiver MyReceiver = null;
     CoordinatorLayout coordinatorLayout;
+//    CustomProgressDialog customProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +140,6 @@ public class SetupActivity extends AppCompatActivity {
         toolbar.setTitleTextAppearance(this, R.style.ToolbarTheme);
         toolbar.setTitleTextColor(Color.WHITE);
         context = SetupActivity.this;
-        customProgressDialog = new CustomProgressDialog(context);
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
         // populateAutoComplete(); TODO: create our own autocomplete code
@@ -216,22 +215,38 @@ public class SetupActivity extends AppCompatActivity {
             Runnable userStoppedTyping = new Runnable() {
                 @Override
                 public void run() {
-                    ProgressDialog progress;
+//                    progress = new ProgressDialog(context);
                     String value = "";
-                    progress = new ProgressDialog(SetupActivity.this, R.style.AlertDialogStyle);
+//                    progress = new ProgressDialog(SetupActivity.this, R.style.AlertDialogStyle);
+//                    progress.setTitle(getString(R.string.please_wait_progress));
+//                    progress.setMessage("Fetching Locations...");
+//                    progress.setCancelable(false);
                     // user didn't typed for 1.5 seconds, do whatever you want
                     if (!mUrlField.getText().toString().trim().isEmpty() && mUrlField.getText().toString().length() >= 12) {
                         if (Patterns.WEB_URL.matcher(mUrlField.getText().toString()).matches()) {
                             String BASE_URL = "https://" + mUrlField.getText().toString() + "/openmrs/ws/rest/v1/";
-                            if (URLUtil.isValidUrl(BASE_URL) && !isLocationFetched) {
-                                progress.setTitle(getString(R.string.please_wait_progress));
-                                progress.setMessage("Fetching Locations...");
-                                progress.show();
+                            //if (!isLocationFetched && !TextUtils.isEmpty(mUrlField.getText().toString().trim()) && mUrlField.getText().toString().trim().endsWith(".org")) { //
+                            if(URLUtil.isValidUrl(BASE_URL) && !isLocationFetched)
+                            {
                                 getLocationFromServer(BASE_URL);
+//                                Runnable progressRunnable = new Runnable() {
+//
+//                                    @Override
+//                                    public void run() {
+//                                        progress.cancel();
+//                                    }
+//                                };
+//
+//                                Handler pdCanceller = new Handler();
+//                                pdCanceller.postDelayed(progressRunnable, 2000)
                             }
-                            if(!isLocationFetched) {
-                                progress.dismiss();
-                            }
+//                            if(URLUtil.isValidUrl(BASE_URL))
+//                                listFetched = getLocationFromServer(BASE_URL);
+//
+//                            if(listFetched) {
+////
+//                            }
+
                             else
                                 Toast.makeText(SetupActivity.this, getString(R.string.url_invalid), Toast.LENGTH_SHORT).show();
                         }
@@ -483,7 +498,12 @@ public class SetupActivity extends AppCompatActivity {
      *
      * @param url string of url.
      */
-    private void getLocationFromServer(String url) {
+    private boolean getLocationFromServer(String url) {
+        customProgressDialog = new ProgressDialog(SetupActivity.this);
+        customProgressDialog.setMessage("Fetching Locations..");
+        customProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        customProgressDialog.setCancelable(false);
+        customProgressDialog.show();
         ApiClient.changeApiBaseUrl(url);
         ApiInterface apiService = ApiClient.createService(ApiInterface.class);
         try {
@@ -498,14 +518,13 @@ public class SetupActivity extends AppCompatActivity {
                                 Results<Location> locationList = locationResults;
                                 mLocations = locationList.getResults();
                                 List<String> items = getLocationStringList(locationList.getResults());
-//                                listFetched = true;
-//                                String value = String.valueOf(listFetched);
-//                                Toast.makeText(SetupActivity.this,value,Toast.LENGTH_SHORT).show();
                                 LocationArrayAdapter adapter = new LocationArrayAdapter(SetupActivity.this, items);
                                 mDropdownLocation.setAdapter(adapter);
                                 isLocationFetched = true;
+                                customProgressDialog.dismiss();
                             } else {
                                 isLocationFetched = false;
+                                customProgressDialog.dismiss();
                                 Toast.makeText(SetupActivity.this, getString(R.string.error_location_not_fetched), Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -513,6 +532,7 @@ public class SetupActivity extends AppCompatActivity {
                         @Override
                         public void onError(Throwable e) {
                             isLocationFetched = false;
+                            customProgressDialog.dismiss();
                             Toast.makeText(SetupActivity.this, getString(R.string.error_location_not_fetched), Toast.LENGTH_SHORT).show();
 
 
@@ -527,6 +547,7 @@ public class SetupActivity extends AppCompatActivity {
             FirebaseCrashlytics.getInstance().recordException(e);
             mUrlField.setError(getString(R.string.url_invalid));
         }
+        return true;
     }
 
 
@@ -1074,7 +1095,7 @@ public class SetupActivity extends AppCompatActivity {
     }
 
     private void getMindmapDownloadURL(String url) {
-        customProgressDialog.show();
+//        customProgressDialog.show();
         ApiClient.changeApiBaseUrl(url);
         ApiInterface apiService = ApiClient.createService(ApiInterface.class);
         try {
@@ -1085,7 +1106,7 @@ public class SetupActivity extends AppCompatActivity {
                     .subscribe(new DisposableObserver<DownloadMindMapRes>() {
                         @Override
                         public void onNext(DownloadMindMapRes res) {
-                            customProgressDialog.dismiss();
+//                            customProgressDialog.dismiss();
                             if (res.getMessage() != null && res.getMessage().equalsIgnoreCase("Success")) {
 
                                 Log.e("MindMapURL", "Successfully get MindMap URL");
@@ -1102,7 +1123,7 @@ public class SetupActivity extends AppCompatActivity {
 
                         @Override
                         public void onError(Throwable e) {
-                            customProgressDialog.dismiss();
+//                            customProgressDialog.dismiss();
                             Log.e("MindMapURL", " " + e);
                             Toast.makeText(SetupActivity.this, getResources().getString(R.string.unable_to_get_proper_response), Toast.LENGTH_LONG).show();
                         }
