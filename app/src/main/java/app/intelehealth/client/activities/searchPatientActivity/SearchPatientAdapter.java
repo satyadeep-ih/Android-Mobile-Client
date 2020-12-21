@@ -45,7 +45,8 @@ public class SearchPatientAdapter extends RecyclerView.Adapter<SearchPatientAdap
         if (patinet != null) {
             //int age = DateAndTimeUtils.getAge(patinet.getDateofbirth(),context);
 
-            String age = DateAndTimeUtils.getAgeInYearMonth(patinet.getDateofbirth(), context);
+           // String age = DateAndTimeUtils.getAgeInYearMonth(patinet.getDateofbirth(), context);
+            String age = DateAndTimeUtils.getAgeInYearMonth_Only(patinet.getDateofbirth(), context);
             //String dob = DateAndTimeUtils.SimpleDatetoLongDate(patinet.getDateofbirth());
             String body = context.getString(R.string.identification_screen_prompt_age) + "" + age;
 
