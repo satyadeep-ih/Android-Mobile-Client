@@ -57,7 +57,8 @@ public class TodayPatientAdapter extends RecyclerView.Adapter<TodayPatientAdapte
                     todayPatientModel.getLast_name());
         }
 //        int age = DateAndTimeUtils.getAge(todayPatientModel.getDate_of_birth());
-        String age = DateAndTimeUtils.getAgeInYearMonth(todayPatientModel.getDate_of_birth(), context);
+      //  String age = DateAndTimeUtils.getAgeInYearMonth(todayPatientModel.getDate_of_birth(), context);
+        String age = DateAndTimeUtils.getAgeInYearMonth_Only(todayPatientModel.getDate_of_birth(), context);
         String dob = DateAndTimeUtils.SimpleDatetoLongDate(todayPatientModel.getDate_of_birth());
         String body = context.getString(R.string.identification_screen_prompt_age) + "" + age;
 
