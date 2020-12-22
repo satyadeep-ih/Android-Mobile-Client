@@ -28,7 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-
+import android.widget.Button;
 
 
 import org.json.JSONArray;
@@ -578,8 +578,9 @@ public class QuestionNodeActivity extends AppCompatActivity implements Questions
     public void questionsMissing() {
         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
         // AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this,R.style.AlertDialogStyle);
+        alertDialogBuilder.setTitle("Do you want to proceed?");
         alertDialogBuilder.setMessage(Html.fromHtml(currentNode.formQuestionAnswer(0)));
-        alertDialogBuilder.setPositiveButton(R.string.generic_yes, new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 complaintConfirmed = true;
@@ -587,13 +588,17 @@ public class QuestionNodeActivity extends AppCompatActivity implements Questions
                 fabClick();
             }
         });
-        alertDialogBuilder.setNegativeButton(R.string.generic_back, new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setNegativeButton("Edit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
-        Dialog alertDialog = alertDialogBuilder.show();
+        AlertDialog alertDialog = alertDialogBuilder.show();
+        Button pb = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        pb.setTextColor(getResources().getColor((R.color.colorPrimary)));
+        Button nb = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        nb.setTextColor(getResources().getColor((R.color.colorPrimary)));
         IntelehealthApplication.setAlertDialogCustomTheme(this, alertDialog);
         //alertDialog.show();
     }

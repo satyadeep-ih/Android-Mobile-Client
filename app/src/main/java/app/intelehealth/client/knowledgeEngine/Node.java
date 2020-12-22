@@ -1852,14 +1852,14 @@ public class Node implements Serializable {
             if (mOptions.get(i).isSelected()) {
                 String question;
                 if (level == 0) {
-                    question = big_bullet + " " + mOptions.get(i).findDisplay();
+                    question = next_line + bullet_arrow + " " + mOptions.get(i).findDisplay();
                     if ((mOptions.get(i).getText().equalsIgnoreCase("Associated symptoms"))
                             || (mOptions.get(i).getText().equalsIgnoreCase("जुड़े लक्षण"))
                             || (mOptions.get(i).getText().equalsIgnoreCase("ସମ୍ପର୍କିତ ଲକ୍ଷଣଗୁଡ଼ିକ"))) {
-                        question = question + next_line + "Patient reports -";
+                        question = question + next_line + next_line + "<b>Patient reports -</b>";
                     }
                 } else {
-                    question = bullet + " " + mOptions.get(i).findDisplay();
+                    question = bullet_hollow + " " + mOptions.get(i).findDisplay();
                 }
                 String answer = mOptions.get(i).getLanguage();
                 if (mOptions.get(i).isTerminal()) {
@@ -1917,7 +1917,7 @@ public class Node implements Serializable {
             if (mOptions.get(i).isNoSelected()) {
                 if (!flag) {
                     flag = true;
-                    stringsListNoSelected.add("Patient denies -" + next_line);
+                    stringsListNoSelected.add(next_line + "<b>Patient denies -</b>" + next_line);
                 }
                 stringsListNoSelected.add(bullet_hollow + mOptions.get(i).findDisplay() + next_line);
                 Log.e("List", "" + stringsListNoSelected);
