@@ -131,6 +131,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
 
     boolean uploaded = false;
     boolean downloaded = false;
+    boolean priorityChecked = false;
 
     Context context;
 
@@ -691,28 +692,53 @@ public class VisitSummaryActivity extends AppCompatActivity {
             }
 
         }
-        flag.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                try {
-                    EncounterDAO encounterDAO = new EncounterDAO();
-                    encounterDAO.setEmergency(visitUuid, isChecked);
-                } catch (DAOException e) {
-                    FirebaseCrashlytics.getInstance().recordException(e);
-                }
-            }
-        });
+//        flag.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                try {
+//                    EncounterDAO encounterDAO = new EncounterDAO();
+//                    encounterDAO.setEmergency(visitUuid, isChecked);
+//                } catch (DAOException e) {
+//                    FirebaseCrashlytics.getInstance().recordException(e);
+//                }
+//            }
+//        });
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
                 if (flag.isChecked()) {
                     try {
+                        priorityChecked = true;
                         EncounterDAO encounterDAO = new EncounterDAO();
+//                        encounterDAO.deleteEncounterFromdb(visitUuid);
+                        if(!encounterDAO.checkEncounterPresent(visitUuid))
                         encounterDAO.setEmergency(visitUuid, true);
                     } catch (DAOException e) {
                         FirebaseCrashlytics.getInstance().recordException(e);
+                    }
+                }
+               else if (!flag.isChecked()) {
+//                    Toast.makeText(VisitSummaryActivity.this,visitUuid,Toast.LENGTH_SHORT).show();
+                    if(priorityChecked == true)
+                    {
+                        try {
+                            EncounterDAO encounterDAO = new EncounterDAO();
+                            encounterDAO.deleteEncounterFromdb(visitUuid);
+                            encounterDAO.setEmergency(visitUuid, false);
+                            priorityChecked = false;
+                        }
+                        catch (DAOException e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
+                        }
+                    }
+                    else
+                    {
+                        try {
+                            EncounterDAO encounterDAO = new EncounterDAO();
+                            encounterDAO.setEmergency(visitUuid, false);
+                        } catch (DAOException e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
+                        }
                     }
                 }
                 if (patient.getOpenmrs_id() == null || patient.getOpenmrs_id().isEmpty()) {
@@ -753,49 +779,11 @@ public class VisitSummaryActivity extends AppCompatActivity {
                 String startDateTime = visitIDCursor1.getString(visitIDCursor1.getColumnIndexOrThrow("startdate"));
                 visitIDCursor1.close();
 
-                if (!flag.isChecked()) {
-                    //
-                }
-
+                uploadData();
 //                new Restaurant(VisitSummaryActivity.this, getString(R.string.uploading_to_doctor_notif), Snackbar.LENGTH_LONG)
 //                        .setBackgroundColor(Color.BLACK)
 //                        .setTextColor(Color.WHITE)
 //                        .show();
-
-                if (NetworkConnection.isOnline(getApplication())) {
-                    Toast.makeText(context, getResources().getString(R.string.upload_started), Toast.LENGTH_LONG).show();
-
-//                    AppConstants.notificationUtils.showNotifications(getString(R.string.visit_data_upload), getString(R.string.uploading_visit_data_notif), 3, VisitSummaryActivity.this);
-                    SyncDAO syncDAO = new SyncDAO();
-//                    ProgressDialog pd = new ProgressDialog(VisitSummaryActivity.this);
-//                    pd.setTitle(getString(R.string.syncing_visitDialog));
-//                    pd.show();
-//                    pd.setCancelable(false);
-
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-//                            Added the 4 sec delay and then push data.For some reason doing immediately does not work
-                            //Do something after 100ms
-                            SyncUtils syncUtils = new SyncUtils();
-                            boolean isSynced = syncUtils.syncForeground("visitSummary");
-                            if (isSynced) {
-                                AppConstants.notificationUtils.DownloadDone(patientName + " " + getString(R.string.visit_data_upload), getString(R.string.visit_uploaded_successfully), 3, VisitSummaryActivity.this);
-                                //
-                                showVisitID();
-                            } else {
-                                AppConstants.notificationUtils.DownloadDone(patientName + " " + getString(R.string.visit_data_failed), getString(R.string.visit_uploaded_failed), 3, VisitSummaryActivity.this);
-
-                            }
-                            uploaded = true;
-//                            pd.dismiss();
-//                            Toast.makeText(VisitSummaryActivity.this, getString(R.string.upload_completed), Toast.LENGTH_SHORT).show();
-                        }
-                    }, 4000);
-                } else {
-                    AppConstants.notificationUtils.DownloadDone(patientName + " " + getString(R.string.visit_data_failed), getString(R.string.visit_uploaded_failed), 3, VisitSummaryActivity.this);
-                }
             }
 
         });
@@ -918,7 +906,6 @@ public class VisitSummaryActivity extends AppCompatActivity {
             patHistView.setText(Html.fromHtml(patHistory.getValue()));
         if (phyExam.getValue() != null)
             physFindingsView.setText(Html.fromHtml(phyExam.getValue()));
-
 
         editVitals.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1389,6 +1376,43 @@ public class VisitSummaryActivity extends AppCompatActivity {
         doQuery();
     }
 
+    private void uploadData()
+    {
+        if (NetworkConnection.isOnline(getApplication())) {
+            Toast.makeText(context, getResources().getString(R.string.upload_started), Toast.LENGTH_LONG).show();
+
+//                    AppConstants.notificationUtils.showNotifications(getString(R.string.visit_data_upload), getString(R.string.uploading_visit_data_notif), 3, VisitSummaryActivity.this);
+            SyncDAO syncDAO = new SyncDAO();
+//                    ProgressDialog pd = new ProgressDialog(VisitSummaryActivity.this);
+//                    pd.setTitle(getString(R.string.syncing_visitDialog));
+//                    pd.show();
+//                    pd.setCancelable(false);
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+//                            Added the 4 sec delay and then push data.For some reason doing immediately does not work
+                    //Do something after 100ms
+                    SyncUtils syncUtils = new SyncUtils();
+                    boolean isSynced = syncUtils.syncForeground("visitSummary");
+                    if (isSynced) {
+                        AppConstants.notificationUtils.DownloadDone(patientName + " " + getString(R.string.visit_data_upload), getString(R.string.visit_uploaded_successfully), 3, VisitSummaryActivity.this);
+                        //
+                        showVisitID();
+                    } else {
+                        AppConstants.notificationUtils.DownloadDone(patientName + " " + getString(R.string.visit_data_failed), getString(R.string.visit_uploaded_failed), 3, VisitSummaryActivity.this);
+
+                    }
+                    uploaded = true;
+//                            pd.dismiss();
+//                            Toast.makeText(VisitSummaryActivity.this, getString(R.string.upload_completed), Toast.LENGTH_SHORT).show();
+                }
+            }, 4000);
+        } else {
+            AppConstants.notificationUtils.DownloadDone(patientName + " " + getString(R.string.visit_data_failed), getString(R.string.visit_uploaded_failed), 3, VisitSummaryActivity.this);
+        }
+    }
     private String convertCtoF(String temperature) {
 
         String result = "";

@@ -158,7 +158,7 @@
             android:label="@string/title_activity_search_patient"
             android:screenOrientation="portrait"
             android:configChanges="uiMode"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/SearchPatientTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>

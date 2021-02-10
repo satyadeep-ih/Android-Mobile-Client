@@ -66,7 +66,7 @@ public class SyncDAO {
             locationDAO.insertLocations(responseDTO.getData().getLocationDTO());
             providerDAO.insertProviders(responseDTO.getData().getProviderlist());
 
-            Logger.logD(TAG, "Pull ENCOUNTER: " + responseDTO.getData().getEncounterDTO());
+            Logger.logD(TAG, "Pull ENCOUNTER 1: " + responseDTO.getData());
             Logger.logD(TAG, "Pull sync ended");
             sessionManager.setPullExcutedTime(sessionManager.isPulled());
             sessionManager.setFirstTimeSyncExecute(false);
@@ -98,10 +98,10 @@ public class SyncDAO {
             public void onResponse(Call<ResponseDTO> call, Response<ResponseDTO> response) {
                 // AppConstants.notificationUtils.showNotifications("Sync background", "Sync in progress..", 1, IntelehealthApplication.getAppContext());
                 if (response.body() != null && response.body().getData() != null) {
+                    Logger.logD(TAG, "Pull ENCOUNTER 2: " + response.body().getData());
                     sessionManager.setPulled(response.body().getData().getPullexecutedtime());
                 }
                 if (response.isSuccessful()) {
-
                     // SyncDAO syncDAO = new SyncDAO();
                     boolean sync = false;
                     try {
@@ -132,6 +132,7 @@ public class SyncDAO {
                             for (int i = 0; i < response.body().getData().getEncounterDTO().size(); i++) {
                                 if (response.body().getData().getEncounterDTO().get(i)
                                         .getEncounterTypeUuid().equalsIgnoreCase("bd1fbfaa-f5fb-4ebd-b75c-564506fc309e")) {
+                                    Logger.logD(TAG, "Pull ENCOUNTER 3: " + response.body().getData());
                                     encounterVisitUUID.add(response.body().getData().getEncounterDTO().get(i).getVisituuid());
                                 }
                             }
@@ -152,7 +153,6 @@ public class SyncDAO {
                         sessionManager.setTriggerNoti("yes");
                     }
                 }
-
                 Logger.logD("End Pull request", "Ended");
                 sessionManager.setLastPulledDateTime(AppConstants.dateAndTimeUtils.currentDateTimeInHome());
 
@@ -188,6 +188,7 @@ public class SyncDAO {
             public void onResponse(Call<ResponseDTO> call, Response<ResponseDTO> response) {
 //                AppConstants.notificationUtils.showNotifications("Sync background", "Sync in progress..", 1, IntelehealthApplication.getAppContext());
                 if (response.body() != null && response.body().getData() != null) {
+                    Logger.logD(TAG, "Pull ENCOUNTER 5: " + response.body().getData());
                     sessionManager.setPulled(response.body().getData().getPullexecutedtime());
                 }
                 if (response.isSuccessful()) {
@@ -242,6 +243,7 @@ public class SyncDAO {
                             for (int i = 0; i < response.body().getData().getEncounterDTO().size(); i++) {
                                 if (response.body().getData().getEncounterDTO().get(i)
                                         .getEncounterTypeUuid().equalsIgnoreCase("bd1fbfaa-f5fb-4ebd-b75c-564506fc309e")) {
+                                    Logger.logD(TAG, "Pull ENCOUNTER 6: " + response.body().getData());
                                     encounterVisitUUID.add(response.body().getData().getEncounterDTO().get(i).getVisituuid());
                                 }
                             }
@@ -333,8 +335,6 @@ public class SyncDAO {
         PatientsDAO patientsDAO = new PatientsDAO();
         VisitsDAO visitsDAO = new VisitsDAO();
         EncounterDAO encounterDAO = new EncounterDAO();
-
-
         PushRequestApiCall pushRequestApiCall;
         PatientsFrameJson patientsFrameJson = new PatientsFrameJson();
         pushRequestApiCall = patientsFrameJson.frameJson();
@@ -344,6 +344,7 @@ public class SyncDAO {
         Logger.logD(TAG, "push request model" + gson.toJson(pushRequestApiCall));
         Log.e(TAG, "push request model" + gson.toJson(pushRequestApiCall));
         String url = "https://" + sessionManager.getServerUrl() + "/EMR-Middleware/webapi/push/pushdata";
+        Log.d("URL",url);
 //        String url = "https://" + sessionManager.getServerUrl() + "/pushdata";
 //        push only happen if any one data exists.
         if (!pushRequestApiCall.getVisits().isEmpty() || !pushRequestApiCall.getPersons().isEmpty() || !pushRequestApiCall.getPatients().isEmpty() || !pushRequestApiCall.getEncounters().isEmpty()) {

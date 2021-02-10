@@ -22,6 +22,26 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="SearchPatientTheme" parent="Theme.MaterialComponents.Light.Bridge">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="buttonStyle">@style/RobotoButtonStyle</item>
+        <item name="colorButtonNormal">@color/colorAccent</item>
+        <item name="alertDialogTheme">@style/AlertDialogStyle</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">#212121</item>
+        <item name="textAppearanceLargePopupMenu">@style/AppTheme.TextAppearance.Popup</item>
+        <item name="fontFamily">@font/lato_regular</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>
+        <item name="materialCalendarFullscreenTheme">@style/ThemeOverlay.MaterialComponents.MaterialCalendar.Fullscreen</item>
+        <item name="materialCalendarTheme">@style/ThemeOverlay.MaterialComponents.MaterialCalendar</item>
+    </style>
+
     <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/primary_text</item>

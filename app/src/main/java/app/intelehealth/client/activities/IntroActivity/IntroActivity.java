@@ -295,7 +295,7 @@ public class IntroActivity extends AppCompatActivity {
                                 mLocations = locationList.getResults();
                                 location = mLocations.get(0);
 
-                                TestSetup("demo.intelehealth.org", "nurse1", "Nurse123", "", location);
+                                TestSetup("demo.intelehealth.org", "admin", "Admin123", "", location);
 
                             } else {
                                 progress.dismiss();

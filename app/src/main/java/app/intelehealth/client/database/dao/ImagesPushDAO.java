@@ -34,8 +34,6 @@ public class ImagesPushDAO {
     String TAG = ImagesPushDAO.class.getSimpleName();
     SessionManager sessionManager = null;
 
-
-
     public boolean patientProfileImagesPush() {
         sessionManager = new SessionManager(IntelehealthApplication.getAppContext());
         String encoded = sessionManager.getEncoded();
@@ -148,6 +146,7 @@ public class ImagesPushDAO {
         }
         for (String voidedObsImage : voidedObsImageList) {
             String url = urlModifiers.obsImageDeleteUrl(voidedObsImage);
+            Logger.logD(TAG,url);
             Observable<Void> deleteObsImage = AppConstants.apiInterface.DELETE_OBS_IMAGE(url, "Basic " + encoded);
             deleteObsImage.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

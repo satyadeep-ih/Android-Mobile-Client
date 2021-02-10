@@ -107,7 +107,6 @@ public class ProviderDAO {
             throw new DAOException(s);
         } finally {
             db.endTransaction();
-
         }
         return providersList;
 

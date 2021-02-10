@@ -35,9 +35,9 @@ public interface ApiInterface {
     @GET("location?tag=Login%20Location")
     Observable<Results<Location>> LOCATION_OBSERVABLE(@Query("v") String representation);
 
-
+    @Headers({"Accept: application/json"})
     @DELETE
-    Call<Void> DELETE_ENCOUNTER(@Url String url,
+    Observable<Void> DELETE_ENCOUNTER(@Url String url,
                                 @Header("Authorization") String authHeader);
 
     //EMR-Middleware/webapi/pull/pulldata/

@@ -296,7 +296,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onSubscribe(Disposable d) {
 
             }
-
             @Override
             public void onNext(LoginModel loginModel) {
                 int responsCode = loginModel.hashCode();

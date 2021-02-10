@@ -62,4 +62,13 @@ public class UrlModifiers {
         return BASE_URL + provider;
     }
 
+    public String deleteEncounter(String encounter_uuid)
+    {
+        sessionManager = new SessionManager(IntelehealthApplication.getAppContext());
+        String provider = encounter_uuid +"?purge=true";
+
+        String BASE_URL = "https://"+ sessionManager.getServerUrl() + "/openmrs/ws/rest/v1/encounter/";
+        return BASE_URL + provider;
+    }
+
 }

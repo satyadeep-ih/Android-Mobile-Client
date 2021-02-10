@@ -79,6 +79,24 @@ public class ObsDAO {
 
     }
 
+    public void deleteObs(String encounter_uuid)
+    {
+        String whereclause = "encounteruuid=?";
+        String[] whereargs = {encounter_uuid};
+        int deletedCount = 0;
+        SQLiteDatabase db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
+        db.beginTransaction();
+        try{
+            deletedCount = db.delete("tbl_obs",whereclause,whereargs);
+            db.setTransactionSuccessful();
+          } catch (SQLiteException e) {
+              Logger.logE(TAG, "exception ", e);
+
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     public boolean insertObs(ObsDTO obsDTO) throws DAOException {
         boolean isUpdated = true;
         long insertedCount = 0;

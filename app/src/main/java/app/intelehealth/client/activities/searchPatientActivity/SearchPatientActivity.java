@@ -1,5 +1,7 @@
 package app.intelehealth.client.activities.searchPatientActivity;
 
+import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,16 +12,20 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.SearchRecentSuggestions;
 
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 
+import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,20 +33,31 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import app.intelehealth.client.R;
+import app.intelehealth.client.activities.todayPatientActivity.TodayPatientActivity;
+import app.intelehealth.client.activities.todayPatientActivity.TodayPatientAdapter;
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.app.IntelehealthApplication;
 import app.intelehealth.client.database.dao.ProviderDAO;
+import app.intelehealth.client.models.TodayPatientModel;
 import app.intelehealth.client.models.dto.PatientDTO;
 import app.intelehealth.client.utilities.Logger;
 import app.intelehealth.client.utilities.SessionManager;
@@ -54,18 +71,22 @@ public class SearchPatientActivity extends AppCompatActivity {
     String query;
     private SearchPatientAdapter recycler;
     RecyclerView recyclerView;
+    RelativeLayout relativeLayout;
     SessionManager sessionManager = null;
     TextView msg;
+    boolean firstLaunch;
+    LinearLayout filter_linearLayout;
     MaterialAlertDialogBuilder dialogBuilder;
     private String TAG = SearchPatientActivity.class.getSimpleName();
     private SQLiteDatabase db;
+    TextView tv_sort_age,tv_sort_creator,tv_sort_date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_patient);
         Toolbar toolbar = findViewById(R.id.toolbar);
-
+        firstLaunch = true;
         Drawable drawable = ContextCompat.getDrawable(getApplicationContext(),
                 R.drawable.ic_sort_white_24dp);
 //        toolbar.setOverflowIcon(drawable);
@@ -80,6 +101,61 @@ public class SearchPatientActivity extends AppCompatActivity {
         db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
         msg = findViewById(R.id.textviewmessage);
         recyclerView = findViewById(R.id.recycle);
+        filter_linearLayout = findViewById(R.id.filter_layout);
+        tv_sort_creator = findViewById(R.id.sort_creator);
+        tv_sort_age = findViewById(R.id.sort_age);
+        tv_sort_date = findViewById(R.id.sort_date);
+        relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
+        MaterialDatePicker.Builder<Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker();
+        builder.setTitleText("Select Date");
+        final MaterialDatePicker materialDatePicker = builder.build();
+        tv_sort_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tv_sort_date.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
+                tv_sort_date.setTextColor(Color.WHITE);
+                materialDatePicker.show(getSupportFragmentManager(), "DATE PICKER");
+                materialDatePicker.addOnNegativeButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        tv_sort_date.setBackground(getResources().getDrawable(R.drawable.tv_bg));
+                        tv_sort_date.setTextColor(Color.BLACK);
+                        materialDatePicker.dismiss();
+                    }
+                });
+                materialDatePicker.addOnPositiveButtonClickListener(
+                        new MaterialPickerOnPositiveButtonClickListener() {
+                            @SuppressLint("SetTextI18n")
+                            @Override
+                            public void onPositiveButtonClick(Object selection) {
+//                                Long startDate = selection.first;
+//                                Long endDate = selection.second;
+                                tv_sort_date.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
+                                tv_sort_date.setTextColor(Color.WHITE);
+//                                doQueryWithDate();
+                                Toast.makeText(SearchPatientActivity.this,"Selected:" + materialDatePicker.getHeaderText(),Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
+
+        tv_sort_creator.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    tv_sort_creator.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
+                    tv_sort_creator.setTextColor(Color.WHITE);
+                displaySingleSelectionCreatorDialog();
+            }
+        });
+        tv_sort_age.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tv_sort_age.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
+                tv_sort_age.setTextColor(Color.WHITE);
+                displaySingleSelectionAgeDialog();
+            }
+        });
+
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             query = intent.getStringExtra(SearchManager.QUERY);
@@ -149,13 +225,12 @@ public class SearchPatientActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_search, menu);
         inflater.inflate(R.menu.today_filter, menu);
-//        inflater.inflate(R.menu.today_filter, menu);
+       // inflater.inflate(R.menu.today_filter, menu);
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -185,8 +260,45 @@ public class SearchPatientActivity extends AppCompatActivity {
                 endAllVisit();
 
             case R.id.action_filter:
-                //alert box.
-                displaySingleSelectionDialog();    //function call
+
+                if(firstLaunch == true)
+                {
+                    ValueAnimator varl = ValueAnimator.ofInt(250);
+                    varl.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(ValueAnimator animation) {
+                            CoordinatorLayout.LayoutParams linearParams = new CoordinatorLayout.LayoutParams(
+                                    new CoordinatorLayout.LayoutParams(
+                                            CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                                            CoordinatorLayout.LayoutParams.WRAP_CONTENT));
+                            linearParams.setMargins(0, (Integer) animation.getAnimatedValue(), 0, 0);
+                            relativeLayout.setLayoutParams(linearParams);
+                            relativeLayout.requestLayout();
+                        }
+                    });
+                    varl.start();
+                    filter_linearLayout.setVisibility(View.VISIBLE);
+                    firstLaunch = false;
+                }
+                else
+                {
+                    ValueAnimator varl = ValueAnimator.ofInt(150);
+                    varl.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(ValueAnimator animation) {
+                            CoordinatorLayout.LayoutParams linearParams = new CoordinatorLayout.LayoutParams(
+                                    new CoordinatorLayout.LayoutParams(
+                                            CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                                            CoordinatorLayout.LayoutParams.WRAP_CONTENT));
+                            linearParams.setMargins(0, (Integer) animation.getAnimatedValue(), 0, 0);
+                            relativeLayout.setLayoutParams(linearParams);
+                            relativeLayout.requestLayout();
+                        }
+                    });
+                    varl.start();
+                    filter_linearLayout.setVisibility(View.GONE);
+                    firstLaunch = true;
+                }
             case R.id.action_search:
 
 
@@ -290,7 +402,7 @@ public class SearchPatientActivity extends AppCompatActivity {
 
     }
 
-    private void displaySingleSelectionDialog() {
+    private void displaySingleSelectionCreatorDialog() {
 
         ProviderDAO providerDAO = new ProviderDAO();
         ArrayList selectedItems = new ArrayList<>();
@@ -302,43 +414,54 @@ public class SearchPatientActivity extends AppCompatActivity {
         } catch (DAOException e) {
             e.printStackTrace();
         }
+        final boolean[] checkedItems = new boolean[creator_names.length];
+        Arrays.fill(checkedItems, Boolean.FALSE);
         dialogBuilder = new MaterialAlertDialogBuilder(SearchPatientActivity.this);
         dialogBuilder.setTitle(getString(R.string.filter_by_creator));
-
         String[] finalCreator_names = creator_names;
         String[] finalCreator_uuid = creator_uuid;
-        dialogBuilder.setMultiChoiceItems(creator_names, null, new DialogInterface.OnMultiChoiceClickListener() {
-
-
+        dialogBuilder.setMultiChoiceItems(creator_names,checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
+                checkedItems[which] = isChecked;
                 Logger.logD(TAG, "multichoice" + which + isChecked);
                 if (isChecked) {
                     // If the user checked the item, add it to the selected items
                     if (finalCreator_uuid != null) {
                         selectedItems.add(finalCreator_uuid[which]);
                     }
-
                 } else if (selectedItems.contains(which)) {
                     // Else, if the item is already in the array, remove it
                     if (finalCreator_uuid != null) {
                         selectedItems.remove(finalCreator_uuid[which]);
                     }
                 }
-
             }
         });
-
         dialogBuilder.setPositiveButton(R.string.generic_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //display filter query code on list menu
                 Logger.logD(TAG, "onclick" + i);
-                doQueryWithProviders(query, selectedItems);
+
+                if(selectedItems.size()==0)
+                {
+                    tv_sort_creator.setBackground(getResources().getDrawable(R.drawable.tv_bg));
+                    tv_sort_creator.setTextColor(Color.BLACK);
+                }
+                else
+                    {
+                    doQueryWithProviders(query, selectedItems);
+                }
             }
         });
-
-        dialogBuilder.setNegativeButton(R.string.generic_cancel, null);
+        dialogBuilder.setNegativeButton(R.string.generic_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                tv_sort_creator.setBackground(getResources().getDrawable(R.drawable.tv_bg));
+                tv_sort_creator.setTextColor(Color.BLACK);
+            }
+        });
 
         //dialogBuilder.show();
         AlertDialog alertDialog = dialogBuilder.create();
@@ -350,7 +473,83 @@ public class SearchPatientActivity extends AppCompatActivity {
         Button negativeButton = alertDialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE);
         negativeButton.setTextColor(getResources().getColor(R.color.colorPrimary));
 
-        IntelehealthApplication.setAlertDialogCustomTheme(this, alertDialog);
+//        IntelehealthApplication.setAlertDialogCustomTheme(this, alertDialog);
+
+    }
+
+    private void displaySingleSelectionAgeDialog() {
+
+        ProviderDAO providerDAO = new ProviderDAO();
+        ArrayList selectedItems = new ArrayList<>();
+        String[] age_range_list = {"Below 5","5-12","13-26","27-40","41-55","Above 56"};
+        String[] creator_names = null;
+        String[] creator_uuid = null;
+        try {
+            creator_names = providerDAO.getProvidersList().toArray(new String[0]);
+            creator_uuid = providerDAO.getProvidersUuidList().toArray(new String[0]);
+        } catch (DAOException e) {
+            e.printStackTrace();
+        }
+        dialogBuilder = new MaterialAlertDialogBuilder(SearchPatientActivity.this);
+        dialogBuilder.setTitle(getString(R.string.filter_by_age));
+        String[] finalCreator_names = creator_names;
+        String[] finalCreator_uuid = creator_uuid;
+        dialogBuilder.setMultiChoiceItems(age_range_list, null, new DialogInterface.OnMultiChoiceClickListener() {
+
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
+                Logger.logD(TAG, "multichoice" + which + isChecked);
+                if (isChecked) {
+                    // If the user checked the item, add it to the selected items
+                    if (age_range_list != null) {
+                        selectedItems.add(age_range_list[which]);
+                    }
+
+                } else if (selectedItems.contains(which)) {
+                    // Else, if the item is already in the array, remove it
+                    if (age_range_list != null) {
+                        selectedItems.remove(age_range_list[which]);
+                    }
+                }
+            }
+        });
+        dialogBuilder.setPositiveButton(R.string.generic_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //display filter query code on list menu
+                Logger.logD(TAG, "onclick" + i);
+
+                if(selectedItems.size()==0)
+                {
+                    tv_sort_age.setBackground(getResources().getDrawable(R.drawable.tv_bg));
+                    tv_sort_age.setTextColor(Color.BLACK);
+                }
+                else
+                {
+                    //doQueryWithProviders(query, selectedItems);
+                }
+            }
+        });
+        dialogBuilder.setNegativeButton(R.string.generic_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                tv_sort_age.setBackground(getResources().getDrawable(R.drawable.tv_bg));
+                tv_sort_age.setTextColor(Color.BLACK);
+            }
+        });
+
+        //dialogBuilder.show();
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+
+        Button positiveButton = alertDialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
+        positiveButton.setTextColor(getResources().getColor(R.color.colorPrimary));
+
+        Button negativeButton = alertDialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE);
+        negativeButton.setTextColor(getResources().getColor(R.color.colorPrimary));
+
+//        IntelehealthApplication.setAlertDialogCustomTheme(this, alertDialog);
 
     }
 
@@ -431,7 +630,8 @@ public class SearchPatientActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Logger.logE("doquery", "doquery", e);
             }
-        } else {
+        }
+        else {
             String search = querytext.trim().replaceAll("\\s", "");
             List<PatientDTO> modelList = new ArrayList<PatientDTO>();
             String query =
@@ -487,6 +687,55 @@ public class SearchPatientActivity extends AppCompatActivity {
 
 
     }
+//    private void doQueryWithDate() {
+//        List<PatientDTO> modelListwihtoutQuery = new ArrayList<PatientDTO>();
+//        String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
+//        String query = "SELECT a.uuid, a.sync, a.patientuuid, a.startdate, a.enddate, b.first_name, b.middle_name, b.last_name, b.date_of_birth,b.openmrs_id " +
+//                "FROM tbl_visit a, tbl_patient b  " +
+//                "WHERE a.patientuuid = b.uuid " +
+//                "AND a.startdate LIKE '" + currentDate + "T%'   " +
+//                "GROUP BY a.uuid ORDER BY a.patientuuid ASC";
+//        Logger.logD(TAG, query);
+//        final Cursor cursor = db.rawQuery(query, null);
+//
+//        if (cursor != null) {
+//            if (cursor.moveToFirst()) {
+//                do {
+//                    try {
+//                        PatientDTO model = new PatientDTO();
+//                        model.setOpenmrsId(cursor.getString(cursor.getColumnIndexOrThrow("openmrs_id")));
+//                        model.setFirstname(cursor.getString(cursor.getColumnIndexOrThrow("first_name")));
+//                        model.setLastname(cursor.getString(cursor.getColumnIndexOrThrow("last_name")));
+//                        model.setMiddlename(cursor.getString(cursor.getColumnIndexOrThrow("middle_name")));
+//                        model.setUuid(cursor.getString(cursor.getColumnIndexOrThrow("uuid")));
+//                        model.setDateofbirth(cursor.getString(cursor.getColumnIndexOrThrow("date_of_birth")));
+//                        model.setPhonenumber(StringUtils.mobileNumberEmpty(phoneNumber(cursor.getString(cursor.getColumnIndexOrThrow("uuid")))));
+//                        modelListwihtoutQuery.add(model);
+//                    } catch (DAOException e) {
+//                        e.printStackTrace();
+//                    }
+//                } while (cursor.moveToNext());
+//            }
+//        }
+//        if (cursor != null) {
+//            cursor.close();
+//        }
+//
+//        try {
+//            recycler = new SearchPatientAdapter(modelListwihtoutQuery, SearchPatientActivity.this);
+////            Log.i("db data", "" + getQueryPatients(query));
+//            RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+//            recyclerView.setLayoutManager(reLayoutManager);
+//            /*    recyclerView.addItemDecoration(new
+//                        DividerItemDecoration(this,
+//                        DividerItemDecoration.VERTICAL));*/
+//            recyclerView.setAdapter(recycler);
+//
+//        } catch (Exception e) {
+//            Logger.logE("doquery", "doquery", e);
+//        }
+//
+//    }
 
     private String phoneNumber(String patientuuid) throws DAOException {
         String phone = null;
