@@ -7,9 +7,13 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
+import com.bumptech.glide.load.Transformation;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+import com.bumptech.glide.load.resource.gifbitmap.GifBitmapWrapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -553,13 +557,10 @@ public class IdentificationActivity extends AppCompatActivity {
                     mCity.setAdapter(null);
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
-
 
         mGenderF.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -574,6 +575,7 @@ public class IdentificationActivity extends AppCompatActivity {
                 onRadioButtonClicked(v);
             }
         });
+
         mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -588,7 +590,6 @@ public class IdentificationActivity extends AppCompatActivity {
                     filePath.mkdir();
                 }
                 Intent cameraIntent = new Intent(IdentificationActivity.this, CameraActivity.class);
-
                 // cameraIntent.putExtra(CameraActivity.SHOW_DIALOG_MESSAGE, getString(R.string.camera_dialog_default));
                 cameraIntent.putExtra(CameraActivity.SET_IMAGE_NAME, patientTemp);
                 cameraIntent.putExtra(CameraActivity.SET_IMAGE_PATH, filePath.toString());
@@ -1018,6 +1019,8 @@ public class IdentificationActivity extends AppCompatActivity {
             }
         }
     }
+
+
 
     public void onPatientCreateClicked() {
         PatientsDAO patientsDAO = new PatientsDAO();
@@ -1562,6 +1565,5 @@ public class IdentificationActivity extends AppCompatActivity {
         }
 
     }
-
 
 }

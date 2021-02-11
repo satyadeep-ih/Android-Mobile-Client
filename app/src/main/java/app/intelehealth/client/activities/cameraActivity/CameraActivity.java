@@ -1,6 +1,7 @@
 package app.intelehealth.client.activities.cameraActivity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -30,10 +32,12 @@ import android.widget.Toast;
 import com.google.android.cameraview.CameraView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import app.intelehealth.client.R;
@@ -84,9 +88,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraView mCameraView;
     private FloatingActionButton mFab;
     private int mCurrentFlash;
-
     private Handler mBackgroundHandler;
-
     //Pass Custom File Name Using intent.putExtra(CameraActivity.SET_IMAGE_NAME, "Image Name");
     private String mImageName = null;
     //Pass Dialog Message Using intent.putExtra(CameraActivity.SET_IMAGE_NAME, "Dialog Message");
@@ -117,7 +119,6 @@ public class CameraActivity extends AppCompatActivity {
 
     };
 
-
     void compressImageAndSave(final byte[] data){
         getBackgroundHandler().post(new Runnable() {
             @Override
@@ -125,44 +126,34 @@ public class CameraActivity extends AppCompatActivity {
                 if (mImageName == null) {
                     mImageName = "IMG";
                 }
-
-
                 String filePath= AppConstants.IMAGE_PATH + mImageName + ".jpg";
-
                 File file;
                 if (mFilePath == null) {
                     file = new File(AppConstants.IMAGE_PATH + mImageName + ".jpg");
                 } else {
                     file = new File(AppConstants.IMAGE_PATH + mImageName + ".jpg");
                 }
+
                 OutputStream os = null;
                 try {
                     os = new FileOutputStream(file);
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    //  Bitmap bitmap = Bitmap.createScaledBitmap(bmp, 600, 800, false);
-                    //  bitmap.recycle();
+//                    //  Bitmap bitmap = Bitmap.createScaledBitmap(bmp, 600, 800, false);
+//                    //  bitmap.recycle();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
                     os.flush();
                     os.close();
                     bitmap.recycle();
-
-
-
-
-
                     Bitmap scaledBitmap = null;
-
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
                     Bitmap bmp = BitmapFactory.decodeFile(filePath, options);
-
                     int actualHeight = options.outHeight;
                     int actualWidth = options.outWidth;
                     float maxHeight = 816.0f;
                     float maxWidth = 612.0f;
                     float imgRatio = actualWidth / actualHeight;
                     float maxRatio = maxWidth / maxHeight;
-
                     if (actualHeight > maxHeight || actualWidth > maxWidth) {
                         if (imgRatio < maxRatio) {
                             imgRatio = maxHeight / actualHeight;
@@ -177,7 +168,6 @@ public class CameraActivity extends AppCompatActivity {
                             actualWidth = (int) maxWidth;
                         }
                     }
-
                     options.inSampleSize = calculateInSampleSize(options, actualWidth, actualHeight);
                     options.inJustDecodeBounds = false;
                     options.inDither = false;
@@ -189,42 +179,40 @@ public class CameraActivity extends AppCompatActivity {
                         bmp = BitmapFactory.decodeFile(filePath, options);
                     } catch (OutOfMemoryError exception) {
                         exception.printStackTrace();
-
                     }
                     try {
                         scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.ARGB_8888);
                     } catch (OutOfMemoryError exception) {
                         exception.printStackTrace();
                     }
-
                     float ratioX = actualWidth / (float) options.outWidth;
                     float ratioY = actualHeight / (float) options.outHeight;
                     float middleX = actualWidth / 2.0f;
                     float middleY = actualHeight / 2.0f;
-
+//
                     Matrix scaleMatrix = new Matrix();
                     scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
-
                     Canvas canvas = new Canvas(scaledBitmap);
                     canvas.setMatrix(scaleMatrix);
                     canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(
                             Paint.FILTER_BITMAP_FLAG));
-
                     ExifInterface exif;
                     try {
-                        exif = new ExifInterface(filePath);
-
-                        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+                        exif = new ExifInterface(file.getAbsolutePath());
+                        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_NORMAL);
                         Log.e("EXIF", "Exif: " + orientation);
                         Matrix matrix = new Matrix();
-                        if (orientation == 6) {
-                            matrix.postRotate(90);
+                        if (orientation == 0) {
+                            matrix.setRotate(90);
                             Log.e("EXIF", "Exif: " + orientation);
-                        } else if (orientation == 3) {
-                            matrix.postRotate(180);
+                        } else if (orientation == 6) {
+                            matrix.setRotate(90);
+                            Log.e("EXIF", "Exif: " + orientation);
+                        }else if (orientation == 3) {
+                            matrix.setRotate(180);
                             Log.e("EXIF", "Exif: " + orientation);
                         } else if (orientation == 8) {
-                            matrix.postRotate(270);
+                            matrix.setRotate(270);
                             Log.e("EXIF", "Exif: " + orientation);
                         }
                         scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(),
@@ -233,7 +221,6 @@ public class CameraActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     FileOutputStream out = null;
-                    String filename = filePath;
                     try {
                         out = new FileOutputStream(file);
                         scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out);
@@ -253,11 +240,13 @@ public class CameraActivity extends AppCompatActivity {
                     setResult(RESULT_OK, intent);
                     Log.i(TAG, file.getAbsolutePath());
                     finish();
-                }catch (IOException e) {
+                }
+                catch (IOException e) {
                     Log.w(TAG, "Cannot write to " + file, e);
                     setResult(RESULT_CANCELED, new Intent());
                     finish();
-                } finally {
+                }
+                 finally {
                     if (os != null) {
                         try {
                             os.close();
@@ -266,11 +255,85 @@ public class CameraActivity extends AppCompatActivity {
                         }
                     }
                 }
-
-            }
-        });
+          }
+       });
     }
 
+//    public static Bitmap handleSamplingAndRotationBitmap(Context context, Uri selectedImage)
+//            throws IOException {
+//        int MAX_HEIGHT = 1024;
+//        int MAX_WIDTH = 1024;
+//        // First decode with inJustDecodeBounds=true to check dimensions
+//        final BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inJustDecodeBounds = true;
+//        InputStream imageStream = context.getContentResolver().openInputStream(selectedImage);
+//        BitmapFactory.decodeStream(imageStream, null, options);
+//        imageStream.close();
+//        // Calculate inSampleSize
+//        options.inSampleSize = calculateInSampleSize(options, MAX_WIDTH, MAX_HEIGHT);
+//        // Decode bitmap with inSampleSize set
+//        options.inJustDecodeBounds = false;
+//        imageStream = context.getContentResolver().openInputStream(selectedImage);
+//        Bitmap img = BitmapFactory.decodeStream(imageStream, null, options);
+//        img = rotateImageIfRequired(img, selectedImage);
+//        return img;
+//    }
+//    private static Bitmap rotateImageIfRequired(Bitmap img, String mFilePath) throws IOException {
+//
+//        ExifInterface ei = new ExifInterface(mFilePath);
+//        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+//        switch (orientation) {
+//            case ExifInterface.ORIENTATION_ROTATE_90:
+//                return rotateImage(img, 90);
+//            case ExifInterface.ORIENTATION_ROTATE_180:
+//                return rotateImage(img, 180);
+//            case ExifInterface.ORIENTATION_ROTATE_270:
+//                return rotateImage(img, 270);
+//            default:
+//                return img;
+//        }
+//    }
+//    private static Bitmap rotateImage(Bitmap img, int degree) {
+//        Matrix matrix = new Matrix();
+//        matrix.postRotate(degree);
+//        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+//        img.recycle();
+//        return rotatedImg;
+//    }
+//    private static int calculateInSampleSize(BitmapFactory.Options options,
+//                                             int reqWidth, int reqHeight) {
+//        // Raw height and width of image
+//        final int height = options.outHeight;
+//        final int width = options.outWidth;
+//        int inSampleSize = 1;
+//
+//        if (height > reqHeight || width > reqWidth) {
+//
+//            // Calculate ratios of height and width to requested height and width
+//            final int heightRatio = Math.round((float) height / (float) reqHeight);
+//            final int widthRatio = Math.round((float) width / (float) reqWidth);
+//
+//            // Choose the smallest ratio as inSampleSize value, this will guarantee a final image
+//            // with both dimensions larger than or equal to the requested height and width.
+//            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+//
+//            // This offers some additional logic in case the image has a strange
+//            // aspect ratio. For example, a panorama may have a much larger
+//            // width than height. In these cases the total pixels might still
+//            // end up being too large to fit comfortably in memory, so we should
+//            // be more aggressive with sample down the image (=larger inSampleSize).
+//
+//            final float totalPixels = width * height;
+//
+//            // Anything more than 2x the requested pixels we'll sample down further
+//            final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+//
+//            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+//                inSampleSize++;
+//            }
+//        }
+//        return inSampleSize;
+//    }
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -289,7 +352,6 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             if (extras.containsKey(SET_IMAGE_NAME))
@@ -299,20 +361,14 @@ public class CameraActivity extends AppCompatActivity {
             if (extras.containsKey(SET_IMAGE_PATH))
                 mFilePath = extras.getString(SET_IMAGE_PATH);
         }
-
         setContentView(R.layout.activity_camera);
         mCameraView = findViewById(R.id.camera_surface_CameraView);
         mFab = findViewById(R.id.take_picture);
-
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayShowTitleEnabled(false);
-
-        }
-
+            actionBar.setDisplayShowTitleEnabled(false); }
         if (mCameraView != null) mCameraView.addCallback(mCallback);
         if (mFab != null) {
             mFab.setOnClickListener(new View.OnClickListener() {
