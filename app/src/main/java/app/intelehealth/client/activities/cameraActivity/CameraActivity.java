@@ -32,6 +32,7 @@ import android.widget.Toast;
 import com.google.android.cameraview.CameraView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -113,13 +114,41 @@ public class CameraActivity extends AppCompatActivity {
             Log.d(TAG, "onPictureTaken " + data.length);
             Toast.makeText(cameraView.getContext(), R.string.picture_taken, Toast.LENGTH_SHORT)
                     .show();
-            compressImageAndSave(data);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            Bitmap scaledBitmap = null;
+            ExifInterface exifInterface = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                try {
+                    exifInterface = new ExifInterface(new ByteArrayInputStream(data));
+                    int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                    int rotationDegrees = 0;
+                    switch (orientation) {
+                        case ExifInterface.ORIENTATION_ROTATE_90:
+                            rotationDegrees = 90;
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_180:
+                            rotationDegrees = 180;
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_270:
+                            rotationDegrees = 270;
+                            break;
+                    }
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(rotationDegrees);
+                    scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),
+                               matrix, true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            compressImageAndSave(scaledBitmap);
+//            compressImageAndSave(data);
 
         }
 
     };
 
-    void compressImageAndSave(final byte[] data){
+    void compressImageAndSave(Bitmap bitmap){
         getBackgroundHandler().post(new Runnable() {
             @Override
             public void run() {
@@ -137,7 +166,7 @@ public class CameraActivity extends AppCompatActivity {
                 OutputStream os = null;
                 try {
                     os = new FileOutputStream(file);
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+//                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 //                    //  Bitmap bitmap = Bitmap.createScaledBitmap(bmp, 600, 800, false);
 //                    //  bitmap.recycle();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
@@ -196,30 +225,30 @@ public class CameraActivity extends AppCompatActivity {
                     canvas.setMatrix(scaleMatrix);
                     canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(
                             Paint.FILTER_BITMAP_FLAG));
-                    ExifInterface exif;
-                    try {
-                        exif = new ExifInterface(file.getAbsolutePath());
-                        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_NORMAL);
-                        Log.e("EXIF", "Exif: " + orientation);
-                        Matrix matrix = new Matrix();
-                        if (orientation == 0) {
-                            matrix.setRotate(90);
-                            Log.e("EXIF", "Exif: " + orientation);
-                        } else if (orientation == 6) {
-                            matrix.setRotate(90);
-                            Log.e("EXIF", "Exif: " + orientation);
-                        }else if (orientation == 3) {
-                            matrix.setRotate(180);
-                            Log.e("EXIF", "Exif: " + orientation);
-                        } else if (orientation == 8) {
-                            matrix.setRotate(270);
-                            Log.e("EXIF", "Exif: " + orientation);
-                        }
-                        scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(),
-                                matrix, true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+//                    ExifInterface exif;
+//                    try {
+//                        exif = new ExifInterface(file.getAbsolutePath());
+//                        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_NORMAL);
+//                        Log.e("EXIF", "Exif: " + orientation);
+//                        Matrix matrix = new Matrix();
+//                        if (orientation == 0) {
+//                            matrix.setRotate(90);
+//                            Log.e("EXIF", "Exif: " + orientation);
+//                        } else if (orientation == 6) {
+//                            matrix.setRotate(90);
+//                            Log.e("EXIF", "Exif: " + orientation);
+//                        }else if (orientation == 3) {
+//                            matrix.setRotate(180);
+//                            Log.e("EXIF", "Exif: " + orientation);
+//                        } else if (orientation == 8) {
+//                            matrix.setRotate(270);
+//                            Log.e("EXIF", "Exif: " + orientation);
+//                        }
+//                        scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(),
+//                                matrix, true);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
                     FileOutputStream out = null;
                     try {
                         out = new FileOutputStream(file);
