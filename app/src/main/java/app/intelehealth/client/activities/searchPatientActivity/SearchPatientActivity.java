@@ -26,6 +26,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.Layout;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,6 +46,7 @@ import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClic
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +71,7 @@ import app.intelehealth.client.utilities.exception.DAOException;
 public class SearchPatientActivity extends AppCompatActivity {
     SearchView searchView;
     String query;
-    private SearchPatientAdapter recycler;
+    private SearchPatientAdapter recycler , recyclerforDate;
     RecyclerView recyclerView;
     RelativeLayout relativeLayout;
     SessionManager sessionManager = null;
@@ -123,19 +125,29 @@ public class SearchPatientActivity extends AppCompatActivity {
                         materialDatePicker.dismiss();
                     }
                 });
-                materialDatePicker.addOnPositiveButtonClickListener(
-                        new MaterialPickerOnPositiveButtonClickListener() {
-                            @SuppressLint("SetTextI18n")
-                            @Override
-                            public void onPositiveButtonClick(Object selection) {
-//                                Long startDate = selection.first;
-//                                Long endDate = selection.second;
-                                tv_sort_date.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
-                                tv_sort_date.setTextColor(Color.WHITE);
+                materialDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Pair<Long, Long>>() {
+                    @Override public void onPositiveButtonClick(Pair<Long,Long> selection) {
+                        Long startDate = selection.first;
+                        Long endDate = selection.second;
+                        tv_sort_date.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
+                        tv_sort_date.setTextColor(Color.WHITE);
+                        doQueryWithDate(startDate, endDate);
+                        //Do something...
+                    }
+                });
+//                materialDatePicker.addOnPositiveButtonClickListener(
+//                        new MaterialPickerOnPositiveButtonClickListener() {
+//                            @SuppressLint("SetTextI18n")
+//                            @Override
+//                            public void onPositiveButtonClick(Object selection) {
+////                                Long startDate = selection.first;
+////                                Long endDate = selection.second;
+//                                tv_sort_date.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
+//                                tv_sort_date.setTextColor(Color.WHITE);
 //                                doQueryWithDate();
-                                Toast.makeText(SearchPatientActivity.this,"Selected:" + materialDatePicker.getHeaderText(),Toast.LENGTH_SHORT).show();
-                            }
-                        });
+//                              //  Toast.makeText(SearchPatientActivity.this,"Selected:" + materialDatePicker.getHeaderText(),Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
             }
         });
 
@@ -668,8 +680,6 @@ public class SearchPatientActivity extends AppCompatActivity {
             } catch (DAOException sql) {
                 FirebaseCrashlytics.getInstance().recordException(sql);
             }
-
-
             try {
                 recycler = new SearchPatientAdapter(modelList, SearchPatientActivity.this);
                 RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -684,58 +694,55 @@ public class SearchPatientActivity extends AppCompatActivity {
                 Logger.logE("doquery", "doquery", e);
             }
         }
+    }
+    private void doQueryWithDate(Long startDate, Long endDate) {
+        List<PatientDTO> modelListwihtoutQuery = new ArrayList<PatientDTO>();
+        Date cDate = new Date();
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
+        String startD = DateFormat.format("yyyy-MM-dd", new Date(startDate)).toString();
+        String endD = DateFormat.format("yyyy-MM-dd", new Date(endDate)).toString();
+        Toast.makeText(SearchPatientActivity.this, endD + startD, Toast.LENGTH_LONG).show();
+        String query = "SELECT a.uuid, a.sync, a.patientuuid, a.startdate, a.enddate, b.first_name, b.middle_name, b.last_name, b.date_of_birth,b.openmrs_id,b.uuid " +
+                "FROM tbl_visit a, tbl_patient b  " + 
+                "WHERE a.patientuuid = b.uuid " +
+                "AND a.startdate BETWEEN '" + startD + "T%'  AND '" + endD + "T%' " +
+                "GROUP BY a.uuid ORDER BY a.patientuuid ASC";
 
+
+                Logger.logD(TAG, query);
+        final Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    try {
+                        PatientDTO model = new PatientDTO();
+                        model.setOpenmrsId(cursor.getString(cursor.getColumnIndexOrThrow("openmrs_id")));
+                        model.setFirstname(cursor.getString(cursor.getColumnIndexOrThrow("first_name")));
+                        model.setLastname(cursor.getString(cursor.getColumnIndexOrThrow("last_name")));
+                        model.setMiddlename(cursor.getString(cursor.getColumnIndexOrThrow("middle_name")));
+                        model.setUuid(cursor.getString(cursor.getColumnIndexOrThrow("uuid")));
+                        model.setDateofbirth(cursor.getString(cursor.getColumnIndexOrThrow("date_of_birth")));
+                        model.setPhonenumber(StringUtils.mobileNumberEmpty(phoneNumber(cursor.getString(cursor.getColumnIndexOrThrow("uuid")))));
+                        modelListwihtoutQuery.add(model);
+                    } catch (DAOException e) {
+                        e.printStackTrace();
+                    }
+                } while (cursor.moveToNext());
+            }
+        }
+
+
+        try {
+            recyclerforDate = new SearchPatientAdapter(modelListwihtoutQuery, SearchPatientActivity.this);
+            RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+            recyclerView.setLayoutManager(reLayoutManager);
+            recyclerView.setAdapter(recyclerforDate);
+        } catch (Exception e) {
+            Logger.logE("doquery", "doquery", e);
+        }
 
     }
-//    private void doQueryWithDate() {
-//        List<PatientDTO> modelListwihtoutQuery = new ArrayList<PatientDTO>();
-//        String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
-//        String query = "SELECT a.uuid, a.sync, a.patientuuid, a.startdate, a.enddate, b.first_name, b.middle_name, b.last_name, b.date_of_birth,b.openmrs_id " +
-//                "FROM tbl_visit a, tbl_patient b  " +
-//                "WHERE a.patientuuid = b.uuid " +
-//                "AND a.startdate LIKE '" + currentDate + "T%'   " +
-//                "GROUP BY a.uuid ORDER BY a.patientuuid ASC";
-//        Logger.logD(TAG, query);
-//        final Cursor cursor = db.rawQuery(query, null);
-//
-//        if (cursor != null) {
-//            if (cursor.moveToFirst()) {
-//                do {
-//                    try {
-//                        PatientDTO model = new PatientDTO();
-//                        model.setOpenmrsId(cursor.getString(cursor.getColumnIndexOrThrow("openmrs_id")));
-//                        model.setFirstname(cursor.getString(cursor.getColumnIndexOrThrow("first_name")));
-//                        model.setLastname(cursor.getString(cursor.getColumnIndexOrThrow("last_name")));
-//                        model.setMiddlename(cursor.getString(cursor.getColumnIndexOrThrow("middle_name")));
-//                        model.setUuid(cursor.getString(cursor.getColumnIndexOrThrow("uuid")));
-//                        model.setDateofbirth(cursor.getString(cursor.getColumnIndexOrThrow("date_of_birth")));
-//                        model.setPhonenumber(StringUtils.mobileNumberEmpty(phoneNumber(cursor.getString(cursor.getColumnIndexOrThrow("uuid")))));
-//                        modelListwihtoutQuery.add(model);
-//                    } catch (DAOException e) {
-//                        e.printStackTrace();
-//                    }
-//                } while (cursor.moveToNext());
-//            }
-//        }
-//        if (cursor != null) {
-//            cursor.close();
-//        }
-//
-//        try {
-//            recycler = new SearchPatientAdapter(modelListwihtoutQuery, SearchPatientActivity.this);
-////            Log.i("db data", "" + getQueryPatients(query));
-//            RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
-//            recyclerView.setLayoutManager(reLayoutManager);
-//            /*    recyclerView.addItemDecoration(new
-//                        DividerItemDecoration(this,
-//                        DividerItemDecoration.VERTICAL));*/
-//            recyclerView.setAdapter(recycler);
-//
-//        } catch (Exception e) {
-//            Logger.logE("doquery", "doquery", e);
-//        }
-//
-//    }
 
     private String phoneNumber(String patientuuid) throws DAOException {
         String phone = null;
