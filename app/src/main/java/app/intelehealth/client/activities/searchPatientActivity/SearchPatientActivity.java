@@ -132,22 +132,8 @@ public class SearchPatientActivity extends AppCompatActivity {
                         tv_sort_date.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
                         tv_sort_date.setTextColor(Color.WHITE);
                         doQueryWithDate(startDate, endDate);
-                        //Do something...
                     }
                 });
-//                materialDatePicker.addOnPositiveButtonClickListener(
-//                        new MaterialPickerOnPositiveButtonClickListener() {
-//                            @SuppressLint("SetTextI18n")
-//                            @Override
-//                            public void onPositiveButtonClick(Object selection) {
-////                                Long startDate = selection.first;
-////                                Long endDate = selection.second;
-//                                tv_sort_date.setBackground(getResources().getDrawable(R.drawable.tv_bg_dark));
-//                                tv_sort_date.setTextColor(Color.WHITE);
-//                                doQueryWithDate();
-//                              //  Toast.makeText(SearchPatientActivity.this,"Selected:" + materialDatePicker.getHeaderText(),Toast.LENGTH_SHORT).show();
-//                            }
-//                        });
             }
         });
 
@@ -539,7 +525,7 @@ public class SearchPatientActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    //doQueryWithProviders(query, selectedItems);
+                    doQueryWithAge(query, selectedItems);
                 }
             }
         });
@@ -693,6 +679,108 @@ public class SearchPatientActivity extends AppCompatActivity {
                 FirebaseCrashlytics.getInstance().recordException(e);
                 Logger.logE("doquery", "doquery", e);
             }
+        }
+    }
+    private void doQueryWithAge(String querytext, List<String> patientages) {
+        if (querytext == null) {
+            List<PatientDTO> modelListwihtoutQuery = new ArrayList<PatientDTO>();
+//            String query =
+//                    "select b.openmrs_id,b.first_name,b.last_name,b.middle_name,b.uuid,b.date_of_birth from tbl_visit a, tbl_patient b, tbl_encounter c WHERE a.patientuuid = b.uuid  AND c.visituuid=a.uuid and c.provider_uuid in " +
+//                            "('" + StringUtils.convertUsingStringBuilder(providersuuids) + "')  " +
+//                            "group by a.uuid order by b.uuid ASC";
+//            Logger.logD(TAG, query);
+//            final Cursor cursor = db.rawQuery(query, null);
+//            Logger.logD(TAG, "Cursour count" + cursor.getCount());
+//
+//            try {
+//                if (cursor != null) {
+//                    if (cursor.moveToFirst()) {
+//                        do {
+//                            PatientDTO model = new PatientDTO();
+//                            model.setOpenmrsId(cursor.getString(cursor.getColumnIndexOrThrow("openmrs_id")));
+//                            model.setFirstname(cursor.getString(cursor.getColumnIndexOrThrow("first_name")));
+//                            model.setLastname(cursor.getString(cursor.getColumnIndexOrThrow("last_name")));
+//                            model.setMiddlename(cursor.getString(cursor.getColumnIndexOrThrow("middle_name")));
+//                            model.setUuid(cursor.getString(cursor.getColumnIndexOrThrow("uuid")));
+//                            model.setDateofbirth(cursor.getString(cursor.getColumnIndexOrThrow("date_of_birth")));
+//                            model.setPhonenumber(StringUtils.mobileNumberEmpty(phoneNumber(cursor.getString(cursor.getColumnIndexOrThrow("uuid")))));
+//                            modelListwihtoutQuery.add(model);
+//
+//                        } while (cursor.moveToNext());
+//                    }
+//                }
+//                if (cursor != null) {
+//                    cursor.close();
+//                }
+//
+//            } catch (DAOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            try {
+//                recycler = new SearchPatientAdapter(modelListwihtoutQuery, SearchPatientActivity.this);
+////            Log.i("db data", "" + getQueryPatients(query));
+//                RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+//                recyclerView.setLayoutManager(reLayoutManager);
+//            /*    recyclerView.addItemDecoration(new
+//                        DividerItemDecoration(this,
+//                        DividerItemDecoration.VERTICAL));*/
+//                recyclerView.setAdapter(recycler);
+//
+//            } catch (Exception e) {
+//                Logger.logE("doquery", "doquery", e);
+//            }
+//        }
+//        else {
+//            String search = querytext.trim().replaceAll("\\s", "");
+//            List<PatientDTO> modelList = new ArrayList<PatientDTO>();
+//            String query =
+//                    "select   b.openmrs_id,b.firstname,b.last_name,b.middle_name,b.uuid,b.date_of_birth  from tbl_visit a, tbl_patient b, tbl_encounter c WHERE" +
+//                            "first_name LIKE " + "'%" + search +
+//                            "%' OR middle_name LIKE '%" + search +
+//                            "%' OR last_name LIKE '%" + search +
+//                            "%' OR openmrs_id LIKE '%" + search +
+//                            "%' " +
+//                            "AND a.provider_uuid in ('" + StringUtils.convertUsingStringBuilder(providersuuids) + "')  " +
+//                            "AND  a.patientuuid = b.uuid  AND c.visituuid=a.uuid " +
+//                            "group by a.uuid order by b.uuid ASC";
+//            Logger.logD(TAG, query);
+//            final Cursor cursor = db.rawQuery(query, null);
+//            Logger.logD(TAG, "Cursour count" + cursor.getCount());
+//            try {
+//                if (cursor != null) {
+//                    if (cursor.moveToFirst()) {
+//                        do {
+//                            PatientDTO model = new PatientDTO();
+//                            model.setOpenmrsId(cursor.getString(cursor.getColumnIndexOrThrow("openmrs_id")));
+//                            model.setFirstname(cursor.getString(cursor.getColumnIndexOrThrow("first_name")));
+//                            model.setLastname(cursor.getString(cursor.getColumnIndexOrThrow("last_name")));
+//                            model.setMiddlename(cursor.getString(cursor.getColumnIndexOrThrow("middle_name")));
+//                            model.setUuid(cursor.getString(cursor.getColumnIndexOrThrow("uuid")));
+//                            model.setDateofbirth(cursor.getString(cursor.getColumnIndexOrThrow("date_of_birth")));
+//                            model.setPhonenumber(StringUtils.mobileNumberEmpty(phoneNumber(cursor.getString(cursor.getColumnIndexOrThrow("uuid")))));
+//                            modelList.add(model);
+//
+//                        } while (cursor.moveToNext());
+//                    }
+//                }
+//                cursor.close();
+//            } catch (DAOException sql) {
+//                FirebaseCrashlytics.getInstance().recordException(sql);
+//            }
+//            try {
+//                recycler = new SearchPatientAdapter(modelList, SearchPatientActivity.this);
+//                RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+//                recyclerView.setLayoutManager(reLayoutManager);
+//           /*     recyclerView.addItemDecoration(new
+//                        DividerItemDecoration(this,
+//                        DividerItemDecoration.HORIZONTAL));*/
+//                recyclerView.setAdapter(recycler);
+//
+//            } catch (Exception e) {
+//                FirebaseCrashlytics.getInstance().recordException(e);
+//                Logger.logE("doquery", "doquery", e);
+//            }
         }
     }
     private void doQueryWithDate(Long startDate, Long endDate) {
