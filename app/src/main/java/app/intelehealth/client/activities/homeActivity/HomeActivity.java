@@ -187,35 +187,7 @@ public class HomeActivity extends AppCompatActivity {
 
        // this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        TempDialog = new ProgressDialog(HomeActivity.this, R.style.AlertDialogStyle); //thats how to add a style!
-        TempDialog.setTitle(R.string.syncInProgress);
-        TempDialog.setMessage(getString(R.string.please_wait));
-        TempDialog.setCancelable(false);
-        TempDialog.setProgress(i);
 
-        TempDialog.show();
-
-
-        if(isNetworkConnected()) {
-            //viewmodel...
-            homeViewModel = new ViewModelProvider(HomeActivity.this).get(HomeViewModel.class);
-            homeViewModel.getStringLiveData().observe(HomeActivity.this, new Observer<String>() {
-                @Override
-                public void onChanged(String s) {
-                    lastSyncTextView.setText(
-                            getString(R.string.last_synced) +
-                                    " \n" +
-                                    s);
-
-                    TempDialog.dismiss();
-                }
-            });
-        }
-        else {
-            lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
-            TempDialog.dismiss();
-            Toast.makeText(context, context.getString(R.string.failed_synced), Toast.LENGTH_LONG).show();
-        }
 
 
 
@@ -277,7 +249,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
 
-    //    lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
+        lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
 
 //        if (!sessionManager.getLastSyncDateTime().equalsIgnoreCase("- - - -")
 //                && Locale.getDefault().toString().equalsIgnoreCase("en")) {
@@ -304,6 +276,37 @@ public class HomeActivity extends AppCompatActivity {
         });
         WorkManager.getInstance().enqueueUniquePeriodicWork(AppConstants.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, AppConstants.PERIODIC_WORK_REQUEST);
         if (sessionManager.isFirstTimeLaunched()) {
+            TempDialog = new ProgressDialog(HomeActivity.this, R.style.AlertDialogStyle); //thats how to add a style!
+            TempDialog.setTitle(R.string.syncInProgress);
+            TempDialog.setMessage(getString(R.string.please_wait));
+            TempDialog.setCancelable(false);
+            TempDialog.setProgress(i);
+
+            TempDialog.show();
+
+
+            if(isNetworkConnected()) {
+                //viewmodel...
+                homeViewModel = new ViewModelProvider(HomeActivity.this).get(HomeViewModel.class);
+                homeViewModel.getStringLiveData().observe(HomeActivity.this, new Observer<String>() {
+                    @Override
+                    public void onChanged(String s) {
+                        lastSyncTextView.setText(
+                                getString(R.string.last_synced) +
+                                        " \n" +
+                                        s);
+
+                        TempDialog.dismiss();
+                        sessionManager.setFirstTimeLaunched(false);
+                        sessionManager.setMigration(true);
+                    }
+                });
+            }
+            else {
+                lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
+                TempDialog.dismiss();
+                Toast.makeText(context, context.getString(R.string.failed_synced), Toast.LENGTH_LONG).show();
+            }
 
 //            CDT = new CountDownTimer(7000, 1000) {
 //                public void onTick(long millisUntilFinished) {
