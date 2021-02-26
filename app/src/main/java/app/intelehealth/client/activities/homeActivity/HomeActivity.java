@@ -94,7 +94,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final String TAG = HomeActivity.class.getSimpleName();
     SessionManager sessionManager = null;
     ProgressDialog TempDialog;
-   // CountDownTimer CDT;
+    // CountDownTimer CDT;
     private boolean hasLicense = false;
     int i = 5;
 
@@ -130,7 +130,6 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitleTextAppearance(this, R.style.ToolbarTheme);
         toolbar.setTitleTextColor(Color.WHITE);
-
 
 
         String language = sessionManager.getAppLanguage();
@@ -185,10 +184,7 @@ public class HomeActivity extends AppCompatActivity {
 
         manualSyncButton.setText(R.string.sync_now);
 
-       // this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-
-
+        // this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
         //Help section of watsapp...
@@ -285,7 +281,7 @@ public class HomeActivity extends AppCompatActivity {
             TempDialog.show();
 
 
-            if(isNetworkConnected()) {
+            if (isNetworkConnected()) {
                 //viewmodel...
                 homeViewModel = new ViewModelProvider(HomeActivity.this).get(HomeViewModel.class);
                 homeViewModel.getStringLiveData().observe(HomeActivity.this, new Observer<String>() {
@@ -301,8 +297,7 @@ public class HomeActivity extends AppCompatActivity {
                         sessionManager.setMigration(true);
                     }
                 });
-            }
-            else {
+            } else {
                 lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
                 TempDialog.dismiss();
                 Toast.makeText(context, context.getString(R.string.failed_synced), Toast.LENGTH_LONG).show();
@@ -347,19 +342,15 @@ public class HomeActivity extends AppCompatActivity {
                 obj = new JSONObject(String.valueOf(FileUtils.encodeJSON(this, AppConstants.CONFIG_FILE_NAME)));
             }
 
-            if(obj.has("video_library"))
-            {
+            if (obj.has("video_library")) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 Uri uri = Uri.parse(obj.getString("video_library"));
                 intent.setData(uri);
                 startActivity(intent);
-            }
-            else
-            {
+            } else {
                 Toast.makeText(context, "No config attribute found", Toast.LENGTH_SHORT).show();
             }
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             Toast.makeText(getApplicationContext(), "JsonException" + e, Toast.LENGTH_LONG).show();
         }
@@ -445,8 +436,7 @@ public class HomeActivity extends AppCompatActivity {
             case R.id.updateProtocolsOption: {
 
 
-                if (NetworkConnection.isOnline(this))
-                {
+                if (NetworkConnection.isOnline(this)) {
 
                     if (!sessionManager.getLicenseKey().isEmpty()) {
 
@@ -504,12 +494,12 @@ public class HomeActivity extends AppCompatActivity {
 
                     }
 
-            }else{
+                } else {
                     Toast.makeText(context, getString(R.string.mindmap_internect_connection), Toast.LENGTH_SHORT).show();
                 }
 
                 return true;
-        }
+            }
 
          /*   case R.id.sync:
 //                pullDataDAO.pullData(this);
@@ -680,7 +670,7 @@ public class HomeActivity extends AppCompatActivity {
     public class Myreceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(!sessionManager.getLastSyncDateTime().equalsIgnoreCase("- - - -")) {
+            if (!sessionManager.getLastSyncDateTime().equalsIgnoreCase("- - - -")) {
                 lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
             }
 
