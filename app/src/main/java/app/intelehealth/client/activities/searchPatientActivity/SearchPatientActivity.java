@@ -134,6 +134,31 @@ public class SearchPatientActivity extends AppCompatActivity {
                         doQueryWithDate(startDate, endDate);
                     }
                 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             }
         });
 
@@ -201,7 +226,6 @@ public class SearchPatientActivity extends AppCompatActivity {
             getAllPatientsFromDB();
 
             recycler = new SearchPatientAdapter(getAllPatientsFromDB(), SearchPatientActivity.this);
-
 
 //            Log.i("db data", "" + getAllPatientsFromDB());
             RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());

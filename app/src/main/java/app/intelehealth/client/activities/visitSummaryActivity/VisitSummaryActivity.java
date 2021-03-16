@@ -713,6 +713,11 @@ public class VisitSummaryActivity extends AppCompatActivity {
 //                        encounterDAO.deleteEncounterFromdb(visitUuid);
                         if(!encounterDAO.checkEncounterPresent(visitUuid))
                         encounterDAO.setEmergency(visitUuid, true);
+                        else
+                        {
+                            encounterDAO.deleteEncounterFromdb(visitUuid);
+                            encounterDAO.setEmergency(visitUuid, true);
+                        }
                     } catch (DAOException e) {
                         FirebaseCrashlytics.getInstance().recordException(e);
                     }
