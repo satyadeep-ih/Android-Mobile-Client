@@ -6,19 +6,18 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
-
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.intelehealth.client.utilities.Base64Utils;
-import app.intelehealth.client.utilities.Logger;
-import app.intelehealth.client.utilities.UuidDictionary;
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.models.ObsImageModel.ObsPushDTO;
 import app.intelehealth.client.models.patientImageModelRequest.PatientProfile;
+import app.intelehealth.client.utilities.Base64Utils;
+import app.intelehealth.client.utilities.Logger;
+import app.intelehealth.client.utilities.UuidDictionary;
 import app.intelehealth.client.utilities.exception.DAOException;
 
 public class ImagesDAO {
@@ -229,16 +228,21 @@ public class ImagesDAO {
         SQLiteDatabase localdb = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
         localdb.beginTransaction();
         try {
-            Cursor idCursor = localdb.rawQuery("select c.uuid as patientuuid,d.conceptuuid,a.uuid as encounteruuid,d.uuid as obsuuid,d.modified_date  from tbl_encounter a , tbl_visit b , tbl_patient c,tbl_obs d where a.visituuid=b.uuid and b.patientuuid=c.uuid and d.encounteruuid=a.uuid and (d.sync=0 or d.sync='false') and (d.conceptuuid=? or d.conceptuuid=?) and d.voided='0'", new String[]{UuidDictionary.COMPLEX_IMAGE_PE, UuidDictionary.COMPLEX_IMAGE_AD});
+            Cursor idCursor = localdb.rawQuery("select c.uuid as patientuuid,d.conceptuuid,a.uuid as encounteruuid,d.uuid as obsuuid, b.uuid as visit_uuid, d.modified_date  from tbl_encounter a , tbl_visit b , tbl_patient c,tbl_obs d where a.visituuid=b.uuid and b.patientuuid=c.uuid and d.encounteruuid=a.uuid and (d.sync=0 or d.sync='false') and (d.conceptuuid=? or d.conceptuuid=?) and d.voided='0'", new String[]{UuidDictionary.COMPLEX_IMAGE_PE, UuidDictionary.COMPLEX_IMAGE_AD});
             if (idCursor.getCount() != 0) {
                 while (idCursor.moveToNext()) {
-                    ObsPushDTO obsPushDTO = new ObsPushDTO();
-                    obsPushDTO.setConcept(idCursor.getString(idCursor.getColumnIndexOrThrow("conceptuuid")));
-                    obsPushDTO.setEncounter(idCursor.getString(idCursor.getColumnIndexOrThrow("encounteruuid")));
-                    obsPushDTO.setObsDatetime(idCursor.getString(idCursor.getColumnIndexOrThrow("modified_date")));
-                    obsPushDTO.setUuid(idCursor.getString(idCursor.getColumnIndexOrThrow("obsuuid")));
-                    obsPushDTO.setPerson(idCursor.getString(idCursor.getColumnIndexOrThrow("patientuuid")));
-                    obsImages.add(obsPushDTO);
+                    // check for speciality selected for the visit or not.
+                    // if yes then allow for sync
+                    // else skip it
+                    if (isSpecialityRowExist(localdb, idCursor.getString(idCursor.getColumnIndexOrThrow("visit_uuid")))) {
+                        ObsPushDTO obsPushDTO = new ObsPushDTO();
+                        obsPushDTO.setConcept(idCursor.getString(idCursor.getColumnIndexOrThrow("conceptuuid")));
+                        obsPushDTO.setEncounter(idCursor.getString(idCursor.getColumnIndexOrThrow("encounteruuid")));
+                        obsPushDTO.setObsDatetime(idCursor.getString(idCursor.getColumnIndexOrThrow("modified_date")));
+                        obsPushDTO.setUuid(idCursor.getString(idCursor.getColumnIndexOrThrow("obsuuid")));
+                        obsPushDTO.setPerson(idCursor.getString(idCursor.getColumnIndexOrThrow("patientuuid")));
+                        obsImages.add(obsPushDTO);
+                    }
                 }
             }
             idCursor.close();
@@ -253,6 +257,23 @@ public class ImagesDAO {
 
     }
 
+    /**
+     * @param uuid the visit uuid of the patient visit records is passed to the function.
+     * @return boolean value will be returned depending upon if the row exists in the tbl_visit_attribute tbl
+     */
+    private boolean isSpecialityRowExist(SQLiteDatabase db,String uuid) {
+        boolean isExists = false;
+        // Now we are considering that there will be only one visit attribute in the tbl_visit_attribute table i.e. for speciality info
+        // in future if there will be any chance to have multiple attributes for a single visit then we have to identify it exactly for the speciality row
+        Cursor cursor = db.rawQuery("SELECT * FROM tbl_visit_attribute WHERE visit_uuid=?",
+                new String[]{uuid});
+
+
+        isExists = cursor != null && cursor.moveToFirst();
+
+        cursor.close();
+        return isExists;
+    }
 
     public String getPatientProfileChangeTime(String patientUuid) throws DAOException {
         String datetime = "";
@@ -404,7 +425,6 @@ public class ImagesDAO {
         }
         return isLocalImageExists;
     }
-
 
 
 }
