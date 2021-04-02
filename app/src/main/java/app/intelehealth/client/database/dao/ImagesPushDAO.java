@@ -88,7 +88,7 @@ public class ImagesPushDAO {
         List<ObsPushDTO> obsImageJsons = new ArrayList<>();
         try {
             obsImageJsons = imagesDAO.getObsUnsyncedImages();
-            Log.e(TAG, "image request model" + gson.toJson(obsImageJsons));
+            Logger.logD(TAG, "image request model" + gson.toJson(obsImageJsons));
         } catch (DAOException e) {
             FirebaseCrashlytics.getInstance().recordException(e);
         }

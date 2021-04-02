@@ -32,6 +32,7 @@ public class AppConstants {
     public static final String dbfilepath = Environment.getExternalStorageDirectory() + File.separator + "InteleHealth_DB" + File.separator + "Intelehealth.db"; // directory: Intelehealth_DB   ,  filename: Intelehealth.db
     public static String CONFIG_FILE_NAME = "config.json";
     public static final String IMAGE_PATH = IntelehealthApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + File.separator;
+    public static final String DOC_PATH = IntelehealthApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) + File.separator;
     public static final String MESSAGE_PROGRESS = "message_progress";
 
 

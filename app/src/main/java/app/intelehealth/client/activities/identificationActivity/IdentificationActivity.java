@@ -726,6 +726,9 @@ public class IdentificationActivity extends AppCompatActivity {
 
         //DOB Picker is shown when clicked
         mDOBPicker.getDatePicker().setMaxDate(System.currentTimeMillis());
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR,-(121*365));
+        mDOBPicker.getDatePicker().setMinDate(calendar.getTimeInMillis());
         mDOB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -770,7 +773,7 @@ public class IdentificationActivity extends AppCompatActivity {
 
 
                 yearPicker.setMinValue(0);
-                yearPicker.setMaxValue(100);
+                yearPicker.setMaxValue(120);
                 monthPicker.setMinValue(0);
                 monthPicker.setMaxValue(12);
 
@@ -1121,13 +1124,13 @@ public class IdentificationActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.v(TAG, "Result Received");
+        //Log.v(TAG, "Result Received");
         if (requestCode == CameraActivity.TAKE_IMAGE) {
-            Log.v(TAG, "Request Code " + CameraActivity.TAKE_IMAGE);
+            //Log.v(TAG, "Request Code " + CameraActivity.TAKE_IMAGE);
             if (resultCode == RESULT_OK) {
-                Log.i(TAG, "Result OK");
+                //Log.i(TAG, "Result OK");
                 mCurrentPhotoPath = data.getStringExtra("RESULT");
-                Log.v("IdentificationActivity", mCurrentPhotoPath);
+                Logger.logD("IdentificationActivity", mCurrentPhotoPath);
 
                 Glide.with(this)
                         .load(new File(mCurrentPhotoPath))

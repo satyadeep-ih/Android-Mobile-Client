@@ -12,25 +12,22 @@ import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.cameraview.CameraView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.File;
@@ -40,10 +37,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import app.intelehealth.client.R;
-import app.intelehealth.client.activities.cameraActivity.CameraActivityPermissionsDispatcher;
-
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.app.IntelehealthApplication;
+import app.intelehealth.client.utilities.Logger;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnNeverAskAgain;
 import permissions.dispatcher.OnPermissionDenied;
@@ -113,7 +109,7 @@ public class CameraActivity extends AppCompatActivity {
 
         @Override
         public void onPictureTaken(CameraView cameraView, final byte[] data) {
-            Log.d(TAG, "onPictureTaken " + data.length);
+            Logger.logD(TAG, "onPictureTaken " + data.length);
             Toast.makeText(cameraView.getContext(), R.string.picture_taken, Toast.LENGTH_SHORT)
                     .show();
             compressImageAndSave(data);
@@ -253,10 +249,10 @@ public class CameraActivity extends AppCompatActivity {
                     Intent intent = new Intent();
                     intent.putExtra("RESULT", file.getAbsolutePath());
                     setResult(RESULT_OK, intent);
-                    Log.i(TAG, file.getAbsolutePath());
+                    Logger.logV(TAG, ""+file.getAbsolutePath());
                     finish();
                 } catch (IOException e) {
-                    Log.w(TAG, "Cannot write to " + file, e);
+                    Logger.logE(TAG, "Cannot write to " + file, e);
                     setResult(RESULT_CANCELED, new Intent());
                     finish();
                 } finally {
@@ -321,6 +317,11 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     if (mCameraView != null) {
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         mCameraView.takePicture();
                     }
                 }
@@ -331,14 +332,28 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mCameraView != null) mCameraView.stop();
+        if (mCameraView != null) {
+            try {
+                Thread.sleep(200);
+                mCameraView.stop();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         CameraActivityPermissionsDispatcher.startCameraWithCheck(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mCameraView != null) mCameraView.stop();
+        if (mCameraView != null) {
+            try {
+                Thread.sleep(200);
+                mCameraView.stop();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

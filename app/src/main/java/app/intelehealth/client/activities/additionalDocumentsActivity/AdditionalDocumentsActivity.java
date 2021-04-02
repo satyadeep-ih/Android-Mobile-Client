@@ -27,6 +27,7 @@ import app.intelehealth.client.R;
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.database.dao.ImagesDAO;
 import app.intelehealth.client.models.DocumentObject;
+import app.intelehealth.client.utilities.Logger;
 import app.intelehealth.client.utilities.UuidDictionary;
 
 import app.intelehealth.client.activities.cameraActivity.CameraActivity;
@@ -42,7 +43,7 @@ public class AdditionalDocumentsActivity extends AppCompatActivity {
     private String encounterAdultIntials;
     private List<DocumentObject> rowListItem;
     private AdditionalDocumentAdapter recyclerViewAdapter;
-
+    private final String TAG = AdditionalDocumentsActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +115,7 @@ public class AdditionalDocumentsActivity extends AppCompatActivity {
         if (requestCode == CameraActivity.TAKE_IMAGE) {
             if (resultCode == RESULT_OK) {
                 String mCurrentPhotoPath = data.getStringExtra("RESULT");
+                Logger.logD(TAG,"CurrentPhotoPath : " + mCurrentPhotoPath);
                 File photo = new File(mCurrentPhotoPath);
                 if (photo.exists()) {
                     try{
@@ -122,7 +124,7 @@ public class AdditionalDocumentsActivity extends AppCompatActivity {
                         length = length/1024;
                         Log.e("------->>>>",length+"");
                     }catch(Exception e){
-                        System.out.println("File not found : " + e.getMessage() + e);
+                        Logger.logE(TAG,"File not found : " + e.getMessage() , e);
                     }
 
                     recyclerViewAdapter.add(new DocumentObject(photo.getName(), photo.getAbsolutePath()));
