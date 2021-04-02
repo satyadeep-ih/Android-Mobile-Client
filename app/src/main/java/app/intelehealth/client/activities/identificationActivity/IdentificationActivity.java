@@ -726,6 +726,10 @@ public class IdentificationActivity extends AppCompatActivity {
 
         //DOB Picker is shown when clicked
         mDOBPicker.getDatePicker().setMaxDate(System.currentTimeMillis());
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR,-(121*365));
+        mDOBPicker.getDatePicker().setMinDate(calendar.getTimeInMillis());
+
         mDOB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
