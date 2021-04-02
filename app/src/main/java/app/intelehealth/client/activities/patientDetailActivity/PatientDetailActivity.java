@@ -554,6 +554,12 @@ public class PatientDetailActivity extends AppCompatActivity {
             }
             addrFinalView.setText(addrFinalLine);
         }
+        else {
+            String addrFinalLine = String.format("%s, %s, %s",
+                    city_village, patient_new.getState_province(),
+                    patient_new.getCountry());
+            addrFinalView.setText(addrFinalLine);
+        }
 
         phoneView.setText(patient_new.getPhone_number());
         education_statusView.setText(patient_new.getEducation_level());
