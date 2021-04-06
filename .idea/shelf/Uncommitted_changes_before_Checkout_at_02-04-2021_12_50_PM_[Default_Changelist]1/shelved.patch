@@ -1,0 +1,20 @@
+Index: app/src/main/java/app/intelehealth/client/networkApiCalls/ApiClient.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package app.intelehealth.client.networkApiCalls;\r\n\r\n\r\nimport java.util.concurrent.TimeUnit;\r\n\r\nimport okhttp3.OkHttpClient;\r\nimport okhttp3.logging.HttpLoggingInterceptor;\r\nimport retrofit2.Retrofit;\r\nimport retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;\r\nimport retrofit2.converter.gson.GsonConverterFactory;\r\n\r\n\r\npublic class ApiClient {\r\n    //\r\n    private static OkHttpClient.Builder client = new OkHttpClient.Builder();\r\n    private static String apiBaseUrl = \"https://intelehealth.org\";    //testing server\r\n    private static Retrofit retrofit;\r\n    private static Retrofit.Builder builder =\r\n            new Retrofit.Builder()\r\n                    .addConverterFactory(GsonConverterFactory.create())\r\n                    .baseUrl(apiBaseUrl)\r\n                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create());\r\n\r\n\r\n    public static void changeApiBaseUrl(String newApiBaseUrl) {\r\n        apiBaseUrl = newApiBaseUrl;\r\n        builder = new Retrofit.Builder()\r\n                .addConverterFactory(GsonConverterFactory.create())\r\n                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())\r\n                .baseUrl(apiBaseUrl);\r\n\r\n    }\r\n\r\n    public static <S> S createService(Class<S> serviceClass) {\r\n\r\n        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();\r\n        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE);\r\n        client.addInterceptor(loggingInterceptor);\r\n        client.connectTimeout(70, TimeUnit.SECONDS);\r\n        client.readTimeout(70, TimeUnit.SECONDS);\r\n        client.writeTimeout(70, TimeUnit.SECONDS);\r\n        retrofit = builder.client(client.build()).build();\r\n        return retrofit.create(serviceClass);\r\n    }\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/app/intelehealth/client/networkApiCalls/ApiClient.java	(revision 537961036e42e3be195be2497a77f1ce38d4faf7)
++++ app/src/main/java/app/intelehealth/client/networkApiCalls/ApiClient.java	(date 1617340989317)
+@@ -13,7 +13,9 @@
+ public class ApiClient {
+     //
+     private static OkHttpClient.Builder client = new OkHttpClient.Builder();
+-    private static String apiBaseUrl = "https://intelehealth.org";    //testing server
++//    private static String apiBaseUrl = "https://intelehealth.org";    //testing server
++    private static String apiBaseUrl = "http://demo.intelehealth.org/";    //testing server
++//    private static String apiBaseUrl = "demo.intelehealth.org/";    //testing server
+     private static Retrofit retrofit;
+     private static Retrofit.Builder builder =
+             new Retrofit.Builder()
