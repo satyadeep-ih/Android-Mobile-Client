@@ -5,10 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.widget.Toast;
-
 
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
@@ -16,14 +13,14 @@ import com.gun0912.tedpermission.TedPermission;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.appcompat.app.AppCompatActivity;
 import app.intelehealth.client.R;
 import app.intelehealth.client.activities.IntroActivity.IntroActivity;
 import app.intelehealth.client.activities.homeActivity.HomeActivity;
+import app.intelehealth.client.activities.loginActivity.LoginActivity;
 import app.intelehealth.client.dataMigration.SmoothUpgrade;
 import app.intelehealth.client.utilities.Logger;
 import app.intelehealth.client.utilities.SessionManager;
-
-import app.intelehealth.client.activities.loginActivity.LoginActivity;
 
 
 public class SplashActivity extends AppCompatActivity {
@@ -99,7 +96,7 @@ public class SplashActivity extends AppCompatActivity {
                 .setDeniedMessage(R.string.reject_permission_results)
                 .setPermissions(Manifest.permission.INTERNET,
                         Manifest.permission.ACCESS_NETWORK_STATE,
-                        Manifest.permission.GET_ACCOUNTS,
+//                        Manifest.permission.GET_ACCOUNTS,
                         Manifest.permission.CAMERA,
                         Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
