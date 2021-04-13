@@ -401,7 +401,7 @@
 
     <string name="privacy_toast">Please select an option</string>
     <string name="sync_now">I-sync karon</string>
-    <string name="lastsync">lastsync</string>
+    <string name="lastsync">Last Sync</string>
     <string name="has_a_new_prescription">Naay bag-ong riseta</string>
     <string name="patient_denies" translatable="false">Patient denies</string>
     <string name="patient_reports" translatable="false">Patient reports</string>

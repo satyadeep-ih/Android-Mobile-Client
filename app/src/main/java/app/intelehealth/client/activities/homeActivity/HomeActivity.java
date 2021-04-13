@@ -95,8 +95,8 @@ public class HomeActivity extends AppCompatActivity {
     private boolean hasLicense = false;
     int i = 5;
 
-    TextView lastSyncTextView;
-    TextView lastSyncAgo;
+    TextView lastSyncTextView,lastSyncAgo;
+
     Button manualSyncButton;
     IntentFilter filter;
     Myreceiver reMyreceive;
@@ -240,7 +240,9 @@ public class HomeActivity extends AppCompatActivity {
         });
 
 
-        lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
+//        lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
+        lastSyncTextView.setText(getString(R.string.lastsync));
+        lastSyncAgo.setText(sessionManager.getLastSyncDateTime());
 
 //        if (!sessionManager.getLastSyncDateTime().equalsIgnoreCase("- - - -")
 //                && Locale.getDefault().toString().equalsIgnoreCase("en")) {
@@ -647,8 +649,10 @@ public class HomeActivity extends AppCompatActivity {
     public class Myreceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
+//            lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
+            lastSyncTextView.setText(getString(R.string.lastsync));
 //          lastSyncAgo.setText(sessionManager.getLastTimeAgo());
+            lastSyncAgo.setText(sessionManager.getLastSyncDateTime());
         }
     }
 
