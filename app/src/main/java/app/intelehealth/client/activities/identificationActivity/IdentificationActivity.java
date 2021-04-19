@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -47,6 +48,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
@@ -68,6 +70,7 @@ import app.intelehealth.client.database.dao.SyncDAO;
 import app.intelehealth.client.models.Patient;
 import app.intelehealth.client.models.dto.PatientAttributesDTO;
 import app.intelehealth.client.models.dto.PatientDTO;
+import app.intelehealth.client.utilities.BitmapUtils;
 import app.intelehealth.client.utilities.DateAndTimeUtils;
 import app.intelehealth.client.utilities.EditTextUtils;
 import app.intelehealth.client.utilities.FileUtils;
@@ -1008,6 +1011,12 @@ public class IdentificationActivity extends AppCompatActivity {
                 Log.i(TAG, "Result OK");
                 mCurrentPhotoPath = data.getStringExtra("RESULT");
                 Log.v("IdentificationActivity", mCurrentPhotoPath);
+                // check and correct the image rotation
+                try {
+                    BitmapUtils.handleSamplingAndRotationBitmap(IdentificationActivity.this, Uri.parse(mCurrentPhotoPath));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 Glide.with(this)
                         .load(new File(mCurrentPhotoPath))
