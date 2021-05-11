@@ -708,6 +708,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
         editAddDocs = findViewById(R.id.imagebutton_edit_additional_document);
         uploadButton = findViewById(R.id.button_upload);
         downloadButton = findViewById(R.id.button_download);
+        setDownloadButtonState();
 
         //additionalDocumentsDownlaod = findViewById(R.id.imagebutton_download_additional_document);
         onExaminationDownload = findViewById(R.id.imagebutton_download_physexam);
@@ -885,6 +886,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
 
                                 }
                                 uploaded = true;
+                                setDownloadButtonState();
 //                            pd.dismiss();
 //                            Toast.makeText(VisitSummaryActivity.this, getString(R.string.upload_completed), Toast.LENGTH_SHORT).show();
                             }
@@ -1492,6 +1494,11 @@ public class VisitSummaryActivity extends AppCompatActivity {
                     Toast.makeText(context, getResources().getString(R.string.downloading), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(context, getResources().getString(R.string.prescription_not_downloaded_check_internet), Toast.LENGTH_LONG).show();
+                }
+
+                //return if button disabled
+                if (downloadButton.getAlpha() < 1f) {
+                    return;
                 }
 
                 SyncUtils syncUtils = new SyncUtils();
@@ -3684,6 +3691,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
                     }
                 }
                 downloadDoctorDetails();
+                setDownloadButtonState();
             }
 
             additionalDocumentImagesDownload();
@@ -3729,6 +3737,8 @@ public class VisitSummaryActivity extends AppCompatActivity {
         if (hasPrescription.equalsIgnoreCase("true")) {
             ivPrescription.setImageDrawable(getResources().getDrawable(R.drawable.ic_prescription_green));
         }
+
+        setDownloadButtonState();
     }
 
     @Override
@@ -3911,5 +3921,13 @@ public class VisitSummaryActivity extends AppCompatActivity {
         visitCursor.close();
     }
 
-
+    void setDownloadButtonState() {
+        if (!NetworkConnection.isOnline(this)) {
+            downloadButton.setAlpha(0.8f);
+        } else if (uploaded) {
+            downloadButton.setAlpha(1);
+        } else {
+            downloadButton.setAlpha(0.8f);
+        }
+    }
 }
