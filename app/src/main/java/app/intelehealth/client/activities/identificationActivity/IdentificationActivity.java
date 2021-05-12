@@ -51,11 +51,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -719,8 +721,8 @@ public class IdentificationActivity extends AppCompatActivity {
                 mAgeYears = Integer.valueOf(yearData[0]);
                 mAgeMonths = Integer.valueOf(monthData[1]);
                 mAgeDays = Integer.valueOf(daysData[1]);
-                mAge.setText(age);
 
+                mAge.setText(calculateAge(dob.getTime()));
             }
         }, mDOBYear, mDOBMonth, mDOBDay);
 
@@ -810,10 +812,10 @@ public class IdentificationActivity extends AppCompatActivity {
                     }
                 }, dayText);
                 mAgePicker.setPositiveButton(R.string.generic_ok, (dialog, which) -> {
-                    String ageString = mAgeYears + getString(R.string.identification_screen_text_years) + " - " +
+                    /*String ageString = mAgeYears + getString(R.string.identification_screen_text_years) + " - " +
                             mAgeMonths + getString(R.string.identification_screen_text_months) + " - " +
                             mAgeDays + getString(R.string.days);
-                    mAge.setText(ageString);
+                    mAge.setText(ageString);*/
 
 
                     Calendar calendar = Calendar.getInstance();
@@ -841,6 +843,8 @@ public class IdentificationActivity extends AppCompatActivity {
                     String dobString = simpleDateFormat.format(dob.getTime());
                     mDOB.setText(dobString);
                     mDOBPicker.updateDate(mDOBYear, mDOBMonth, mDOBDay);
+
+                    mAge.setText(calculateAge(dob.getTime()));
                     dialog.dismiss();
                 });
                 mAgePicker.setNegativeButton(R.string.generic_cancel, new DialogInterface.OnClickListener() {
@@ -889,6 +893,11 @@ public class IdentificationActivity extends AppCompatActivity {
                 onPatientCreateClicked();
             }
         });
+    }
+
+    private String calculateAge(Date time) {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        return DateAndTimeUtils.getAgeInYearMonth(format.format(time), this);
     }
 
     public String getYear(int syear, int smonth, int sday, int eyear, int emonth, int eday) {

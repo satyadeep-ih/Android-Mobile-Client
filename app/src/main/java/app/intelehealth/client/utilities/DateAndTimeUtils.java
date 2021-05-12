@@ -146,12 +146,15 @@ public class DateAndTimeUtils {
             tyears = period.getYears() + " " + context.getResources().getString(R.string.years);
             //xyears = String.valueOf(period.getYears());
         }
-        if(period.getMonths() > 0) {
-            tmonth = period.getMonths() + " " + context.getResources().getString(R.string.months);
-            //xmonths = String.valueOf(period.getMonths());
+
+        if (period.getYears() < 6) { //show months/days only for pediatric patients
+            if (period.getMonths() > 0) {
+                tmonth = period.getMonths() + " " + context.getResources().getString(R.string.months);
+                //xmonths = String.valueOf(period.getMonths());
+            }
+            if (period.getDays() > 0)
+                tdays = period.getDays() + " " + context.getResources().getString(R.string.days);
         }
-        if(period.getDays() > 0)
-            tdays = period.getDays() + " " + context.getResources().getString(R.string.days);
 
         age = " "+tyears + " " + tmonth + " " + tdays;
 
