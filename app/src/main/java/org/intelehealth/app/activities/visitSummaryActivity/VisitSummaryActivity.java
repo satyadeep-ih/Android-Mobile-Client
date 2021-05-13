@@ -1974,17 +1974,21 @@ public class VisitSummaryActivity extends AppCompatActivity {
 
         //String advice_web = stringToWeb(adviceReturned);
         String advice_web = "";
-        if(medicalAdviceTextView.getText().toString().indexOf("Start") != -1 ||
-                medicalAdviceTextView.getText().toString().lastIndexOf(("User") + 6) != -1) {
+        String advice_doctor__ = medicalAdviceTextView.getText().toString()
+                .replace("Start Audio Call with Doctor", "Start Audio Call with Doctor_")
+                .replace("Start WhatsApp Call Doctor", "Start WhatsApp Call Doctor_");
+
+        if(advice_doctor__.indexOf("Start") != -1 ||
+                advice_doctor__.lastIndexOf(("Doctor_") + 9) != -1) {
 
 
 //        String advice_web = stringToWeb(medicalAdvice_string.trim().replace("\n\n", "\n"));
 //        Log.d("Hyperlink", "hyper_print: " + advice_web);
-        String advice_split = new StringBuilder(medicalAdviceTextView.getText().toString())
-                .delete(medicalAdviceTextView.getText().toString().indexOf("Start"),
-                        medicalAdviceTextView.getText().toString().lastIndexOf("User")+6).toString();
-        //lastIndexOf("User") will give index of U of User
-        //so the char this will return is U...here User + 6 will return W eg: User\n\nWatch as +6 will give W
+        String advice_split = new StringBuilder(advice_doctor__)
+                .delete(advice_doctor__.indexOf("Start"),
+                        advice_doctor__.lastIndexOf("Doctor_")+9).toString();
+        //lastIndexOf("Doctor_") will give index of D of Doctor_
+        //so the char this will return is D...here Doctor_ + 9 will return W eg: Doctor_\n\nWatch as +9 will give W
 
 //        String advice_web = stringToWeb(advice_split.replace("\n\n", "\n")); //showing advice here...
 //        Log.d("Hyperlink", "hyper_print: " + advice_web); //gets called when clicked on button of print button
@@ -1992,7 +1996,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
             Log.d("Hyperlink", "hyper_print: " + advice_web); //gets called when clicked on button of print button
         }
         else {
-            advice_web = stringToWeb(medicalAdviceTextView.getText().toString().replace("\n\n", "\n")); //showing advice here...
+            advice_web = stringToWeb(advice_doctor__.replace("\n\n", "\n")); //showing advice here...
             Log.d("Hyperlink", "hyper_print: " + advice_web); //gets called when clicked on button of print button
         }
 
@@ -2178,6 +2182,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
     }
 
     //print button end
+
 
 
 
@@ -2444,17 +2449,21 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                     "<p id=\"heading_2\" style=\"font-size:12pt; margin: 0px; padding: 0px; text-align: center;\">%s</p>" +
                                     "<p id=\"heading_3\" style=\"font-size:12pt; margin: 0px; padding: 0px; text-align: center;\">%s</p>" +
                                     "<hr style=\"font-size:12pt;\">" + "<br/>" +
-                                    /* doctorDetailStr +*/
+
+/* doctorDetailStr +*/
+
                                     "<p id=\"patient_name\" style=\"font-size:12pt; margin: 0px; padding: 0px;\">%s</p></b>" +
                                     "<p id=\"patient_details\" style=\"font-size:12pt; margin: 0px; padding: 0px;\">Age: %s | Gender: %s  </p>" +
                                     "<p id=\"address_and_contact\" style=\"font-size:12pt; margin: 0px; padding: 0px;\">Address and Contact: %s</p>" +
                                     "<p id=\"visit_details\" style=\"font-size:12pt; margin-top:5px; margin-bottom:0px; padding: 0px;\">Patient Id: %s | Date of visit: %s </p><br>" +
                                     "<b><p id=\"vitals_heading\" style=\"font-size:12pt;margin-top:5px; margin-bottom:0px;; padding: 0px;\">Vitals</p></b>" +
                                     "<p id=\"vitals\" style=\"font-size:12pt;margin:0px; padding: 0px;\">Height(cm): %s | Weight(kg): %s | BMI: %s | Blood Pressure: %s | Pulse(bpm): %s | %s | Respiratory Rate: %s |  %s </p><br>" +
-                                   /* "<b><p id=\"patient_history_heading\" style=\"font-size:11pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Patient History</p></b>" +
+
+/* "<b><p id=\"patient_history_heading\" style=\"font-size:11pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Patient History</p></b>" +
                                     "<p id=\"patient_history\" style=\"font-size:11pt;margin:0px; padding: 0px;\"> %s</p><br>" +
                                     "<b><p id=\"family_history_heading\" style=\"font-size:11pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Family History</p></b>" +
                                     "<p id=\"family_history\" style=\"font-size:11pt;margin: 0px; padding: 0px;\"> %s</p><br>" +*/
+
                                     "<b><p id=\"complaints_heading\" style=\"font-size:15pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Presenting complaint(s)</p></b>" +
                                     para_open + "%s" + para_close + "<br><br>" +
                                     "<u><b><p id=\"diagnosis_heading\" style=\"font-size:15pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Diagnosis</p></b></u>" +
@@ -2472,9 +2481,13 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                     doctorDetailStr +
                                     "<p style=\"font-size:12pt; margin-top:-0px; padding: 0px;\">" + doctrRegistartionNum + "</p>" +
                                     "</div>"
-                            , heading, heading2, heading3, mPatientName, age, mGender, /*mSdw*/ address, mPatientOpenMRSID, mDate, (!TextUtils.isEmpty(mHeight)) ? mHeight : "", (!TextUtils.isEmpty(mWeight)) ? mWeight : "",
+                            , heading, heading2, heading3, mPatientName, age, mGender,
+/*mSdw*/
+ address, mPatientOpenMRSID, mDate, (!TextUtils.isEmpty(mHeight)) ? mHeight : "", (!TextUtils.isEmpty(mWeight)) ? mWeight : "",
                             (!TextUtils.isEmpty(mBMI)) ? mBMI : "", (!TextUtils.isEmpty(bp)) ? bp : "", (!TextUtils.isEmpty(mPulse)) ? mPulse : "", (!TextUtils.isEmpty(mTemp)) ? mTemp : "", (!TextUtils.isEmpty(mresp)) ? mresp : "", (!TextUtils.isEmpty(mSPO2)) ? mSPO2 : "",
-                            /*pat_hist, fam_hist,*/ mComplaint, diagnosis_web, rx_web, tests_web, advice_web, followUp_web, doctor_web);
+
+/*pat_hist, fam_hist,*/
+ mComplaint, diagnosis_web, rx_web, tests_web, advice_web, followUp_web, doctor_web);
             webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
         } else {
             String htmlDocument =
@@ -2488,10 +2501,12 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                     "<p id=\"visit_details\" style=\"font-size:12pt; margin-top:5px; margin-bottom:0px; padding: 0px;\">Patient Id: %s | Date of visit: %s </p><br>" +
                                     "<p id=\"vitals_heading\" style=\"font-size:12pt;margin-top:5px; margin-bottom:0px;; padding: 0px;\">Vitals</p>" +
                                     "<p id=\"vitals\" style=\"font-size:12pt;margin:0px; padding: 0px;\">Height(cm): %s | Weight(kg): %s | BMI: %s | Blood Pressure: %s | Pulse(bpm): %s | %s | %s </p><br>" +
-                                    /*"<b><p id=\"patient_history_heading\" style=\"font-size:11pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Patient History</p></b>" +
+
+/*"<b><p id=\"patient_history_heading\" style=\"font-size:11pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Patient History</p></b>" +
                                     "<p id=\"patient_history\" style=\"font-size:11pt;margin:0px; padding: 0px;\"> %s</p><br>" +
                                     "<b><p id=\"family_history_heading\" style=\"font-size:11pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Family History</p></b>" +
                                     "<p id=\"family_history\" style=\"font-size:11pt;margin: 0px; padding: 0px;\"> %s</p><br>" +*/
+
                                     "<p id=\"complaints_heading\" style=\"font-size:12pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Presenting complaint(s)</p>" +
                                     para_open + "%s" + para_close + "<br><br>" +
                                     "<b><p id=\"diagnosis_heading\" style=\"font-size:12pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Diagnosis</p></b>" +
@@ -2509,23 +2524,30 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                     doctorDetailStr +
                                     "<span style=\"font-size:12pt; margin-top:5px; padding: 0px;\">" + doctrRegistartionNum + "</span>" +
                                     "</div>"
-                            , heading, heading2, heading3, mPatientName, age, mGender, /*mSdw*/ address, mPatientOpenMRSID, mDate, (!TextUtils.isEmpty(mHeight)) ? mHeight : "", (!TextUtils.isEmpty(mWeight)) ? mWeight : "",
+                            , heading, heading2, heading3, mPatientName, age, mGender,
+/*mSdw*/
+ address, mPatientOpenMRSID, mDate, (!TextUtils.isEmpty(mHeight)) ? mHeight : "", (!TextUtils.isEmpty(mWeight)) ? mWeight : "",
                             (!TextUtils.isEmpty(mBMI)) ? mBMI : "", (!TextUtils.isEmpty(bp)) ? bp : "", (!TextUtils.isEmpty(mPulse)) ? mPulse : "", (!TextUtils.isEmpty(mTemp)) ? mTemp : "", (!TextUtils.isEmpty(mresp)) ? mresp : "", (!TextUtils.isEmpty(mSPO2)) ? mSPO2 : "",
-                            /*pat_hist, fam_hist,*/ mComplaint, diagnosis_web, rx_web, tests_web, advice_web, followUp_web, doctor_web);
+
+/*pat_hist, fam_hist,*/
+ mComplaint, diagnosis_web, rx_web, tests_web, advice_web, followUp_web, doctor_web);
             webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
         }
 
 
-        /**
+
+/**
          * +
          * "<b><p id=\"comments_heading\" style=\"font-size:12pt;margin-top:5px; margin-bottom:0px; padding: 0px;\">Doctor's Note</p></b>" +
          * "%s"
          */
 
+
         // Keep a reference to WebView object until you pass the PrintDocumentAdapter
         // to the PrintManager
         mWebView = webView;
     }
+
 
     /**
      * This method creates a print job using PrintManager instance and PrintAdapter Instance
@@ -3386,7 +3408,12 @@ public class VisitSummaryActivity extends AppCompatActivity {
                         medicalAdvice_string.replaceAll("\n", "<br><br>")));*/
 
                 adviceReturned = adviceReturned.replaceAll("\n", "<br><br>");
-                medicalAdviceTextView.setText(Html.fromHtml(adviceReturned));
+               /* adviceReturned = "<a href=\"tel:7972269174\"><i>Start Audio Call with Doctor_</i></a><br>\n" +
+                        "<a href=\"https://wa.me/917972269174\"><i>Start WhatsApp Call Doctor_</i></a><br><br>\n" +
+                        "Watch: Responsible behavior may save you - <a target=\"_blank\" href=\"https://www.youtube.com/watch?v=F1-rkF39uHk\">video link</a><br><br>\n" +
+                        "REVIEW WITH DIAGNOSTIC REPORT\n";
+*/
+                medicalAdviceTextView.setText(Html.fromHtml(adviceReturned.replace("Doctor_", "Doctor")));
                 medicalAdviceTextView.setMovementMethod(LinkMovementMethod.getInstance());
                 Log.d("hyper_textview", "hyper_textview: " + medicalAdviceTextView.getText().toString());
                 //checkForDoctor();
