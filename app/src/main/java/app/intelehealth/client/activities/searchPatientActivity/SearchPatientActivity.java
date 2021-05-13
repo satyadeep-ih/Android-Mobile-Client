@@ -32,16 +32,20 @@ import android.widget.TextView;
 
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import app.intelehealth.client.R;
+import app.intelehealth.client.activities.identificationActivity.IdentificationActivity;
+import app.intelehealth.client.activities.privacyNoticeActivity.PrivacyNotice_Activity;
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.app.IntelehealthApplication;
 import app.intelehealth.client.database.dao.ProviderDAO;
 import app.intelehealth.client.models.dto.PatientDTO;
+import app.intelehealth.client.utilities.ConfigUtils;
 import app.intelehealth.client.utilities.Logger;
 import app.intelehealth.client.utilities.SessionManager;
 
@@ -59,6 +63,7 @@ public class SearchPatientActivity extends AppCompatActivity {
     MaterialAlertDialogBuilder dialogBuilder;
     private String TAG = SearchPatientActivity.class.getSimpleName();
     private SQLiteDatabase db;
+    FloatingActionButton new_patient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +85,7 @@ public class SearchPatientActivity extends AppCompatActivity {
         db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
         msg = findViewById(R.id.textviewmessage);
         recyclerView = findViewById(R.id.recycle);
+        new_patient = findViewById(R.id.new_patient);
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             query = intent.getStringExtra(SearchManager.QUERY);
@@ -103,7 +109,22 @@ public class SearchPatientActivity extends AppCompatActivity {
 
         }
 
-
+        new_patient.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Loads the config file values and check for the boolean value of privacy key.
+                ConfigUtils configUtils = new ConfigUtils(SearchPatientActivity.this);
+                if (configUtils.privacy_notice()) {
+                    Intent intent = new Intent(SearchPatientActivity.this, PrivacyNotice_Activity.class);
+                    startActivity(intent);
+                } else {
+                    //Clear HouseHold UUID from Session for new registration
+                    //  sessionManager.setHouseholdUuid("");
+                    Intent intent = new Intent(SearchPatientActivity.this, IdentificationActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     private void doQuery(String query) {

@@ -1,5 +1,7 @@
 package app.intelehealth.client.activities.homeActivity;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -17,23 +19,23 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.WorkManager;
 
@@ -52,9 +54,7 @@ import java.util.Objects;
 
 import app.intelehealth.client.R;
 import app.intelehealth.client.activities.activePatientsActivity.ActivePatientActivity;
-import app.intelehealth.client.activities.identificationActivity.IdentificationActivity;
 import app.intelehealth.client.activities.loginActivity.LoginActivity;
-import app.intelehealth.client.activities.privacyNoticeActivity.PrivacyNotice_Activity;
 import app.intelehealth.client.activities.searchPatientActivity.SearchPatientActivity;
 import app.intelehealth.client.activities.settingsActivity.SettingsActivity;
 import app.intelehealth.client.activities.todayPatientActivity.TodayPatientActivity;
@@ -65,7 +65,6 @@ import app.intelehealth.client.models.DownloadMindMapRes;
 import app.intelehealth.client.networkApiCalls.ApiClient;
 import app.intelehealth.client.networkApiCalls.ApiInterface;
 import app.intelehealth.client.syncModule.SyncUtils;
-import app.intelehealth.client.utilities.ConfigUtils;
 import app.intelehealth.client.utilities.DownloadMindMaps;
 import app.intelehealth.client.utilities.FileUtils;
 import app.intelehealth.client.utilities.Logger;
@@ -73,7 +72,6 @@ import app.intelehealth.client.utilities.NetworkConnection;
 import app.intelehealth.client.utilities.OfflineLogin;
 import app.intelehealth.client.utilities.SessionManager;
 import app.intelehealth.client.widget.materialprogressbar.CustomProgressDialog;
-
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -81,7 +79,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
-
 /**
  * Home Screen
  */
@@ -97,11 +94,11 @@ public class HomeActivity extends AppCompatActivity {
 
     TextView lastSyncTextView;
     TextView lastSyncAgo;
-    Button manualSyncButton;
+    CardView manualSyncButton;
     IntentFilter filter;
     Myreceiver reMyreceive;
     SyncUtils syncUtils = new SyncUtils();
-    CardView c1, c2, c3, c4, c5, c6;
+    CardView c2, c3, c4, c5, c6;
     private String key = null;
     private String licenseUrl = null;
 
@@ -110,12 +107,13 @@ public class HomeActivity extends AppCompatActivity {
     private String mindmapURL = "";
     private DownloadMindMaps mTask;
     ProgressDialog mProgressDialog;
+    private ImageView ivSync;
 
     private int versionCode = 0;
     private CompositeDisposable disposable = new CompositeDisposable();
-    TextView newPatient_textview, findPatients_textview, todaysVisits_textview,
+    TextView findPatients_textview, todaysVisits_textview,
             activeVisits_textview, videoLibrary_textview, help_textview;
-
+    private ObjectAnimator syncAnimator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +149,7 @@ public class HomeActivity extends AppCompatActivity {
         lastSyncAgo = findViewById(R.id.lastsyncago);
         manualSyncButton = findViewById(R.id.manualsyncbutton);
 //        manualSyncButton.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
-        c1 = findViewById(R.id.cardview_newpat);
+//        c1 = findViewById(R.id.cardview_newpat);
         c2 = findViewById(R.id.cardview_find_patient);
         c3 = findViewById(R.id.cardview_today_patient);
         c4 = findViewById(R.id.cardview_active_patients);
@@ -159,8 +157,8 @@ public class HomeActivity extends AppCompatActivity {
         c6 = findViewById(R.id.cardview_help_whatsapp);
 
         //card textview referrenced to fix bug of localization not working in some cases...
-        newPatient_textview = findViewById(R.id.newPatient_textview);
-        newPatient_textview.setText(R.string.new_patient);
+        /*newPatient_textview = findViewById(R.id.newPatient_textview);
+        newPatient_textview.setText(R.string.new_patient);*/
 
         findPatients_textview = findViewById(R.id.findPatients_textview);
         findPatients_textview.setText(R.string.find_patient);
@@ -178,7 +176,7 @@ public class HomeActivity extends AppCompatActivity {
         help_textview.setText(R.string.Whatsapp_Help_Cardview);
 
 
-        manualSyncButton.setText(R.string.refresh);
+//        manualSyncButton.setText(R.string.refresh);
         //Help section of watsapp...
         c6.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,7 +192,7 @@ public class HomeActivity extends AppCompatActivity {
                                         phoneNumberWithCountryCode, message))));
             }
         });
-        c1.setOnClickListener(new View.OnClickListener() {
+        /*c1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Loads the config file values and check for the boolean value of privacy key.
@@ -207,7 +205,7 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             }
-        });
+        });*/
         c2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -236,14 +234,16 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-
+        ivSync = findViewById(R.id.iv_sync);
         lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
 
 //        if (!sessionManager.getLastSyncDateTime().equalsIgnoreCase("- - - -")
 //                && Locale.getDefault().toString().equalsIgnoreCase("en")) {
 ////            lastSyncAgo.setText(CalculateAgoTime());
 //        }
-
+        syncAnimator = ObjectAnimator.ofFloat(ivSync, View.ROTATION, 0f, 359f).setDuration(1200);
+        syncAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        syncAnimator.setInterpolator(new LinearInterpolator());
         manualSyncButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -251,11 +251,14 @@ public class HomeActivity extends AppCompatActivity {
 
                 if (isNetworkConnected()) {
                     Toast.makeText(context, getString(R.string.syncInProgress), Toast.LENGTH_LONG).show();
+                    ivSync.clearAnimation();
+                    syncAnimator.start();
+                    syncUtils.syncForeground("home");
                 } else {
                     Toast.makeText(context, context.getString(R.string.failed_synced), Toast.LENGTH_LONG).show();
                 }
 
-                syncUtils.syncForeground("home");
+//                syncUtils.syncForeground("home");
 //                if (!sessionManager.getLastSyncDateTime().equalsIgnoreCase("- - - -")
 //                        && Locale.getDefault().toString().equalsIgnoreCase("en")) {
 //                    lastSyncAgo.setText(sessionManager.getLastTimeAgo());
@@ -642,6 +645,11 @@ public class HomeActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
 //          lastSyncAgo.setText(sessionManager.getLastTimeAgo());
+
+            if (syncAnimator != null && syncAnimator.getCurrentPlayTime() > 200) {
+                syncAnimator.cancel();
+                syncAnimator.end();
+            }
         }
     }
 
