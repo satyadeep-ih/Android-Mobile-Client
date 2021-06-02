@@ -2,9 +2,9 @@
 
 
     <string-array name="language_names">
-<!--        <item>Hindi</item>--> //commenting out these languages for jhpiego project
+        <item>Hindi</item>
         <item>English</item>
-<!--        <item>Marathi</item>-->
+<!--        <item>Marathi</item>--> //commenting out these languages for jhpiego project
 <!--        <item>Kannada</item>-->
 <!--        <item>Gujarati</item>-->
 <!--        <item>Odiya</item>-->
@@ -13,7 +13,7 @@
     </string-array>
 
     <string-array name="language_values">
-<!--        <item>hi</item>-->
+        <item>hi</item>
         <item>en</item>
 <!--        <item>mr</item>-->
 <!--        <item>kn</item>-->
