@@ -5,21 +5,26 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-
+import android.util.Log;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import org.intelehealth.swasthyasamparktelemedicine.utilities.Logger;
-import org.intelehealth.swasthyasamparktelemedicine.utilities.SessionManager;
-import org.intelehealth.swasthyasamparktelemedicine.utilities.UuidDictionary;
 import org.intelehealth.swasthyasamparktelemedicine.app.AppConstants;
 import org.intelehealth.swasthyasamparktelemedicine.app.IntelehealthApplication;
 import org.intelehealth.swasthyasamparktelemedicine.models.dto.ObsDTO;
+import org.intelehealth.swasthyasamparktelemedicine.utilities.Logger;
+import org.intelehealth.swasthyasamparktelemedicine.utilities.SessionManager;
+import org.intelehealth.swasthyasamparktelemedicine.utilities.UuidDictionary;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.exception.DAOException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public class ObsDAO {
 
@@ -204,6 +209,59 @@ public class ObsDAO {
         idCursor.close();
 
         return obsDTOList;
+    }
+
+    public List<JSONObject> getAlertList() {
+        List<JSONObject> objectList = new ArrayList<JSONObject>();
+        db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
+        Cursor idCursor = db.rawQuery("select uuid, openmrs_id, first_name, last_name from tbl_patient where uuid in (select DISTINCT patientuuid  from tbl_visit where uuid in \n" +
+                "(select visituuid from tbl_encounter where uuid in (select encounteruuid from tbl_obs where value like '%Alert Message%')));", null);
+
+        if (idCursor.getCount() != 0) {
+            while (idCursor.moveToNext()) {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    // check the patient already attended by the nurse
+                    Date patientEntryLatestDate = null;
+                    Date nurseEntryLatestDate = null;
+                    Cursor patientEntry = db.rawQuery("select uuid, obsservermodifieddate from tbl_obs where value like '%Alert Message%' and encounteruuid in (select uuid  from tbl_encounter where visituuid in \n" +
+                            "(select uuid from tbl_visit where patientuuid=?)) order by created_date DESC limit 1;", new String[]{idCursor.getString(idCursor.getColumnIndexOrThrow("uuid"))});
+                    Log.v("LatestDate", "patientEntry - " + patientEntry.getCount());
+                    if (patientEntry.getCount() > 0) {
+                        patientEntry.moveToFirst();
+                        patientEntryLatestDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(patientEntry.getString(patientEntry.getColumnIndexOrThrow("obsservermodifieddate")));
+
+                    }
+                    Cursor nurseEntry = db.rawQuery("select uuid, obsservermodifieddate from tbl_obs where value like '%Medical History%' and encounteruuid in (select uuid  from tbl_encounter where visituuid in \n" +
+                            "(select uuid from tbl_visit where patientuuid=?)) order by created_date DESC limit 1;", new String[]{idCursor.getString(idCursor.getColumnIndexOrThrow("uuid"))});
+
+                    Log.v("LatestDate", "nurseEntry - " + nurseEntry.getCount());
+                    if (nurseEntry.getCount() > 0) {
+                        nurseEntry.moveToFirst();
+                        nurseEntryLatestDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(nurseEntry.getString(nurseEntry.getColumnIndexOrThrow("obsservermodifieddate")));
+
+                    }
+                    Log.v("LatestDate", "patientEntryLatestDate - " + patientEntryLatestDate);
+                    Log.v("LatestDate", "nurseEntryLatestDate - " + nurseEntryLatestDate);
+
+                    if (nurseEntryLatestDate == null || patientEntryLatestDate.after(nurseEntryLatestDate)) {
+                        jsonObject.put("uuid", idCursor.getString(idCursor.getColumnIndexOrThrow("uuid")));
+                        jsonObject.put("openmrs_id", idCursor.getString(idCursor.getColumnIndexOrThrow("openmrs_id")));
+                        jsonObject.put("first_name", idCursor.getString(idCursor.getColumnIndexOrThrow("first_name")));
+                        jsonObject.put("last_name", idCursor.getString(idCursor.getColumnIndexOrThrow("last_name")));
+                        objectList.add(jsonObject);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+        idCursor.close();
+
+        return objectList;
     }
 
     public List<String> getImageStrings(String conceptuuid, String encounterUuidAdultIntials) {

@@ -12,15 +12,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
-
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -32,16 +23,20 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import org.intelehealth.swasthyasamparktelemedicine.R;
+import org.intelehealth.swasthyasamparktelemedicine.activities.homeActivity.HomeActivity;
 import org.intelehealth.swasthyasamparktelemedicine.activities.identificationActivity.IdentificationActivity;
 import org.intelehealth.swasthyasamparktelemedicine.activities.privacyNoticeActivity.PrivacyNotice_Activity;
 import org.intelehealth.swasthyasamparktelemedicine.app.AppConstants;
@@ -51,10 +46,15 @@ import org.intelehealth.swasthyasamparktelemedicine.models.dto.PatientDTO;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.ConfigUtils;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.Logger;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.SessionManager;
-
-import org.intelehealth.swasthyasamparktelemedicine.activities.homeActivity.HomeActivity;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.StringUtils;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.exception.DAOException;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class SearchPatientActivity extends AppCompatActivity {
     SearchView searchView;
@@ -100,6 +100,9 @@ public class SearchPatientActivity extends AppCompatActivity {
         msg = findViewById(R.id.textviewmessage);
         recyclerView = findViewById(R.id.recycle);
         new_patient = findViewById(R.id.new_patient);
+        if (getIntent().getBooleanExtra("isRiskPatientsList", false)) {
+            new_patient.setVisibility(View.GONE);
+        }
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             query = intent.getStringExtra(SearchManager.QUERY);
@@ -133,7 +136,7 @@ public class SearchPatientActivity extends AppCompatActivity {
                     startActivity(intent);
                 } else {
                     //Clear HouseHold UUID from Session for new registration
-                  //  sessionManager.setHouseholdUuid("");
+                    //  sessionManager.setHouseholdUuid("");
 
                     Intent intent = new Intent(SearchPatientActivity.this, IdentificationActivity.class);
                     startActivity(intent);
@@ -168,14 +171,14 @@ public class SearchPatientActivity extends AppCompatActivity {
         }
     }
 
+    List<PatientDTO> mLastPatientDTOS = new ArrayList<PatientDTO>();
+
     private void firstQuery() {
         try {
-            getAllPatientsFromDB();
+            mLastPatientDTOS = getAllPatientsFromDB();
 
-            recycler = new SearchPatientAdapter(getAllPatientsFromDB(), SearchPatientActivity.this);
+            recycler = new SearchPatientAdapter(mLastPatientDTOS, SearchPatientActivity.this);
 
-
-//            Log.i("db data", "" + getAllPatientsFromDB());
             RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
             recyclerView.setLayoutManager(reLayoutManager);
          /*   recyclerView.addItemDecoration(new
@@ -261,8 +264,17 @@ public class SearchPatientActivity extends AppCompatActivity {
 
     public List<PatientDTO> getAllPatientsFromDB() {
         List<PatientDTO> modelList = new ArrayList<PatientDTO>();
-        String table = "tbl_patient";
-        final Cursor searchCursor = db.rawQuery("SELECT * FROM " + table + " ORDER BY first_name ASC", null);
+        Cursor searchCursor = null;
+        if (getIntent().getBooleanExtra("isRiskPatientsList", false)) {
+            searchCursor = db.rawQuery("select * from tbl_patient where uuid in (select DISTINCT patientuuid  from tbl_visit where uuid in \n" +
+                    "(select visituuid from tbl_encounter where uuid in (select encounteruuid from tbl_obs where value like '%Alert Message%')));", null);
+
+        } else {
+            String table = "tbl_patient";
+            searchCursor = db.rawQuery("SELECT * FROM " + table + " ORDER BY first_name ASC", null);
+        }
+        if (searchCursor == null) return modelList;
+
         try {
             if (searchCursor.moveToFirst()) {
                 do {
@@ -275,11 +287,42 @@ public class SearchPatientActivity extends AppCompatActivity {
                     model.setDateofbirth(searchCursor.getString(searchCursor.getColumnIndexOrThrow("date_of_birth")));
                     model.setPhonenumber(StringUtils.mobileNumberEmpty(phoneNumber(searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid")))));
 
-                    modelList.add(model);
+                    if (getIntent().getBooleanExtra("isRiskPatientsList", false)) {
+                        // check the patient already attended by the nurse
+                        Date patientEntryLatestDate = null;
+                        Date nurseEntryLatestDate = null;
+                        Cursor patientEntry = db.rawQuery("select uuid, obsservermodifieddate from tbl_obs where value like '%Alert Message%' and encounteruuid in (select uuid  from tbl_encounter where visituuid in \n" +
+                                "(select uuid from tbl_visit where patientuuid=?)) order by created_date DESC limit 1;", new String[]{searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid"))});
+                        Log.v("SLatestDate", "patientEntry - " + patientEntry.getCount());
+                        if (patientEntry.getCount() > 0) {
+                            patientEntry.moveToFirst();
+                            patientEntryLatestDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(patientEntry.getString(patientEntry.getColumnIndexOrThrow("obsservermodifieddate")));
+
+                        }
+                        Cursor nurseEntry = db.rawQuery("select uuid, obsservermodifieddate from tbl_obs where value like '%Medical History%' and encounteruuid in (select uuid  from tbl_encounter where visituuid in \n" +
+                                "(select uuid from tbl_visit where patientuuid=?)) order by created_date DESC limit 1;", new String[]{searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid"))});
+
+                        Log.v("SLatestDate", "nurseEntry - " + nurseEntry.getCount());
+
+                        if (nurseEntry.getCount() > 0) {
+                            nurseEntry.moveToFirst();
+                            nurseEntryLatestDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(nurseEntry.getString(nurseEntry.getColumnIndexOrThrow("obsservermodifieddate")));
+
+                        }
+                        Log.v("SLatestDate", "patientEntryLatestDate - " + patientEntryLatestDate);
+                        Log.v("SLatestDate", "nurseEntryLatestDate - " + nurseEntryLatestDate);
+                        if (nurseEntryLatestDate == null || patientEntryLatestDate.after(nurseEntryLatestDate)) {
+                            modelList.add(model);
+                        }
+                    } else {
+                        modelList.add(model);
+                    }
                 } while (searchCursor.moveToNext());
             }
             searchCursor.close();
         } catch (DAOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         return modelList;
@@ -404,36 +447,58 @@ public class SearchPatientActivity extends AppCompatActivity {
     }
 
     public List<PatientDTO> getQueryPatients(String query) {
+
         String search = query.trim().replaceAll("\\s", "");
         // search = StringUtils.mobileNumberEmpty(phoneNumber());
         List<PatientDTO> modelList = new ArrayList<PatientDTO>();
+
+        if (getIntent().getBooleanExtra("isRiskPatientsList", false)) {
+            Log.v(TAG, "search for isRiskPatientsList");
+            for (int i = 0; i < mLastPatientDTOS.size(); i++) {
+                PatientDTO patientDTO = mLastPatientDTOS.get(i);
+                if ((patientDTO.getFirstname()!=null && patientDTO.getFirstname().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getLastname()!=null && patientDTO.getLastname().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getOpenmrsId()!=null && patientDTO.getOpenmrsId().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getPhonenumber()!=null && patientDTO.getPhonenumber().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getAddress1()!=null && patientDTO.getAddress1().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getAddress2()!=null && patientDTO.getAddress2().toLowerCase().contains(search.toLowerCase()))
+                ) {
+                    Log.v(TAG, "search filter found");
+                    modelList.add(patientDTO);
+                }
+
+
+            }
+            return modelList;
+        }
+
         SQLiteDatabase db = AppConstants.inteleHealthDatabaseHelper.getWritableDatabase();
         String table = "tbl_patient";
 
         List<String> patientUUID_List = new ArrayList<>();
-        
+
         final Cursor search_mobile_cursor = db.rawQuery("SELECT DISTINCT patientuuid FROM tbl_patient_attribute WHERE value = ?",
-                new String[] {search} );
+                new String[]{search});
         /* DISTINCT will get remove the duplicate values. The duplicate value will come when you have created
-        * a patient with mobile no. 12345 and patient is pushed than later you edit the mobile no to
-        * 12344 or something. In this case, the local db maintains two separate rows both with value: 12344 */
+         * a patient with mobile no. 12345 and patient is pushed than later you edit the mobile no to
+         * 12344 or something. In this case, the local db maintains two separate rows both with value: 12344 */
 
         //if no data is present against that corresponding cursor than cursor count returns = 0 ... i.e cursor_count = 0 ...
         try {
             if (search_mobile_cursor.moveToFirst()) {
                 do {
-                     patientUUID_List.add(search_mobile_cursor.getString
+                    patientUUID_List.add(search_mobile_cursor.getString
                             (search_mobile_cursor.getColumnIndexOrThrow("patientuuid")));
                 }
                 while (search_mobile_cursor.moveToNext());
             }
-         } catch (Exception e) {
-                FirebaseCrashlytics.getInstance().recordException(e);
-            }
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+        }
 
-        Log.d("patientUUID_list", "list: "+ patientUUID_List.toString());
+        Log.d("patientUUID_list", "list: " + patientUUID_List.toString());
 
-        if(patientUUID_List.size() != 0) {
+        if (patientUUID_List.size() != 0) {
             for (int i = 0; i < patientUUID_List.size(); i++) {
 
                 final Cursor searchCursor = db.rawQuery("SELECT * FROM " + table + " WHERE first_name LIKE " + "'%" + search + "%' OR middle_name LIKE '%" + search + "%' OR uuid = ? OR last_name LIKE '%" + search + "%' OR (first_name || middle_name) LIKE '%" + search + "%' OR (middle_name || last_name) LIKE '%" + search + "%' OR (first_name || last_name) LIKE '%" + search + "%' OR openmrs_id LIKE '%" + search + "%' " + "ORDER BY first_name ASC",
@@ -460,29 +525,28 @@ public class SearchPatientActivity extends AppCompatActivity {
 
             }
 
-        }
-        else {
-                final Cursor searchCursor = db.rawQuery("SELECT * FROM " + table + " WHERE first_name LIKE " + "'%" + search + "%' OR middle_name LIKE '%" + search + "%' OR last_name LIKE '%" + search + "%' OR (first_name || middle_name) LIKE '%" + search + "%' OR (middle_name || last_name) LIKE '%" + search + "%' OR (first_name || last_name) LIKE '%" + search + "%' OR openmrs_id LIKE '%" + search + "%' " + "ORDER BY first_name ASC",
-                        null);
-                //  if(searchCursor.getCount() != -1) { //all values are present as per the search text entered...
-                try {
-                    if (searchCursor.moveToFirst()) {
-                        do {
-                            PatientDTO model = new PatientDTO();
-                            model.setOpenmrsId(searchCursor.getString(searchCursor.getColumnIndexOrThrow("openmrs_id")));
-                            model.setFirstname(searchCursor.getString(searchCursor.getColumnIndexOrThrow("first_name")));
-                            model.setLastname(searchCursor.getString(searchCursor.getColumnIndexOrThrow("last_name")));
-                            model.setOpenmrsId(searchCursor.getString(searchCursor.getColumnIndexOrThrow("openmrs_id")));
-                            model.setMiddlename(searchCursor.getString(searchCursor.getColumnIndexOrThrow("middle_name")));
-                            model.setUuid(searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid")));
-                            model.setDateofbirth(searchCursor.getString(searchCursor.getColumnIndexOrThrow("date_of_birth")));
-                            model.setPhonenumber(StringUtils.mobileNumberEmpty(phoneNumber(searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid")))));
-                            modelList.add(model);
-                        } while (searchCursor.moveToNext());
-                    }
-                } catch (DAOException e) {
-                    FirebaseCrashlytics.getInstance().recordException(e);
+        } else {
+            final Cursor searchCursor = db.rawQuery("SELECT * FROM " + table + " WHERE first_name LIKE " + "'%" + search + "%' OR middle_name LIKE '%" + search + "%' OR last_name LIKE '%" + search + "%' OR (first_name || middle_name) LIKE '%" + search + "%' OR (middle_name || last_name) LIKE '%" + search + "%' OR (first_name || last_name) LIKE '%" + search + "%' OR openmrs_id LIKE '%" + search + "%' " + "ORDER BY first_name ASC",
+                    null);
+            //  if(searchCursor.getCount() != -1) { //all values are present as per the search text entered...
+            try {
+                if (searchCursor.moveToFirst()) {
+                    do {
+                        PatientDTO model = new PatientDTO();
+                        model.setOpenmrsId(searchCursor.getString(searchCursor.getColumnIndexOrThrow("openmrs_id")));
+                        model.setFirstname(searchCursor.getString(searchCursor.getColumnIndexOrThrow("first_name")));
+                        model.setLastname(searchCursor.getString(searchCursor.getColumnIndexOrThrow("last_name")));
+                        model.setOpenmrsId(searchCursor.getString(searchCursor.getColumnIndexOrThrow("openmrs_id")));
+                        model.setMiddlename(searchCursor.getString(searchCursor.getColumnIndexOrThrow("middle_name")));
+                        model.setUuid(searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid")));
+                        model.setDateofbirth(searchCursor.getString(searchCursor.getColumnIndexOrThrow("date_of_birth")));
+                        model.setPhonenumber(StringUtils.mobileNumberEmpty(phoneNumber(searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid")))));
+                        modelList.add(model);
+                    } while (searchCursor.moveToNext());
                 }
+            } catch (DAOException e) {
+                FirebaseCrashlytics.getInstance().recordException(e);
+            }
 
         }
 

@@ -41,18 +41,6 @@ import androidx.work.WorkManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-
 import org.intelehealth.swasthyasamparktelemedicine.R;
 import org.intelehealth.swasthyasamparktelemedicine.activities.activePatientsActivity.ActivePatientActivity;
 import org.intelehealth.swasthyasamparktelemedicine.activities.loginActivity.LoginActivity;
@@ -61,6 +49,7 @@ import org.intelehealth.swasthyasamparktelemedicine.activities.settingsActivity.
 import org.intelehealth.swasthyasamparktelemedicine.activities.todayPatientActivity.TodayPatientActivity;
 import org.intelehealth.swasthyasamparktelemedicine.app.AppConstants;
 import org.intelehealth.swasthyasamparktelemedicine.app.IntelehealthApplication;
+import org.intelehealth.swasthyasamparktelemedicine.database.dao.ObsDAO;
 import org.intelehealth.swasthyasamparktelemedicine.models.CheckAppUpdateRes;
 import org.intelehealth.swasthyasamparktelemedicine.models.DownloadMindMapRes;
 import org.intelehealth.swasthyasamparktelemedicine.networkApiCalls.ApiClient;
@@ -73,6 +62,18 @@ import org.intelehealth.swasthyasamparktelemedicine.utilities.NetworkConnection;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.OfflineLogin;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.SessionManager;
 import org.intelehealth.swasthyasamparktelemedicine.widget.materialprogressbar.CustomProgressDialog;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -149,7 +150,7 @@ public class HomeActivity extends AppCompatActivity {
         lastSyncAgo = findViewById(R.id.lastsyncago);
         manualSyncButton = findViewById(R.id.manualsyncbutton);
 //        manualSyncButton.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
-       // c1 = findViewById(R.id.cardview_newpat);
+        // c1 = findViewById(R.id.cardview_newpat);
         c2 = findViewById(R.id.cardview_find_patient);
         c3 = findViewById(R.id.cardview_today_patient);
         c4 = findViewById(R.id.cardview_active_patients);
@@ -778,6 +779,7 @@ public class HomeActivity extends AppCompatActivity {
     };
 
     private void hideSyncProgressBar(boolean isSuccess) {
+        checkAlert();
         if (mTempSyncHelperList != null) mTempSyncHelperList.clear();
         if (mSyncProgressDialog != null && mSyncProgressDialog.isShowing()) {
             mSyncProgressDialog.dismiss();
@@ -949,4 +951,28 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    public void showTheRiskPatients(View view) {
+        Intent intent = new Intent(HomeActivity.this, SearchPatientActivity.class);
+        intent.putExtra("isRiskPatientsList", true);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        checkAlert();
+    }
+
+    private void checkAlert() {
+        ObsDAO obsDAO = new ObsDAO();
+        List<JSONObject> alertPatientsList = obsDAO.getAlertList();
+        TextView countTextView = findViewById(R.id.alert_visits_counts_textview);
+        countTextView.setText(String.valueOf(alertPatientsList.size()));
+        if (alertPatientsList.size() == 0) {
+            countTextView.setVisibility(View.GONE);
+        } else {
+            countTextView.setVisibility(View.VISIBLE);
+
+        }
+    }
 }
