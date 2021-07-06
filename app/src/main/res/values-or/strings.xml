@@ -561,5 +561,6 @@
     <string name="choose_from_gallery">ଗ୍ୟାଲେରୀରୁ ବାଛନ୍ତୁ</string>
     <string name="additional_doc_image_picker_title">ଅତିରିକ୍ତ ଡକ୍ୟୁମେଣ୍ଟ୍ ଯୋଡନ୍ତୁ!</string>
     <string name="sikkim">Sikkim</string>
+    <string name="no_patient_found">No patient found!</string>
 
 </resources>

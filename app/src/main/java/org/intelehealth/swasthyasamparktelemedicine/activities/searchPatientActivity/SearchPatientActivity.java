@@ -41,6 +41,7 @@ import org.intelehealth.swasthyasamparktelemedicine.activities.identificationAct
 import org.intelehealth.swasthyasamparktelemedicine.activities.privacyNoticeActivity.PrivacyNotice_Activity;
 import org.intelehealth.swasthyasamparktelemedicine.app.AppConstants;
 import org.intelehealth.swasthyasamparktelemedicine.app.IntelehealthApplication;
+import org.intelehealth.swasthyasamparktelemedicine.database.dao.EncounterDAO;
 import org.intelehealth.swasthyasamparktelemedicine.database.dao.ProviderDAO;
 import org.intelehealth.swasthyasamparktelemedicine.models.dto.PatientDTO;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.ConfigUtils;
@@ -49,10 +50,7 @@ import org.intelehealth.swasthyasamparktelemedicine.utilities.SessionManager;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.StringUtils;
 import org.intelehealth.swasthyasamparktelemedicine.utilities.exception.DAOException;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -164,7 +162,11 @@ public class SearchPatientActivity extends AppCompatActivity {
 //            else {
 //                new_patient.setVisibility(View.GONE);
 //            }
-
+            if (recycler.getItemCount() == 0) {
+                findViewById(R.id.empty_view).setVisibility(View.VISIBLE);
+            } else {
+                findViewById(R.id.empty_view).setVisibility(View.GONE);
+            }
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             Logger.logE("doquery", "doquery", e);
@@ -185,6 +187,11 @@ public class SearchPatientActivity extends AppCompatActivity {
                     DividerItemDecoration(this,
                     DividerItemDecoration.VERTICAL));*/
             recyclerView.setAdapter(recycler);
+            if (recycler.getItemCount()==0) {
+                findViewById(R.id.empty_view).setVisibility(View.VISIBLE);
+            } else {
+                findViewById(R.id.empty_view).setVisibility(View.GONE);
+            }
 
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
@@ -263,12 +270,20 @@ public class SearchPatientActivity extends AppCompatActivity {
     }
 
     public List<PatientDTO> getAllPatientsFromDB() {
+
         List<PatientDTO> modelList = new ArrayList<PatientDTO>();
         Cursor searchCursor = null;
-        if (getIntent().getBooleanExtra("isRiskPatientsList", false)) {
-            searchCursor = db.rawQuery("select * from tbl_patient where uuid in (select DISTINCT patientuuid  from tbl_visit where uuid in \n" +
-                    "(select visituuid from tbl_encounter where uuid in (select encounteruuid from tbl_obs where value like '%Alert Message%')));", null);
+        EncounterDAO encounterDAO = new EncounterDAO();
+        String encounter_audultinial_uuid = encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL");
+        String emergency_uuid = encounterDAO.getEncounterTypeUuid("EMERGENCY");
+        // concept uuid
+        String current_complain_uuid = encounterDAO.getEncounterTypeUuid("CURRENTCOMPLAINT"); // this is only in case of nurse post a visit and its compulsory
 
+        if (getIntent().getBooleanExtra("isRiskPatientsList", false)) {
+
+
+            searchCursor = db.rawQuery("select * from tbl_patient where uuid in (select DISTINCT patientuuid  from tbl_visit where uuid in \n" +
+                    "(select visituuid from tbl_encounter where encounter_type_uuid=? ));", new String[]{emergency_uuid});
         } else {
             String table = "tbl_patient";
             searchCursor = db.rawQuery("SELECT * FROM " + table + " ORDER BY first_name ASC", null);
@@ -289,29 +304,12 @@ public class SearchPatientActivity extends AppCompatActivity {
 
                     if (getIntent().getBooleanExtra("isRiskPatientsList", false)) {
                         // check the patient already attended by the nurse
-                        Date patientEntryLatestDate = null;
-                        Date nurseEntryLatestDate = null;
-                        Cursor patientEntry = db.rawQuery("select uuid, obsservermodifieddate from tbl_obs where value like '%Alert Message%' and encounteruuid in (select uuid  from tbl_encounter where visituuid in \n" +
-                                "(select uuid from tbl_visit where patientuuid=?)) order by created_date DESC limit 1;", new String[]{searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid"))});
-                        Log.v("SLatestDate", "patientEntry - " + patientEntry.getCount());
-                        if (patientEntry.getCount() > 0) {
-                            patientEntry.moveToFirst();
-                            patientEntryLatestDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(patientEntry.getString(patientEntry.getColumnIndexOrThrow("obsservermodifieddate")));
-
-                        }
-                        Cursor nurseEntry = db.rawQuery("select uuid, obsservermodifieddate from tbl_obs where value like '%Medical History%' and encounteruuid in (select uuid  from tbl_encounter where visituuid in \n" +
-                                "(select uuid from tbl_visit where patientuuid=?)) order by created_date DESC limit 1;", new String[]{searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid"))});
-
-                        Log.v("SLatestDate", "nurseEntry - " + nurseEntry.getCount());
-
-                        if (nurseEntry.getCount() > 0) {
-                            nurseEntry.moveToFirst();
-                            nurseEntryLatestDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(nurseEntry.getString(nurseEntry.getColumnIndexOrThrow("obsservermodifieddate")));
-
-                        }
-                        Log.v("SLatestDate", "patientEntryLatestDate - " + patientEntryLatestDate);
-                        Log.v("SLatestDate", "nurseEntryLatestDate - " + nurseEntryLatestDate);
-                        if (nurseEntryLatestDate == null || patientEntryLatestDate.after(nurseEntryLatestDate)) {
+                        Cursor tempEntry = db.rawQuery("select uuid from tbl_obs where value like '%Alert Message%'  and encounteruuid in " +
+                                "(select uuid from tbl_encounter where encounter_type_uuid=? " +
+                                "and visituuid = (select uuid from tbl_visit where patientuuid=? " +
+                                "order by startdate desc limit 1));", new String[]{ encounter_audultinial_uuid, searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid"))});
+                        Log.v("SLatestDate", "tempEntry - " + tempEntry.getCount());
+                        if (tempEntry.getCount() > 0) {
                             modelList.add(model);
                         }
                     } else {
@@ -321,8 +319,6 @@ public class SearchPatientActivity extends AppCompatActivity {
             }
             searchCursor.close();
         } catch (DAOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
             e.printStackTrace();
         }
         return modelList;
@@ -456,12 +452,12 @@ public class SearchPatientActivity extends AppCompatActivity {
             Log.v(TAG, "search for isRiskPatientsList");
             for (int i = 0; i < mLastPatientDTOS.size(); i++) {
                 PatientDTO patientDTO = mLastPatientDTOS.get(i);
-                if ((patientDTO.getFirstname()!=null && patientDTO.getFirstname().toLowerCase().contains(search.toLowerCase()))
-                        || (patientDTO.getLastname()!=null && patientDTO.getLastname().toLowerCase().contains(search.toLowerCase()))
-                        || (patientDTO.getOpenmrsId()!=null && patientDTO.getOpenmrsId().toLowerCase().contains(search.toLowerCase()))
-                        || (patientDTO.getPhonenumber()!=null && patientDTO.getPhonenumber().toLowerCase().contains(search.toLowerCase()))
-                        || (patientDTO.getAddress1()!=null && patientDTO.getAddress1().toLowerCase().contains(search.toLowerCase()))
-                        || (patientDTO.getAddress2()!=null && patientDTO.getAddress2().toLowerCase().contains(search.toLowerCase()))
+                if ((patientDTO.getFirstname() != null && patientDTO.getFirstname().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getLastname() != null && patientDTO.getLastname().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getOpenmrsId() != null && patientDTO.getOpenmrsId().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getPhonenumber() != null && patientDTO.getPhonenumber().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getAddress1() != null && patientDTO.getAddress1().toLowerCase().contains(search.toLowerCase()))
+                        || (patientDTO.getAddress2() != null && patientDTO.getAddress2().toLowerCase().contains(search.toLowerCase()))
                 ) {
                     Log.v(TAG, "search filter found");
                     modelList.add(patientDTO);
@@ -599,6 +595,11 @@ public class SearchPatientActivity extends AppCompatActivity {
                         DividerItemDecoration(this,
                         DividerItemDecoration.VERTICAL));*/
                 recyclerView.setAdapter(recycler);
+                if (recycler.getItemCount()==0) {
+                    findViewById(R.id.empty_view).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.empty_view).setVisibility(View.GONE);
+                }
 
             } catch (Exception e) {
                 Logger.logE("doquery", "doquery", e);
@@ -650,7 +651,11 @@ public class SearchPatientActivity extends AppCompatActivity {
                         DividerItemDecoration(this,
                         DividerItemDecoration.HORIZONTAL));*/
                 recyclerView.setAdapter(recycler);
-
+                if (recycler.getItemCount()==0) {
+                    findViewById(R.id.empty_view).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.empty_view).setVisibility(View.GONE);
+                }
             } catch (Exception e) {
                 FirebaseCrashlytics.getInstance().recordException(e);
                 Logger.logE("doquery", "doquery", e);

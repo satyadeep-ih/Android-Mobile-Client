@@ -775,11 +775,11 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
             lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
+            checkAlert();
         }
     };
 
     private void hideSyncProgressBar(boolean isSuccess) {
-        checkAlert();
         if (mTempSyncHelperList != null) mTempSyncHelperList.clear();
         if (mSyncProgressDialog != null && mSyncProgressDialog.isShowing()) {
             mSyncProgressDialog.dismiss();

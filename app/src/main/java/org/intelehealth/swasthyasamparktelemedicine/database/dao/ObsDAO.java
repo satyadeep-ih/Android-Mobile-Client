@@ -19,10 +19,7 @@ import org.intelehealth.swasthyasamparktelemedicine.utilities.exception.DAOExcep
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -212,39 +209,40 @@ public class ObsDAO {
     }
 
     public List<JSONObject> getAlertList() {
+        /*
+         * In case of self assessment - there are only three type of encounter crete
+         *   1. EMERGENCY -              ca5f5dc3-4f0b-4097-9cae-5cf2eb44a09c
+         *   2. ENCOUNTER_ADULTINITIAL - 8d5b27bc-c2cc-11de-8d13-0010c6dffd0f
+         *
+         *
+         * But if the visit created by Nurse then there is one more encounter i.e. 3rd one
+         *   3. ENCOUNTER_VITALS -       67a71486-1a54-468f-ac3e-7091a9a79584
+         *
+         *
+         *
+         * */
+        EncounterDAO encounterDAO = new EncounterDAO();
+        String encounter_audultinial_uuid = encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL");
+        String emergency_uuid = encounterDAO.getEncounterTypeUuid("EMERGENCY");
+        // concept uuid
+        String current_complain_uuid = encounterDAO.getEncounterTypeUuid("CURRENTCOMPLAINT"); // this is only in case of nurse post a visit and its compulsory
+
         List<JSONObject> objectList = new ArrayList<JSONObject>();
         db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
         Cursor idCursor = db.rawQuery("select uuid, openmrs_id, first_name, last_name from tbl_patient where uuid in (select DISTINCT patientuuid  from tbl_visit where uuid in \n" +
-                "(select visituuid from tbl_encounter where uuid in (select encounteruuid from tbl_obs where value like '%Alert Message%')));", null);
+                "(select visituuid from tbl_encounter where encounter_type_uuid=? ));", new String[]{emergency_uuid});
 
         if (idCursor.getCount() != 0) {
             while (idCursor.moveToNext()) {
                 JSONObject jsonObject = new JSONObject();
                 try {
                     // check the patient already attended by the nurse
-                    Date patientEntryLatestDate = null;
-                    Date nurseEntryLatestDate = null;
-                    Cursor patientEntry = db.rawQuery("select uuid, obsservermodifieddate from tbl_obs where value like '%Alert Message%' and encounteruuid in (select uuid  from tbl_encounter where visituuid in \n" +
-                            "(select uuid from tbl_visit where patientuuid=?)) order by created_date DESC limit 1;", new String[]{idCursor.getString(idCursor.getColumnIndexOrThrow("uuid"))});
-                    Log.v("LatestDate", "patientEntry - " + patientEntry.getCount());
-                    if (patientEntry.getCount() > 0) {
-                        patientEntry.moveToFirst();
-                        patientEntryLatestDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(patientEntry.getString(patientEntry.getColumnIndexOrThrow("obsservermodifieddate")));
-
-                    }
-                    Cursor nurseEntry = db.rawQuery("select uuid, obsservermodifieddate from tbl_obs where value like '%Medical History%' and encounteruuid in (select uuid  from tbl_encounter where visituuid in \n" +
-                            "(select uuid from tbl_visit where patientuuid=?)) order by created_date DESC limit 1;", new String[]{idCursor.getString(idCursor.getColumnIndexOrThrow("uuid"))});
-
-                    Log.v("LatestDate", "nurseEntry - " + nurseEntry.getCount());
-                    if (nurseEntry.getCount() > 0) {
-                        nurseEntry.moveToFirst();
-                        nurseEntryLatestDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(nurseEntry.getString(nurseEntry.getColumnIndexOrThrow("obsservermodifieddate")));
-
-                    }
-                    Log.v("LatestDate", "patientEntryLatestDate - " + patientEntryLatestDate);
-                    Log.v("LatestDate", "nurseEntryLatestDate - " + nurseEntryLatestDate);
-
-                    if (nurseEntryLatestDate == null || patientEntryLatestDate.after(nurseEntryLatestDate)) {
+                    Cursor tempEntry = db.rawQuery("select uuid from tbl_obs where value like '%Alert Message%' and encounteruuid in " +
+                            "(select uuid from tbl_encounter where encounter_type_uuid=? " +
+                            "and visituuid = (select uuid from tbl_visit where patientuuid=? " +
+                            "order by startdate desc limit 1));", new String[]{encounter_audultinial_uuid, idCursor.getString(idCursor.getColumnIndexOrThrow("uuid"))});
+                    Log.v("SLatestDate", "tempEntry - " + tempEntry.getCount());
+                    if (tempEntry.getCount() > 0) {
                         jsonObject.put("uuid", idCursor.getString(idCursor.getColumnIndexOrThrow("uuid")));
                         jsonObject.put("openmrs_id", idCursor.getString(idCursor.getColumnIndexOrThrow("openmrs_id")));
                         jsonObject.put("first_name", idCursor.getString(idCursor.getColumnIndexOrThrow("first_name")));
@@ -252,8 +250,6 @@ public class ObsDAO {
                         objectList.add(jsonObject);
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
                     e.printStackTrace();
                 }
 

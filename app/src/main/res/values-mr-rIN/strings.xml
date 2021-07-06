@@ -688,5 +688,6 @@
     <string name="choose_from_gallery">Choose from Gallery</string>
     <string name="additional_doc_image_picker_title">Add Additional Document!</string>
     <string name="sikkim">Sikkim</string>
+    <string name="no_patient_found">No patient found!</string>
 
 </resources>
