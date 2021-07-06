@@ -1174,8 +1174,11 @@ public class VisitSummaryActivity extends AppCompatActivity {
             famHistView.setText(Html.fromHtml(famHistory.getValue()));
         if (patHistory.getValue() != null)
             patHistView.setText(Html.fromHtml(patHistory.getValue()));
-        if (phyExam.getValue() != null)
-            physFindingsView.setText(Html.fromHtml(phyExam.getValue()));
+        Log.v(TAG, phyExam.getValue());
+        if (phyExam.getValue() != null){
+            physFindingsView.setText(Html.fromHtml(phyExam.getValue().split("<div hidden>")[0])); // hide the alert message part
+        }
+
 
 
         editVitals.setOnClickListener(new View.OnClickListener() {
@@ -1430,7 +1433,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                 phyExam.setValue(dialogEditText.getText().toString().replace("\n", "<br>"));
                                 if (phyExam.getValue() != null) {
                                     physicalText.setText(Html.fromHtml(phyExam.getValue()));
-                                    physFindingsView.setText(Html.fromHtml(phyExam.getValue()));
+                                    physFindingsView.setText(Html.fromHtml(phyExam.getValue().split("<div hidden>")[0])); // hide the alert message part
                                 }
                                 updateDatabase(phyExam.getValue(), UuidDictionary.PHYSICAL_EXAMINATION);
                                 dialog.dismiss();
