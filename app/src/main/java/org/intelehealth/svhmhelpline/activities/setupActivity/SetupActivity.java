@@ -1016,6 +1016,8 @@ public class SetupActivity extends AppCompatActivity {
                                 mLocations = locationList.getResults();
                                 List<String> items = getLocationStringList(locationList.getResults());
                                 LocationArrayAdapter adapter = new LocationArrayAdapter(SetupActivity.this, items);
+                                spinner_state.setEnabled(true);
+                                spinner_state.setAlpha(1);
                                 spinner_state.setAdapter(adapter);
                                 isLocationFetched = true;
                             }
