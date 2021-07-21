@@ -217,7 +217,7 @@
                             android:layout_toEndOf="@+id/iv_alert_patients"
                             android:fontFamily="@font/lato_medium"
                             android:includeFontPadding="false"
-                            android:text="High Risk Patients"
+                            android:text="@string/high_risk_patients"
                             android:textSize="28sp" />
 
                         <TextView
