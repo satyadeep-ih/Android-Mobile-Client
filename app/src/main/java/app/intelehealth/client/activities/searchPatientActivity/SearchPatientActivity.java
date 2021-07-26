@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -61,6 +63,8 @@ public class SearchPatientActivity extends AppCompatActivity {
     MaterialAlertDialogBuilder dialogBuilder;
     private String TAG = SearchPatientActivity.class.getSimpleName();
     private SQLiteDatabase db;
+    int limit = 20, offset = 0;
+    boolean fullyLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,26 @@ public class SearchPatientActivity extends AppCompatActivity {
         db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
         msg = findViewById(R.id.textviewmessage);
         recyclerView = findViewById(R.id.recycle);
+        LinearLayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(reLayoutManager);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!fullyLoaded && newState == RecyclerView.SCROLL_STATE_IDLE && reLayoutManager.findLastVisibleItemPosition() == recycler.getItemCount() -1) {
+                    Toast.makeText(SearchPatientActivity.this, R.string.loading_more, Toast.LENGTH_SHORT).show();
+                    offset += limit;
+                    List<PatientDTO> allPatientsFromDB = getAllPatientsFromDB(offset);
+                    if (allPatientsFromDB.size() < limit) {
+                        fullyLoaded = true;
+                    }
+
+                    recycler.patients.addAll(allPatientsFromDB);
+                    recycler.notifyDataSetChanged();
+                }
+            }
+        });
+
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             query = intent.getStringExtra(SearchManager.QUERY);
@@ -119,11 +143,18 @@ public class SearchPatientActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        recyclerView.clearOnScrollListeners();
+    }
+
     private void doQuery(String query) {
         try {
             recycler = new SearchPatientAdapter(getQueryPatients(query), SearchPatientActivity.this);
-            RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
-            recyclerView.setLayoutManager(reLayoutManager);
+            fullyLoaded = true;
+//            RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+//            recyclerView.setLayoutManager(reLayoutManager);
            /* recyclerView.addItemDecoration(new
                     DividerItemDecoration(this,
                     DividerItemDecoration.VERTICAL));*/
@@ -137,14 +168,14 @@ public class SearchPatientActivity extends AppCompatActivity {
 
     private void firstQuery() {
         try {
-            getAllPatientsFromDB();
+//            getAllPatientsFromDB();
 
-            recycler = new SearchPatientAdapter(getAllPatientsFromDB(), SearchPatientActivity.this);
+            recycler = new SearchPatientAdapter(getAllPatientsFromDB(offset), SearchPatientActivity.this);
 
 
 //            Log.i("db data", "" + getAllPatientsFromDB());
-            RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
-            recyclerView.setLayoutManager(reLayoutManager);
+//            RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+//            recyclerView.setLayoutManager(reLayoutManager);
          /*   recyclerView.addItemDecoration(new
                     DividerItemDecoration(this,
                     DividerItemDecoration.VERTICAL));*/
@@ -223,10 +254,10 @@ public class SearchPatientActivity extends AppCompatActivity {
         lvItems.setAdapter(searchAdapter);
     }
 
-    public List<PatientDTO> getAllPatientsFromDB() {
+    public List<PatientDTO> getAllPatientsFromDB(int offset) {
         List<PatientDTO> modelList = new ArrayList<PatientDTO>();
         String table = "tbl_patient";
-        final Cursor searchCursor = db.rawQuery("SELECT * FROM " + table + " ORDER BY first_name ASC", null);
+        final Cursor searchCursor = db.rawQuery("SELECT * FROM " + table + " ORDER BY first_name ASC limit ? offset ?", new String[]{String.valueOf(limit), String.valueOf(offset)});
         try {
             if (searchCursor.moveToFirst()) {
                 do {
@@ -434,8 +465,8 @@ public class SearchPatientActivity extends AppCompatActivity {
             try {
                 recycler = new SearchPatientAdapter(modelListwihtoutQuery, SearchPatientActivity.this);
 //            Log.i("db data", "" + getQueryPatients(query));
-                RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
-                recyclerView.setLayoutManager(reLayoutManager);
+//                RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+//                recyclerView.setLayoutManager(reLayoutManager);
             /*    recyclerView.addItemDecoration(new
                         DividerItemDecoration(this,
                         DividerItemDecoration.VERTICAL));*/
@@ -485,8 +516,8 @@ public class SearchPatientActivity extends AppCompatActivity {
 
             try {
                 recycler = new SearchPatientAdapter(modelList, SearchPatientActivity.this);
-                RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
-                recyclerView.setLayoutManager(reLayoutManager);
+//                RecyclerView.LayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+//                recyclerView.setLayoutManager(reLayoutManager);
            /*     recyclerView.addItemDecoration(new
                         DividerItemDecoration(this,
                         DividerItemDecoration.HORIZONTAL));*/

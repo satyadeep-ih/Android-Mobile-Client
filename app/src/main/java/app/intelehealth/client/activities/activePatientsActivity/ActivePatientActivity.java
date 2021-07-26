@@ -9,14 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,7 +16,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 
 import app.intelehealth.client.R;
+import app.intelehealth.client.activities.homeActivity.HomeActivity;
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.app.IntelehealthApplication;
 import app.intelehealth.client.database.dao.EncounterDAO;
@@ -46,8 +47,6 @@ import app.intelehealth.client.models.dto.EncounterDTO;
 import app.intelehealth.client.models.dto.VisitDTO;
 import app.intelehealth.client.utilities.Logger;
 import app.intelehealth.client.utilities.SessionManager;
-
-import app.intelehealth.client.activities.homeActivity.HomeActivity;
 import app.intelehealth.client.utilities.StringUtils;
 import app.intelehealth.client.utilities.exception.DAOException;
 
@@ -60,6 +59,9 @@ public class ActivePatientActivity extends AppCompatActivity {
     TextView textView;
     RecyclerView recyclerView;
     MaterialAlertDialogBuilder dialogBuilder;
+    int limit = 20, offset = 0;
+    boolean fullyLoaded = false;
+    private ActivePatientAdapter mActivePatientAdapter;
 
     private ArrayList<String> listPatientUUID = new ArrayList<String>();
 
@@ -86,6 +88,26 @@ public class ActivePatientActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.textviewmessage);
         recyclerView = findViewById(R.id.today_patient_recycler_view);
+        LinearLayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(reLayoutManager);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!fullyLoaded && newState == RecyclerView.SCROLL_STATE_IDLE && reLayoutManager.findLastVisibleItemPosition() == mActivePatientAdapter.getItemCount() -1) {
+                    Toast.makeText(ActivePatientActivity.this, R.string.loading_more, Toast.LENGTH_SHORT).show();
+                    offset += limit;
+                    List<ActivePatientModel> allPatientsFromDB = doQuery(offset);
+                    if (allPatientsFromDB.size() < limit) {
+                        fullyLoaded = true;
+                    }
+
+                    mActivePatientAdapter.activePatientModels.addAll(allPatientsFromDB);
+                    mActivePatientAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
         sessionManager = new SessionManager(this);
         String language = sessionManager.getAppLanguage();
         //In case of crash still the app should hold the current lang fix.
@@ -102,10 +124,18 @@ public class ActivePatientActivity extends AppCompatActivity {
         if (sessionManager.isPullSyncFinished()) {
             textView.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-            doQuery();
+            List<ActivePatientModel> activePatientModels = doQuery(offset);
+            mActivePatientAdapter = new ActivePatientAdapter(activePatientModels, ActivePatientActivity.this, listPatientUUID);
+            recyclerView.setAdapter(mActivePatientAdapter);
         }
 
         getVisits();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        recyclerView.clearOnScrollListeners();
     }
 
     private void getVisits() {
@@ -155,14 +185,14 @@ public class ActivePatientActivity extends AppCompatActivity {
      *
      * @return void
      */
-    private void doQuery() {
+    private List<ActivePatientModel> doQuery(int offset) {
         List<ActivePatientModel> activePatientList = new ArrayList<>();
         Date cDate = new Date();
         String query = "SELECT   a.uuid, a.sync, a.patientuuid, a.startdate, a.enddate, b.first_name, b.middle_name, b.last_name, b.date_of_birth,b.openmrs_id  " +
                 "FROM tbl_visit a, tbl_patient b " +
                 "WHERE a.patientuuid = b.uuid " +
-                "AND a.enddate is NULL OR a.enddate='' GROUP BY a.uuid ORDER BY a.startdate ASC";
-        final Cursor cursor = db.rawQuery(query, null);
+                "AND a.enddate is NULL OR a.enddate='' GROUP BY a.uuid ORDER BY a.startdate ASC limit ? offset ?";
+        final Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(limit), String.valueOf(offset)});
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
@@ -191,19 +221,19 @@ public class ActivePatientActivity extends AppCompatActivity {
             cursor.close();
         }
 
-        if (!activePatientList.isEmpty()) {
+        /*if (!activePatientList.isEmpty()) {
             for (ActivePatientModel activePatientModel : activePatientList)
                 Logger.logD(TAG, activePatientModel.getFirst_name() + " " + activePatientModel.getLast_name());
 
             ActivePatientAdapter mActivePatientAdapter = new ActivePatientAdapter(activePatientList, ActivePatientActivity.this, listPatientUUID);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActivePatientActivity.this);
             recyclerView.setLayoutManager(linearLayoutManager);
-           /* recyclerView.addItemDecoration(new
+           *//* recyclerView.addItemDecoration(new
                     DividerItemDecoration(this,
-                    DividerItemDecoration.VERTICAL));*/
+                    DividerItemDecoration.VERTICAL));*//*
             recyclerView.setAdapter(mActivePatientAdapter);
-        }
-
+        }*/
+        return activePatientList;
     }
 
     @Override

@@ -9,19 +9,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -34,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 
 import app.intelehealth.client.R;
+import app.intelehealth.client.activities.homeActivity.HomeActivity;
 import app.intelehealth.client.app.AppConstants;
 import app.intelehealth.client.app.IntelehealthApplication;
 import app.intelehealth.client.database.InteleHealthDatabaseHelper;
@@ -45,7 +48,6 @@ import app.intelehealth.client.models.dto.EncounterDTO;
 import app.intelehealth.client.models.dto.VisitDTO;
 import app.intelehealth.client.utilities.Logger;
 import app.intelehealth.client.utilities.SessionManager;
-import app.intelehealth.client.activities.homeActivity.HomeActivity;
 import app.intelehealth.client.utilities.StringUtils;
 import app.intelehealth.client.utilities.exception.DAOException;
 
@@ -58,6 +60,9 @@ public class TodayPatientActivity extends AppCompatActivity {
    MaterialAlertDialogBuilder dialogBuilder;
 
     private ArrayList<String> listPatientUUID = new ArrayList<String>();
+    int limit = 20, offset = 0;
+    boolean fullyLoaded = false;
+    private TodayPatientAdapter mActivePatientAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,15 +96,41 @@ public class TodayPatientActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         mTodayPatientList = findViewById(R.id.today_patient_recycler_view);
+        LinearLayoutManager reLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mTodayPatientList.setLayoutManager(reLayoutManager);
+        mTodayPatientList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!fullyLoaded && newState == RecyclerView.SCROLL_STATE_IDLE && reLayoutManager.findLastVisibleItemPosition() == mActivePatientAdapter.getItemCount() -1) {
+                    Toast.makeText(TodayPatientActivity.this, R.string.loading_more, Toast.LENGTH_SHORT).show();
+                    offset += limit;
+                    List<TodayPatientModel> allPatientsFromDB = doQuery(offset);
+                    if (allPatientsFromDB.size() < limit) {
+                        fullyLoaded = true;
+                    }
 
+                    mActivePatientAdapter.todayPatientModelList.addAll(allPatientsFromDB);
+                    mActivePatientAdapter.notifyDataSetChanged();
+                }
+            }
+        });
 
         db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
         if (sessionManager.isPullSyncFinished()) {
-            doQuery();
+            List<TodayPatientModel> todayPatientModels = doQuery(offset);
+            mActivePatientAdapter = new TodayPatientAdapter(todayPatientModels, this, listPatientUUID);
+            mTodayPatientList.setAdapter(mActivePatientAdapter);
         }
 
         getVisits();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mTodayPatientList.clearOnScrollListeners();
     }
 
     private void getVisits() {
@@ -145,7 +176,7 @@ public class TodayPatientActivity extends AppCompatActivity {
     }
 
 
-    private void doQuery() {
+    private List<TodayPatientModel> doQuery(int offset) {
         List<TodayPatientModel> todayPatientList = new ArrayList<>();
         Date cDate = new Date();
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
@@ -153,9 +184,9 @@ public class TodayPatientActivity extends AppCompatActivity {
                 "FROM tbl_visit a, tbl_patient b  " +
                 "WHERE a.patientuuid = b.uuid " +
                 "AND a.startdate LIKE '" + currentDate + "T%'   " +
-                "GROUP BY a.uuid ORDER BY a.patientuuid ASC";
+                "GROUP BY a.uuid ORDER BY a.patientuuid ASC limit ? offset ?";
         Logger.logD(TAG, query);
-        final Cursor cursor = db.rawQuery(query, null);
+        final Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(limit), String.valueOf(offset)});
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
@@ -184,19 +215,19 @@ public class TodayPatientActivity extends AppCompatActivity {
             cursor.close();
         }
 
-        if (!todayPatientList.isEmpty()) {
-            for (TodayPatientModel todayPatientModel : todayPatientList)
-                Log.i(TAG, todayPatientModel.getFirst_name() + " " + todayPatientModel.getLast_name());
-
-            TodayPatientAdapter mTodayPatientAdapter = new TodayPatientAdapter(todayPatientList, TodayPatientActivity.this, listPatientUUID);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(TodayPatientActivity.this);
-            mTodayPatientList.setLayoutManager(linearLayoutManager);
-           /* mTodayPatientList.addItemDecoration(new
-                    DividerItemDecoration(TodayPatientActivity.this,
-                    DividerItemDecoration.VERTICAL));*/
-            mTodayPatientList.setAdapter(mTodayPatientAdapter);
-        }
-
+//        if (!todayPatientList.isEmpty()) {
+//            for (TodayPatientModel todayPatientModel : todayPatientList)
+//                Log.i(TAG, todayPatientModel.getFirst_name() + " " + todayPatientModel.getLast_name());
+//
+//            TodayPatientAdapter mTodayPatientAdapter = new TodayPatientAdapter(todayPatientList, TodayPatientActivity.this, listPatientUUID);
+//            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(TodayPatientActivity.this);
+//            mTodayPatientList.setLayoutManager(linearLayoutManager);
+//           /* mTodayPatientList.addItemDecoration(new
+//                    DividerItemDecoration(TodayPatientActivity.this,
+//                    DividerItemDecoration.VERTICAL));*/
+//            mTodayPatientList.setAdapter(mTodayPatientAdapter);
+//        }
+        return todayPatientList;
     }
 
     @Override
