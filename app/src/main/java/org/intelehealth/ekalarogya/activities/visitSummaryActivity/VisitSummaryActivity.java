@@ -2831,9 +2831,9 @@ public class VisitSummaryActivity extends AppCompatActivity {
                     FirebaseCrashlytics.getInstance().recordException(e);
                 }
 
-                if (name.equalsIgnoreCase("caste")) {
-                    patient.setCaste(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
-                }
+//                if (name.equalsIgnoreCase("caste")) {
+//                    patient.setCaste(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
+//                }
                 if (name.equalsIgnoreCase("Telephone Number")) {
                     patient.setPhone_number(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }

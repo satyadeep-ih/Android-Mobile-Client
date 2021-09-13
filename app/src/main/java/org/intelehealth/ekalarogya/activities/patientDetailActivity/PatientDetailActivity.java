@@ -446,9 +446,9 @@ public class PatientDetailActivity extends AppCompatActivity {
                     FirebaseCrashlytics.getInstance().recordException(e);
                 }
 
-                if (name.equalsIgnoreCase("caste")) {
-                    patient_new.setCaste(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
-                }
+//                if (name.equalsIgnoreCase("caste")) {
+//                    patient_new.setCaste(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
+//                }
                 if (name.equalsIgnoreCase("Telephone Number")) {
                     patient_new.setPhone_number(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }
@@ -515,7 +515,7 @@ public class PatientDetailActivity extends AppCompatActivity {
 
             //Display the fields on the Add Patient screen as per the config file
             if (obj.getBoolean("casteLayout")) {
-                casteRow.setVisibility(View.VISIBLE);
+                casteRow.setVisibility(View.GONE);
             } else {
                 casteRow.setVisibility(View.GONE);
             }
@@ -705,23 +705,23 @@ public class PatientDetailActivity extends AppCompatActivity {
         }
 
         //caste
-        if (patient_new.getCaste().equalsIgnoreCase("Not provided") &&
-                sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
-            casteView.setText("नहीं दिया गया");
-        } else if (patient_new.getCaste().equalsIgnoreCase("Not provided") &&
-                sessionManager.getAppLanguage().equalsIgnoreCase("or")) {
-            casteView.setText(patient_new.getCaste());
-        } else {
-            if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
-                String caste = switch_hi_caste_edit(patient_new.getCaste());
-                casteView.setText(caste);
-            } else if (sessionManager.getAppLanguage().equalsIgnoreCase("or")) {
-                casteView.setText(patient_new.getCaste());
-            } else {
-                casteView.setText(patient_new.getCaste());
-            }
-            // casteView.setText(patient_new.getCaste());
-        }
+//        if (patient_new.getCaste().equalsIgnoreCase("Not provided") &&
+//                sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
+//            casteView.setText("नहीं दिया गया");
+//        } else if (patient_new.getCaste().equalsIgnoreCase("Not provided") &&
+//                sessionManager.getAppLanguage().equalsIgnoreCase("or")) {
+//            casteView.setText(patient_new.getCaste());
+//        } else {
+//            if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
+//                String caste = switch_hi_caste_edit(patient_new.getCaste());
+//                casteView.setText(caste);
+//            } else if (sessionManager.getAppLanguage().equalsIgnoreCase("or")) {
+//                casteView.setText(patient_new.getCaste());
+//            } else {
+//                casteView.setText(patient_new.getCaste());
+//            }
+//            // casteView.setText(patient_new.getCaste());
+//        }
 
 //
         if (patient_new.getSdw() != null && !patient_new.getSdw().equals("")) {

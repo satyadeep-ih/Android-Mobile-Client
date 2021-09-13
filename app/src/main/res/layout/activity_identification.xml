@@ -687,13 +687,15 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/identification_txtlcaste"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:visibility="gone">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:orientation="horizontal"
-                                android:weightSum="4">
+                                android:weightSum="4"
+                                android:visibility="gone">
 
                                 <EditText
                                     android:id="@+id/identification_caste"

@@ -94,6 +94,7 @@ import static org.intelehealth.ekalarogya.utilities.StringUtils.en__or_dob;
 import static org.intelehealth.ekalarogya.utilities.StringUtils.switch_hi_caste_edit;
 import static org.intelehealth.ekalarogya.utilities.StringUtils.switch_hi_economic_edit;
 import static org.intelehealth.ekalarogya.utilities.StringUtils.switch_hi_education_edit;
+import static org.intelehealth.ekalarogya.utilities.StringUtils.switch_hi_toiletfacil_edit;
 
 public class IdentificationActivity extends AppCompatActivity {
     private static final String TAG = IdentificationActivity.class.getSimpleName();
@@ -464,7 +465,7 @@ public class IdentificationActivity extends AppCompatActivity {
             mDOB.setText(patient1.getDate_of_birth());
         }*/
         mDOB.setText(patient1.getDate_of_birth());
-        Log.v("main", "dob: "+patient1.getDate_of_birth());
+        Log.v("main", "dob: " + patient1.getDate_of_birth());
 
 
         mPhoneNum.setText(patient1.getPhone_number());
@@ -683,7 +684,7 @@ public class IdentificationActivity extends AppCompatActivity {
         howtomake_water_safe_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (parent.getSelectedItem().toString().equalsIgnoreCase("Other[Enter]") ||
+                if (parent.getSelectedItem().toString().equalsIgnoreCase("Other [Enter]") ||
                         parent.getSelectedItem().toString().equalsIgnoreCase("अन्य [दर्ज करें]")) {
                     watersafe_edittext.setVisibility(View.VISIBLE);
                     watersafe_edittext.requestFocus();
@@ -913,32 +914,32 @@ public class IdentificationActivity extends AppCompatActivity {
                 Log.v(TAG, "yes");
             }
 
-            //vacciantion...
-            if(!patient1.getVaccination().equalsIgnoreCase("No")) {
-                if(patient1.getVaccination().equalsIgnoreCase("Age less than 18 years")) {
-                    framelayout_vaccine_question.setVisibility(View.GONE);
-                    framelayout_vaccination.setVisibility(View.GONE);
-                    int spinner_position = vaccination_adapt.getPosition(patient1.getVaccination());
-                    spinner_vaccination.setSelection(spinner_position);
-                    radioYes.setChecked(false);
-                    radioNo.setChecked(false);
-                }
-                else {
-                    framelayout_vaccination.setVisibility(View.VISIBLE);
-                    int spinner_position = vaccination_adapt.getPosition(patient1.getVaccination());
-                    spinner_vaccination.setSelection(spinner_position);
-                    radioYes.setChecked(true);
-                    if (radioNo.isChecked())
-                        radioNo.setChecked(false);
-                }
-            }
-            else {
-                framelayout_vaccination.setVisibility(View.GONE);
-                spinner_vaccination.setSelection(0);
-                radioNo.setChecked(true);
-                if (radioYes.isChecked())
-                    radioYes.setChecked(false);
-            }
+//            //vacciantion...
+//            if(!patient1.getVaccination().equalsIgnoreCase("No")) {
+//                if(patient1.getVaccination().equalsIgnoreCase("Age less than 18 years")) {
+//                    framelayout_vaccine_question.setVisibility(View.GONE);
+//                    framelayout_vaccination.setVisibility(View.GONE);
+//                    int spinner_position = vaccination_adapt.getPosition(patient1.getVaccination());
+//                    spinner_vaccination.setSelection(spinner_position);
+//                    radioYes.setChecked(false);
+//                    radioNo.setChecked(false);
+//                }
+//                else {
+//                    framelayout_vaccination.setVisibility(View.VISIBLE);
+//                    int spinner_position = vaccination_adapt.getPosition(patient1.getVaccination());
+//                    spinner_vaccination.setSelection(spinner_position);
+//                    radioYes.setChecked(true);
+//                    if (radioNo.isChecked())
+//                        radioNo.setChecked(false);
+//                }
+//            }
+//            else {
+//                framelayout_vaccination.setVisibility(View.GONE);
+//                spinner_vaccination.setSelection(0);
+//                radioNo.setChecked(true);
+//                if (radioYes.isChecked())
+//                    radioYes.setChecked(false);
+//            }
             //vacciantion - end
 
         }
@@ -985,19 +986,19 @@ public class IdentificationActivity extends AppCompatActivity {
             }
             // mEconomicStatus.setSelection(economicStatusAdapter.getPosition(patient1.getEconomic_status()));
 
-            if (patient1.getCaste().equals(getResources().getString(R.string.not_provided)))
-                mCaste.setSelection(0);
-            else {
-                if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
-                    String caste = switch_hi_caste_edit(patient1.getCaste());
-                    mCaste.setSelection(casteAdapter.getPosition(caste));
-                } else if (sessionManager.getAppLanguage().equalsIgnoreCase("or")) {
-                    mCaste.setSelection(casteAdapter.getPosition(patient1.getCaste()));
-                } else {
-                    mCaste.setSelection(casteAdapter.getPosition(patient1.getCaste()));
-                }
-
-            }
+//            if (patient1.getCaste().equals(getResources().getString(R.string.not_provided)))
+//                mCaste.setSelection(0);
+//            else {
+//                if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
+//                    String caste = switch_hi_caste_edit(patient1.getCaste());
+//                    mCaste.setSelection(casteAdapter.getPosition(caste));
+//                } else if (sessionManager.getAppLanguage().equalsIgnoreCase("or")) {
+//                    mCaste.setSelection(casteAdapter.getPosition(patient1.getCaste()));
+//                } else {
+//                    mCaste.setSelection(casteAdapter.getPosition(patient1.getCaste()));
+//                }
+//
+//            }
 
             //Houselhold Head...
             if (patient1.getNo_of_family_members() != null && !patient1.getNo_of_family_members().equalsIgnoreCase("")
@@ -1080,36 +1081,33 @@ public class IdentificationActivity extends AppCompatActivity {
                         framelayout_vaccination.setVisibility(View.GONE);
                         spinner_vaccination.setSelection(0);
                     } else {
-                        if(patient1.getVaccination().equalsIgnoreCase("Age less than 18 years")) {
+                        if (patient1.getVaccination().equalsIgnoreCase("Age less than 18 years")) {
                             framelayout_vaccine_question.setVisibility(View.GONE);
                             framelayout_vaccination.setVisibility(View.GONE);
                             int spinner_position = vaccination_adapt.getPosition(patient1.getVaccination());
                             spinner_vaccination.setSelection(spinner_position);
                             radioYes.setChecked(false);
                             radioNo.setChecked(false);
-                        }
-                        else {
+                        } else {
                             vaccination_Transl = StringUtils.switch_hi_vaccination_edit(patient1.getVaccination());
                             framelayout_vaccination.setVisibility(View.VISIBLE);
                             int spinner_position = vaccination_adapt.getPosition(vaccination_Transl);
                             spinner_vaccination.setSelection(spinner_position);
                         }
                     }
-                }
-                else if(sessionManager.getAppLanguage().equalsIgnoreCase("en")) {
+                } else if (sessionManager.getAppLanguage().equalsIgnoreCase("en")) {
                     if (patient1.getVaccination().equalsIgnoreCase("No")) {
                         framelayout_vaccination.setVisibility(View.GONE);
                         spinner_vaccination.setSelection(0);
                     } else {
-                        if(patient1.getVaccination().equalsIgnoreCase("Age less than 18 years")) {
+                        if (patient1.getVaccination().equalsIgnoreCase("Age less than 18 years")) {
                             framelayout_vaccine_question.setVisibility(View.GONE);
                             framelayout_vaccination.setVisibility(View.GONE);
                             int spinner_position = vaccination_adapt.getPosition(patient1.getVaccination());
                             spinner_vaccination.setSelection(spinner_position);
                             radioYes.setChecked(false);
                             radioNo.setChecked(false);
-                        }
-                        else {
+                        } else {
                             vaccination_Transl = patient1.getVaccination();
                             framelayout_vaccination.setVisibility(View.VISIBLE);
                             int spinner_position = vaccination_adapt.getPosition(vaccination_Transl);
@@ -1119,9 +1117,6 @@ public class IdentificationActivity extends AppCompatActivity {
                 }
             }
             //vaccinatio - end
-
-
-
 
 
             if (patient1.getSource_of_water() != null && !patient1.getSource_of_water()
@@ -1157,7 +1152,7 @@ public class IdentificationActivity extends AppCompatActivity {
                     if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
                         howtomake_water_safe_spinner.setSelection(watersafe_adapt.getPosition("अन्य [दर्ज करें]"));
                     } else {
-                        howtomake_water_safe_spinner.setSelection(watersafe_adapt.getPosition("Other[Enter]"));
+                        howtomake_water_safe_spinner.setSelection(watersafe_adapt.getPosition("Other [Enter]"));
                     }
 
                     watersafe_edittext.setVisibility(View.VISIBLE);
@@ -1181,32 +1176,60 @@ public class IdentificationActivity extends AppCompatActivity {
             if (patient1.getToilet_facility() != null && !patient1.getToilet_facility()
                     .equalsIgnoreCase("")) {
 
-                String toiletfacility_Transl = "";
+
                 if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
-                    toiletfacility_Transl = StringUtils.switch_hi_toiletfacil_edit(patient1.getToilet_facility());
-                } else {
-                    toiletfacility_Transl = patient1.getToilet_facility();
-                }
+                    if (toiletfacility_adapt.getPosition(switch_hi_toiletfacil_edit(patient1.getToilet_facility())) == -1) {
 
-                int spinner_position = toiletfacility_adapt.getPosition(toiletfacility_Transl);
-                toilet_facility_spinner.setSelection(spinner_position);
-
-                if (spinner_position >= 0) {
-                    toilet_facility_spinner.setSelection(spinner_position); //user selected value items from spinner
-                }
-                //since we will have to show our dynamic values here..
-                else {
-                    //on edit the spinner value will be selected based on the current app lang...
-                    if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
                         toilet_facility_spinner.setSelection(toiletfacility_adapt.getPosition("अन्य [दर्ज करें]"));
+                        toiletfacility_edittext.setVisibility(View.VISIBLE);
+                        toiletfacility_edittext.setText(patient1.getToilet_facility());
                     } else {
-                        toilet_facility_spinner.setSelection(toiletfacility_adapt.getPosition("Other[Enter]"));
-                    }
 
-                    toiletfacility_edittext.setVisibility(View.VISIBLE);
-                    toiletfacility_edittext.setText(patient1.getToilet_facility());
+                        int spinner_position = toiletfacility_adapt.getPosition(switch_hi_toiletfacil_edit(patient1.getToilet_facility()));
+                        toilet_facility_spinner.setSelection(spinner_position);
+                    }
+                } else {
+
+                    if (toiletfacility_adapt.getPosition(patient1.getToilet_facility()) == -1) {
+                        toilet_facility_spinner.setSelection(toiletfacility_adapt.getPosition("Other [Enter]"));
+                        toiletfacility_edittext.setVisibility(View.VISIBLE);
+                        toiletfacility_edittext.setText(patient1.getToilet_facility());
+                    } else {
+
+                        int spinner_position = toiletfacility_adapt.getPosition(patient1.getToilet_facility());
+                        toilet_facility_spinner.setSelection(spinner_position);
+                    }
                 }
             }
+
+//                String toiletfacility_Transl = "";
+//                if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
+//                    toiletfacility_Transl = switch_hi_toiletfacil_edit(patient1.getToilet_facility());
+//                    int spinner_position = toiletfacility_adapt.getPosition(toiletfacility_Transl);
+//                    toilet_facility_spinner.setSelection(spinner_position);
+//                }
+//
+//                else {
+//                    toiletfacility_Transl = patient1.getToilet_facility();
+//                    int spinner_position = toiletfacility_adapt.getPosition(toiletfacility_Transl);
+//                    toilet_facility_spinner.setSelection(spinner_position);
+//                }
+//                if (spinner_position >= 0) {
+//                    toilet_facility_spinner.setSelection(spinner_position); //user selected value items from spinner
+//                }
+//                //since we will have to show our dynamic values here..
+//                else {
+//                    //on edit the spinner value will be selected based on the current app lang...
+//                    if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
+//                        toilet_facility_spinner.setSelection(toiletfacility_adapt.getPosition("अन्य [दर्ज करें]"));
+//                    } else {
+//                        toilet_facility_spinner.setSelection(toiletfacility_adapt.getPosition("Other [Enter]"));
+//                    }
+//
+//                    toiletfacility_edittext.setVisibility(View.VISIBLE);
+//                    toiletfacility_edittext.setText(patient1.getToilet_facility());
+//                }
+
 
             if (patient1.getStructure_house() != null && !patient1.getStructure_house()
                     .equalsIgnoreCase("")) {
@@ -1413,15 +1436,14 @@ public class IdentificationActivity extends AppCompatActivity {
                 mAge.setText(ageString);
 
                 //vaccination if above or equal to 18 than show visibility....
-                if(mAgeYears >= 18) {
+                if (mAgeYears >= 18) {
                     framelayout_vaccine_question.setVisibility(View.VISIBLE);
-                   // framelayout_vaccination.setVisibility(View.GONE);
-                }
-                else {
+                    // framelayout_vaccination.setVisibility(View.GONE);
+                } else {
                     framelayout_vaccine_question.setVisibility(View.GONE);
-                    if(radioYes.isChecked()) //so that no previous data be gone to the db
+                    if (radioYes.isChecked()) //so that no previous data be gone to the db
                         radioYes.setChecked(false);
-                    if(radioNo.isChecked())
+                    if (radioNo.isChecked())
                         radioNo.setChecked(false);
 
                     spinner_vaccination.setSelection(0);
@@ -1444,7 +1466,7 @@ public class IdentificationActivity extends AppCompatActivity {
         if (patientID_edit != null) {
             //dob to be displayed based on translation...
             String dob = DateAndTimeUtils.getFormatedDateOfBirthAsView(patient1.getDate_of_birth());
-            Log.v("main", "dob: "+patient1.getDate_of_birth() + "\n" + dob);
+            Log.v("main", "dob: " + patient1.getDate_of_birth() + "\n" + dob);
 
             if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
                 String dob_text = en__hi_dob(dob); //to show text of English into Hindi...
@@ -1456,7 +1478,7 @@ public class IdentificationActivity extends AppCompatActivity {
                 mDOB.setText(dob);
             }
 
-          //  mDOB.setText(DateAndTimeUtils.getFormatedDateOfBirthAsView(patient1.getDate_of_birth()));
+            //  mDOB.setText(DateAndTimeUtils.getFormatedDateOfBirthAsView(patient1.getDate_of_birth()));
             //get year month days
             String yrMoDays = DateAndTimeUtils.getAgeInYearMonth(patient1.getDate_of_birth(), context);
 
@@ -1467,15 +1489,14 @@ public class IdentificationActivity extends AppCompatActivity {
             mAge.setText(yrMoDays);
 
             //vaccination if above or equal to 18 than show visibility....
-            if(mAgeYears >= 18) {
+            if (mAgeYears >= 18) {
                 framelayout_vaccine_question.setVisibility(View.VISIBLE);
-               // framelayout_vaccination.setVisibility(View.GONE);
-            }
-            else {
+                // framelayout_vaccination.setVisibility(View.GONE);
+            } else {
                 framelayout_vaccine_question.setVisibility(View.GONE);
-                if(radioYes.isChecked())
+                if (radioYes.isChecked())
                     radioYes.setChecked(false);
-                if(radioNo.isChecked())
+                if (radioNo.isChecked())
                     radioNo.setChecked(false);
 
                 spinner_vaccination.setSelection(0);
@@ -1555,15 +1576,14 @@ public class IdentificationActivity extends AppCompatActivity {
                     mAge.setText(ageString);
 
                     //vaccination if above or equal to 18 than show visibility....
-                    if(mAgeYears >= 18) {
+                    if (mAgeYears >= 18) {
                         framelayout_vaccine_question.setVisibility(View.VISIBLE);
-                       // framelayout_vaccination.setVisibility(View.GONE);
-                    }
-                    else {
+                        // framelayout_vaccination.setVisibility(View.GONE);
+                    } else {
                         framelayout_vaccine_question.setVisibility(View.GONE);
-                        if(radioYes.isChecked())
+                        if (radioYes.isChecked())
                             radioYes.setChecked(false);
-                        if(radioNo.isChecked())
+                        if (radioNo.isChecked())
                             radioNo.setChecked(false);
 
                         spinner_vaccination.setSelection(0);
@@ -1596,7 +1616,7 @@ public class IdentificationActivity extends AppCompatActivity {
                     mDOB.setText(dobString);
                     mDOBPicker.updateDate(mDOBYear, mDOBMonth, mDOBDay);
                     dob_indexValue = mDOBPicker.getDatePicker().getMonth(); //if user manually selects Age then...
-                    Log.d("dd", "dd: "+dob_indexValue);
+                    Log.d("dd", "dd: " + dob_indexValue);
                     dialog.dismiss();
                 });
                 mAgePicker.setNegativeButton(R.string.generic_cancel, new DialogInterface.OnClickListener() {
@@ -1803,9 +1823,9 @@ public class IdentificationActivity extends AppCompatActivity {
                     FirebaseCrashlytics.getInstance().recordException(e);
                 }
 
-                if (name.equalsIgnoreCase("caste")) {
-                    patient1.setCaste(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
-                }
+//                if (name.equalsIgnoreCase("caste")) {
+//                    patient1.setCaste(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
+//                }
                 if (name.equalsIgnoreCase("Telephone Number")) {
                     patient1.setPhone_number(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }
@@ -2138,7 +2158,7 @@ public class IdentificationActivity extends AppCompatActivity {
 
 
         //vaccination
-        if(framelayout_vaccine_question.getVisibility() == View.VISIBLE) {
+        if (framelayout_vaccine_question.getVisibility() == View.VISIBLE) {
             if (!radioYes.isChecked() && !radioNo.isChecked()) {
                 MaterialAlertDialogBuilder alertDialogBuilder = new
                         MaterialAlertDialogBuilder(IdentificationActivity.this);
@@ -2325,9 +2345,8 @@ public class IdentificationActivity extends AppCompatActivity {
                 String dob = StringUtils.hi_or__en_noEdit
                         (mDOB.getText().toString(), sessionManager.getAppLanguage());
                 patientdto.setDateofbirth(DateAndTimeUtils.getFormatedDateOfBirth
-                        (StringUtils.getValue(dob))); 
-            }
-            else {
+                        (StringUtils.getValue(dob)));
+            } else {
                 String dob = StringUtils.hi_or__en_month(dob_indexValue);
                 dob_array[1] = dob_array[1].replace(dob_array[1], dob);
                 String dob_value = dob_array[0] + " " + dob_array[1] + " " + dob_array[2];
@@ -2337,7 +2356,7 @@ public class IdentificationActivity extends AppCompatActivity {
 
             }
 
-           // patientdto.setDateofbirth(DateAndTimeUtils.getFormatedDateOfBirth(StringUtils.getValue(dob_value)));
+            // patientdto.setDateofbirth(DateAndTimeUtils.getFormatedDateOfBirth(StringUtils.getValue(dob_value)));
 
             patientdto.setAddress1(StringUtils.getValue(mAddress1.getText().toString()));
             patientdto.setAddress2(StringUtils.getValue(mAddress2.getText().toString()));
@@ -2472,7 +2491,7 @@ public class IdentificationActivity extends AppCompatActivity {
             Log.d("HOH", "Whatsapp use: " + whatsapp_spinner.getSelectedItem().toString());
             patientAttributesDTOList.add(patientAttributesDTO);
 
-            if(framelayout_vaccine_question.getVisibility() == View.VISIBLE) {
+            if (framelayout_vaccine_question.getVisibility() == View.VISIBLE) {
                 if (radioYes.isChecked() && framelayout_vaccination.getVisibility() == View.VISIBLE) {
                     //Vaccination ...
                     patientAttributesDTO = new PatientAttributesDTO();
@@ -2491,8 +2510,7 @@ public class IdentificationActivity extends AppCompatActivity {
                     Log.d("HOH", "Vaccination: " + "No");
                     patientAttributesDTOList.add(patientAttributesDTO);
                 }
-            }
-            else {
+            } else {
                 patientAttributesDTO = new PatientAttributesDTO();
                 patientAttributesDTO.setUuid(UUID.randomUUID().toString());
                 patientAttributesDTO.setPatientuuid(uuid);
@@ -2940,7 +2958,7 @@ public class IdentificationActivity extends AppCompatActivity {
         }
 
         //vaccination
-        if(framelayout_vaccine_question.getVisibility() == View.VISIBLE) {
+        if (framelayout_vaccine_question.getVisibility() == View.VISIBLE) {
             if (!radioYes.isChecked() && !radioNo.isChecked()) {
                 MaterialAlertDialogBuilder alertDialogBuilder = new
                         MaterialAlertDialogBuilder(IdentificationActivity.this);
@@ -3272,7 +3290,7 @@ public class IdentificationActivity extends AppCompatActivity {
             Log.d("HOH", "Whatsapp use: " + whatsapp_spinner.getSelectedItem().toString());
             patientAttributesDTOList.add(patientAttributesDTO);
 
-            if(framelayout_vaccine_question.getVisibility() == View.VISIBLE) {
+            if (framelayout_vaccine_question.getVisibility() == View.VISIBLE) {
                 if (radioYes.isChecked() && framelayout_vaccination.getVisibility() == View.VISIBLE) {
                     //Vaccination ...
                     patientAttributesDTO = new PatientAttributesDTO();
@@ -3291,8 +3309,7 @@ public class IdentificationActivity extends AppCompatActivity {
                     Log.d("HOH", "Vaccination: " + "No");
                     patientAttributesDTOList.add(patientAttributesDTO);
                 }
-            }
-            else {
+            } else {
                 patientAttributesDTO = new PatientAttributesDTO();
                 patientAttributesDTO.setUuid(UUID.randomUUID().toString());
                 patientAttributesDTO.setPatientuuid(uuid);

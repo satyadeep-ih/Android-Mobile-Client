@@ -126,6 +126,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="40dp"
+                    android:paddingBottom="5dp"
                     android:orientation="vertical"
                     android:padding="@dimen/padding_card">
 
@@ -541,6 +542,7 @@
                         <TableRow
                             android:id="@+id/tableRow_Caste"
                             android:layout_width="match_parent"
+                            android:visibility="gone"
                             android:layout_height="match_parent">
 
                             <TextView
@@ -550,6 +552,7 @@
                                 android:includeFontPadding="false"
                                 android:paddingTop="@dimen/padding_card_action"
                                 android:text="@string/caste"
+
                                 android:textSize="@dimen/card_content_sub_text_size" />
 
 
