@@ -194,7 +194,7 @@ public class PatientDetailActivity extends AppCompatActivity {
         }
 
 
-        if ("true".equalsIgnoreCase(hasPrescription)) {
+        if (hasPrescription.equalsIgnoreCase("true")) {
             ivPrescription.setImageDrawable(getResources().getDrawable(R.drawable.ic_prescription_green));
         }
 
@@ -390,7 +390,7 @@ public class PatientDetailActivity extends AppCompatActivity {
             FirebaseCrashlytics.getInstance().recordException(e);
         }
 
-        if (!"".equalsIgnoreCase(houseHoldValue)) {
+        if (!houseHoldValue.equalsIgnoreCase("")) {
             //Fetch all patient UUID from houseHoldValue
             try {
                 List<FamilyMemberRes> listPatientNames = new ArrayList<>();
@@ -493,7 +493,7 @@ public class PatientDetailActivity extends AppCompatActivity {
                /* if (name.equalsIgnoreCase("caste")) {
                     patient_new.setCaste(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }*/
-                    if ("Telephone Number".equalsIgnoreCase(name)) {
+                    if (name.equalsIgnoreCase("Telephone Number")) {
                         patient_new.setPhone_number(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                     }
               /*  if (name.equalsIgnoreCase("Education Level")) {
@@ -508,7 +508,7 @@ public class PatientDetailActivity extends AppCompatActivity {
                 if (name.equalsIgnoreCase("Son/wife/daughter")) {
                     patient_new.setSdw(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }*/
-                    if ("ProfileImageTimestamp".equalsIgnoreCase(name)) {
+                    if (name.equalsIgnoreCase("ProfileImageTimestamp")) {
                         profileImage1 = idCursor1.getString(idCursor1.getColumnIndexOrThrow("value"));
                     }
 
@@ -596,18 +596,18 @@ public class PatientDetailActivity extends AppCompatActivity {
             } catch (DAOException e) {
                 FirebaseCrashlytics.getInstance().recordException(e);
             }
-            if (patient_new.getPatient_photo() == null || "".equalsIgnoreCase(patient_new.getPatient_photo())) {
+            if (patient_new.getPatient_photo() == null || patient_new.getPatient_photo().equalsIgnoreCase("")) {
                 if (NetworkConnection.isOnline(getApplication())) {
                     profilePicDownloaded();
                 }
             }
             //if (!profileImage.equalsIgnoreCase(profileImage1))
-            if (!profileImage1.equalsIgnoreCase(profileImage)) {
+            if (!profileImage.equalsIgnoreCase(profileImage1)) {
                 if (NetworkConnection.isOnline(getApplication())) {
                     profilePicDownloaded();
                 }
             }
-            Glide.with(photoView.getContext())
+            Glide.with(PatientDetailActivity.this)
                     .load(patient_new.getPatient_photo())
                     .thumbnail(0.3f)
                     .centerCrop()
@@ -659,17 +659,17 @@ public class PatientDetailActivity extends AppCompatActivity {
 
             if (patient_new.getGender() != null) {
                 if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
-                    if ("M".equalsIgnoreCase(patient_new.getGender())) {
+                    if (patient_new.getGender().equalsIgnoreCase("M")) {
                         genderView.setText(getString(R.string.identification_screen_checkbox_male));
-                    } else if ("F".equalsIgnoreCase(patient_new.getGender())) {
+                    } else if (patient_new.getGender().equalsIgnoreCase("F")) {
                         genderView.setText(getString(R.string.identification_screen_checkbox_female));
                     } else {
                         genderView.setText(patient_new.getGender());
                     }
                 } else if (sessionManager.getAppLanguage().equalsIgnoreCase("or")) {
-                    if ("M".equalsIgnoreCase(patient_new.getGender())) {
+                    if (patient_new.getGender().equalsIgnoreCase("M")) {
                         genderView.setText(getString(R.string.identification_screen_checkbox_male));
-                    } else if ("F".equalsIgnoreCase(patient_new.getGender())) {
+                    } else if (patient_new.getGender().equalsIgnoreCase("F")) {
                         genderView.setText(getString(R.string.identification_screen_checkbox_female));
                     } else {
                         genderView.setText(patient_new.getGender());
@@ -678,15 +678,15 @@ public class PatientDetailActivity extends AppCompatActivity {
                     genderView.setText(patient_new.getGender());
                 }
             }
-            if (patient_new.getAddress1() == null || "".equals(patient_new.getAddress1())) {
-                addr1View.setVisibility(View.GONE);
-            } else {
+            if (patient_new.getAddress1() != null && !patient_new.getAddress1().isEmpty()) {
                 addr1View.setText(patient_new.getAddress1());
-            }
-            if (patient_new.getAddress2() == null || "".equals(patient_new.getAddress2())) {
-                addr2Row.setVisibility(View.GONE);
             } else {
+                addr1View.setVisibility(View.GONE);
+            }
+            if (patient_new.getAddress2() != null && !patient_new.getAddress2().isEmpty()) {
                 addr2View.setText(patient_new.getAddress2());
+            } else {
+                addr2Row.setVisibility(View.GONE);
             }
             String city_village;
             if (patient_new.getCity_village() != null) {
@@ -697,7 +697,7 @@ public class PatientDetailActivity extends AppCompatActivity {
 
             if (patient_new.getPostal_code() != null) {
                 String addrFinalLine;
-                if (!"".equalsIgnoreCase(patient_new.getPostal_code())) {
+                if (!patient_new.getPostal_code().equalsIgnoreCase("")) {
                     addrFinalLine = String.format("%s, %s, %s, %s",
                             city_village, patient_new.getState_province(),
                             patient_new.getPostal_code(), patient_new.getCountry());
@@ -821,10 +821,10 @@ public class PatientDetailActivity extends AppCompatActivity {
                     Cursor encounterCursor = db.query("tbl_encounter", null, encounterIDSelection, encounterIDArgs, null, null, null);
                     if (encounterCursor != null && encounterCursor.moveToFirst()) {
                         do {
-                            if (encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")).equalsIgnoreCase(encounterDAO.getEncounterTypeUuid("ENCOUNTER_VITALS"))) {
+                            if (encounterDAO.getEncounterTypeUuid("ENCOUNTER_VITALS").equalsIgnoreCase(encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")))) {
                                 encounterVitals = encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("uuid"));
                             }
-                            if (encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")).equalsIgnoreCase(encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL"))) {
+                            if (encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL").equalsIgnoreCase(encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")))) {
                                 encounterAdultIntials = encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("uuid"));
                             }
                         } while (encounterCursor.moveToNext());
@@ -871,7 +871,7 @@ public class PatientDetailActivity extends AppCompatActivity {
                             FirebaseCrashlytics.getInstance().recordException(e);
                         }
                         if (updated) {
-                            Glide.with(photoView.getContext())
+                            Glide.with(PatientDetailActivity.this)
                                     .load(AppConstants.IMAGE_PATH + patientUuid + ".jpg")
                                     .thumbnail(0.3f)
                                     .centerCrop()
@@ -1047,7 +1047,7 @@ public class PatientDetailActivity extends AppCompatActivity {
                 visitSummary.putExtra("float_ageYear_Month", float_ageYear_Month);
                 visitSummary.putExtra("tag", intentTag);
                 visitSummary.putExtra("pastVisit", past_visit);
-                if ("true".equalsIgnoreCase(hasPrescription)) {
+                if (hasPrescription.equalsIgnoreCase("true")) {
                     visitSummary.putExtra("hasPrescription", "true");
                 } else {
                     visitSummary.putExtra("hasPrescription", "false");
@@ -1156,10 +1156,10 @@ public class PatientDetailActivity extends AppCompatActivity {
                     Cursor encounterCursor = db.query("tbl_encounter", null, encounterIDSelection, encounterIDArgs, null, null, null);
                     if (encounterCursor != null && encounterCursor.moveToFirst()) {
                         do {
-                            if (encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")).equalsIgnoreCase(encounterDAO.getEncounterTypeUuid("ENCOUNTER_VITALS"))) {
+                            if (encounterDAO.getEncounterTypeUuid("ENCOUNTER_VITALS").equalsIgnoreCase(encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")))) {
                                 encountervitalsLocal = encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("uuid"));
                             }
-                            if (encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")).equalsIgnoreCase(encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL"))) {
+                            if (encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL").equalsIgnoreCase(encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")))) {
                                 encounterlocalAdultintial = encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("uuid"));
                             }
 
@@ -1226,10 +1226,10 @@ public class PatientDetailActivity extends AppCompatActivity {
                     Cursor encounterCursor = db.query("tbl_encounter", null, encounterIDSelection, encounterIDArgs, null, null, null);
                     if (encounterCursor != null && encounterCursor.moveToFirst()) {
                         do {
-                            if (encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")).equalsIgnoreCase(encounterDAO.getEncounterTypeUuid("ENCOUNTER_VITALS"))) {
+                            if (encounterDAO.getEncounterTypeUuid("ENCOUNTER_VITALS").equalsIgnoreCase(encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")))) {
                                 encountervitalsLocal = encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("uuid"));
                             }
-                            if (encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")).equalsIgnoreCase(encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL"))) {
+                            if (encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL").equalsIgnoreCase(encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")))) {
                                 encounterlocalAdultintial = encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("uuid"));
                             }
 
@@ -1295,10 +1295,10 @@ public class PatientDetailActivity extends AppCompatActivity {
                     Cursor encounterCursor = db.query("tbl_encounter", null, encounterIDSelection, encounterIDArgs, null, null, null);
                     if (encounterCursor != null && encounterCursor.moveToFirst()) {
                         do {
-                            if (encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")).equalsIgnoreCase(encounterDAO.getEncounterTypeUuid("ENCOUNTER_VITALS"))) {
+                            if (encounterDAO.getEncounterTypeUuid("ENCOUNTER_VITALS").equalsIgnoreCase(encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")))) {
                                 encountervitalsLocal = encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("uuid"));
                             }
-                            if (encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")).equalsIgnoreCase(encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL"))) {
+                            if (encounterDAO.getEncounterTypeUuid("ENCOUNTER_ADULTINITIAL").equalsIgnoreCase(encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("encounter_type_uuid")))) {
                                 encounterlocalAdultintial = encounterCursor.getString(encounterCursor.getColumnIndexOrThrow("uuid"));
                             }
 
