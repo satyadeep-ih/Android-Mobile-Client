@@ -156,7 +156,7 @@ public class IdentificationActivity extends AppCompatActivity {
     private int mAgeDays = 0;
     private String country1, state;
     PatientsDAO patientsDAO = new PatientsDAO();
-    EditText mFirstName;
+    EditText mFirstName, mCCName;
     EditText mMiddleName;
     EditText mLastName;
     EditText mDOB;
@@ -229,10 +229,13 @@ public class IdentificationActivity extends AppCompatActivity {
     //Additional questions
     Spinner callerRelationSpinner, helplineInfoSpinner, numberRelationSpinner, preferredLangSpinner;
     EditText otherHelplineInfoET;
-    String helplineInfo = "", curosityInfo = "";
+    String helplineInfo = "", curosityInfo = "",subscriptionConsent = "";
     String callerPrefLanguage = "";
     ArrayAdapter<CharSequence> callerRelationAdapter, helplineKnowledgeAdapter, prefLangAdapter , numberRelationAdapter;
 
+    RadioButton mSubscrYes;
+    RadioButton mSubscrNo;
+    RadioButton mSubscrAlready;
 
     public static void start(Context context, boolean medicalAdvice) {
         Intent starter = new Intent(context, IdentificationActivity.class);
@@ -272,6 +275,12 @@ public class IdentificationActivity extends AppCompatActivity {
             }
         });
         // sessionManager = new SessionManager(this);
+
+        mCCName = findViewById(R.id.identification_cc_name);
+        mCCName.setFilters(new InputFilter[]{new InputFilter.LengthFilter(25), inputFilter_Name}); //maxlength 25
+        if(!sessionManager.getChwname().isEmpty() && !sessionManager.getChwname().equalsIgnoreCase("") && sessionManager.getChwname()!=null)
+            mCCName.setText(sessionManager.getChwname());
+
         mFirstName = findViewById(R.id.identification_first_name);
         mFirstName.setFilters(new InputFilter[]{new InputFilter.LengthFilter(25), inputFilter_Name}); //maxlength 25
 
@@ -347,6 +356,10 @@ public class IdentificationActivity extends AppCompatActivity {
         preferredLangSpinner = findViewById(R.id.preffered_language_spinner);
         helplineInfoSpinner = findViewById(R.id.spinner_helpline_knowledge);
         otherHelplineInfoET = findViewById(R.id.other_helplineInfo_edittext);
+
+        mSubscrYes = findViewById(R.id.subsc_yes);
+        mSubscrNo = findViewById(R.id.subsc_no);
+        mSubscrAlready = findViewById(R.id.subsc_already);
 
         //Spinner
        /* occupation_spinner = findViewById(R.id.occupation_spinner);
@@ -516,6 +529,9 @@ public class IdentificationActivity extends AppCompatActivity {
         }
 
         //setting the fields when user clicks edit details
+    if(patient1.getChw_name()!=null && !patient1.getChw_name().isEmpty() && !patient1.getChw_name().equalsIgnoreCase(""))
+        mCCName.setText(patient1.getChw_name().substring(7));
+
         mFirstName.setText(patient1.getFirst_name());
         mMiddleName.setText(patient1.getMiddle_name());
         mLastName.setText(patient1.getLast_name());
@@ -1155,6 +1171,33 @@ public class IdentificationActivity extends AppCompatActivity {
             mGenderOther.setEnabled(false);
             mGenderM.setEnabled(false);
             mGenderF.setEnabled(false);
+
+            if (patient1.getSubscription_consent().equals("Yes")) {
+                mSubscrYes.setChecked(true);
+                if (mSubscrNo.isChecked())
+                    mSubscrNo.setChecked(false);
+                if (mSubscrAlready.isChecked())
+                    mSubscrAlready.setChecked(false);
+            } else if (patient1.getSubscription_consent().equals("No")) {
+                mSubscrNo.setChecked(true);
+                if (mSubscrYes.isChecked())
+                    mSubscrYes.setChecked(false);
+                if (mSubscrAlready.isChecked())
+                    mSubscrAlready.setChecked(false);
+            }
+            else if (patient1.getSubscription_consent().equals("Already Subscribed")) {
+                mSubscrAlready.setChecked(true);
+                if (mSubscrYes.isChecked())
+                    mSubscrYes.setChecked(false);
+                if (mSubscrNo.isChecked())
+                    mSubscrNo.setChecked(false);
+                Log.v(TAG, "yes");
+            }
+
+            mSubscrAlready.setEnabled(false);
+            mSubscrNo.setEnabled(false);
+            mSubscrYes.setEnabled(false);
+
         }
 
         if (mGenderM.isChecked()) {
@@ -1163,6 +1206,16 @@ public class IdentificationActivity extends AppCompatActivity {
             mGender = "F"; } else {
             mGender = "Other";
         }
+
+        //setting subscription status
+        if (mSubscrYes.isChecked()) {
+            subscriptionConsent = "Yes"; }
+        else if (mSubscrNo.isChecked()) {
+            subscriptionConsent = "No"; }
+        else {
+            subscriptionConsent = "Already Subscribed"; }
+
+
         if (patientID_edit != null) {
 
             // setting country according database
@@ -1668,6 +1721,26 @@ public class IdentificationActivity extends AppCompatActivity {
                 onRadioButtonClicked(v);
             }
         });
+
+        mSubscrYes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRadioButtonClicked(v);
+            }
+        });
+
+        mSubscrNo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRadioButtonClicked(v);
+            }
+        });
+        mSubscrAlready.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRadioButtonClicked(v);
+            }
+        });
 /*
         mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1992,19 +2065,47 @@ public class IdentificationActivity extends AppCompatActivity {
         boolean checked = ((RadioButton) view).isChecked();
         switch (view.getId()) {
             case R.id.identification_gender_male:
-                if (checked)
+                if (checked) {
                     mGender = "M";
+                   mSubscrAlready.setEnabled(true);
+                    mSubscrNo.setEnabled(true);
+                    mSubscrYes.setEnabled(true);
+                }
                 Log.v(TAG, "gender:" + mGender);
                 break;
             case R.id.identification_gender_female:
-                if (checked)
+                if (checked) {
                     mGender = "F";
+                    mSubscrAlready.setEnabled(true);
+                    mSubscrNo.setEnabled(true);
+                    mSubscrYes.setEnabled(true);
+                }
                 Log.v(TAG, "gender:" + mGender);
                 break;
             case R.id.identification_gender_other:
                 if (checked)
+                {
                     mGender = "Other";
+                    mSubscrNo.setChecked(true);
+                    subscriptionConsent = "No";
+                    mSubscrAlready.setEnabled(false);
+                    mSubscrNo.setEnabled(false);
+                    mSubscrYes.setEnabled(false);
+
+                }
                 Log.v(TAG, "gender:" + mGender);
+                break;
+            case R.id.subsc_yes:
+                if (checked)
+                    subscriptionConsent = "Yes";
+                break;
+            case R.id.subsc_no:
+                if (checked)
+                    subscriptionConsent = "No";
+                break;
+            case R.id.subsc_already:
+                if (checked)
+                    subscriptionConsent = "Already Subscribed";
                 break;
         }
     }
@@ -2044,7 +2145,7 @@ public class IdentificationActivity extends AppCompatActivity {
         String[] patientColumns = {"uuid", "first_name", "middle_name", "last_name",
                 "date_of_birth", "address1", "address2", "city_village", "state_province",
                 "postal_code", "country", "phone_number", "secondary_phone_number","preferred_language", "gender", "sdw", "occupation", "patient_photo",
-                "economic_status", "education_status", "caste"};
+                "economic_status", "education_status", "caste", "subscription_consent", "chw_name"};
         Cursor idCursor = db.query("tbl_patient", patientColumns, patientSelection, patientArgs, null, null, null);
         if (idCursor.moveToFirst()) {
             do {
@@ -2065,6 +2166,8 @@ public class IdentificationActivity extends AppCompatActivity {
                 patient1.setGender(idCursor.getString(idCursor.getColumnIndexOrThrow("gender")));
                 patient1.setSdw(idCursor.getString(idCursor.getColumnIndexOrThrow("sdw")));
                 patient1.setPatient_photo(idCursor.getString(idCursor.getColumnIndexOrThrow("patient_photo")));
+                patient1.setChw_name(idCursor.getString(idCursor.getColumnIndexOrThrow("chw_name")));
+                patient1.setSubscription_consent(idCursor.getString(idCursor.getColumnIndexOrThrow("subscription_consent")));
 //                patient1.setOccupation(idCursor.getString(idCursor.getColumnIndexOrThrow("occupation")));
 //                patient1.setBank_account(idCursor.getString(idCursor.getColumnIndexOrThrow("Bank Account")));
 //                patient1.setMobile_type(idCursor.getString(idCursor.getColumnIndexOrThrow("Mobile Phone Type")));
@@ -2095,6 +2198,10 @@ public class IdentificationActivity extends AppCompatActivity {
                     FirebaseCrashlytics.getInstance().recordException(e);
                 }
 
+                if (name.equalsIgnoreCase("CHW Name")) {
+                    patient1.setChw_name(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
+                }
+
                 if (name.equalsIgnoreCase("Caste")) {
                     patient1.setCaste(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }
@@ -2107,6 +2214,11 @@ public class IdentificationActivity extends AppCompatActivity {
                 if (name.equalsIgnoreCase("Preferred Language")) {
                     patient1.setPreferred_language(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }
+
+                if (name.equalsIgnoreCase("Consent for Subscription")) {
+                    patient1.setSubscription_consent(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
+                }
+
                 if (name.equalsIgnoreCase("Education Level")) {
                     patient1.setEducation_level(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }
@@ -2350,13 +2462,18 @@ public class IdentificationActivity extends AppCompatActivity {
         }
 */
 
-        if (!mFirstName.getText().toString().equals("")  &&  !countryText.getText().toString().equals("") && !mCity.getText().toString().equals("") &&
+        if (!mCCName.getText().toString().equals("")  &&!mFirstName.getText().toString().equals("")  &&  !countryText.getText().toString().equals("") && !mCity.getText().toString().equals("") &&
                 !autocompleteState.getText().toString().equals("") && !autocompleteDistrict.getText().toString().equals("") && !mAge.getText().toString().equals("")
-                && (mGenderF.isChecked() || mGenderM.isChecked() || mGenderOther.isChecked())) {
+                && (mGenderF.isChecked() || mGenderM.isChecked() || mGenderOther.isChecked()) && (mSubscrYes.isChecked() || mSubscrNo.isChecked() || mSubscrAlready.isChecked())) {
 
             Log.v(TAG, "Result");
 
         } else {
+
+            if (mCCName.getText().toString().equals("")) {
+                mCCName.setError(getString(R.string.error_field_required));
+            }
+
             if (mFirstName.getText().toString().equals("")) {
                 mFirstName.setError(getString(R.string.error_field_required));
             }
@@ -2396,6 +2513,26 @@ public class IdentificationActivity extends AppCompatActivity {
                 MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(IdentificationActivity.this);
                 alertDialogBuilder.setTitle(R.string.error);
                 alertDialogBuilder.setMessage(R.string.identification_screen_dialog_error_gender);
+                alertDialogBuilder.setPositiveButton(R.string.generic_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+                Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setTextColor(getResources().getColor(R.color.colorPrimary));
+                //positiveButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                IntelehealthApplication.setAlertDialogCustomTheme(IdentificationActivity.this, alertDialog);
+
+            }
+
+            if (!mSubscrYes.isChecked() && !mSubscrNo.isChecked() && !mSubscrAlready.isChecked()) {
+                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(IdentificationActivity.this);
+                alertDialogBuilder.setTitle(R.string.error);
+                alertDialogBuilder.setMessage(R.string.identification_screen_dialog_error_subscription);
                 alertDialogBuilder.setPositiveButton(R.string.generic_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -2799,6 +2936,13 @@ public class IdentificationActivity extends AppCompatActivity {
             patientAttributesDTO = new PatientAttributesDTO();
             patientAttributesDTO.setUuid(UUID.randomUUID().toString());
             patientAttributesDTO.setPatientuuid(uuid);
+            patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("CHW Name"));
+            patientAttributesDTO.setValue("Agent - " + StringUtils.getValue(mCCName.getText().toString()));
+            patientAttributesDTOList.add(patientAttributesDTO);
+
+            patientAttributesDTO = new PatientAttributesDTO();
+            patientAttributesDTO.setUuid(UUID.randomUUID().toString());
+            patientAttributesDTO.setPatientuuid(uuid);
             patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("Caste"));
             patientAttributesDTO.setValue(StringUtils.getValue1(helplineInfo));
             patientAttributesDTOList.add(patientAttributesDTO);
@@ -2822,6 +2966,13 @@ public class IdentificationActivity extends AppCompatActivity {
             patientAttributesDTO.setPatientuuid(uuid);
             patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("Preferred Language"));
             patientAttributesDTO.setValue(StringUtils.getValue(callerPrefLanguage));
+            patientAttributesDTOList.add(patientAttributesDTO);
+
+            patientAttributesDTO = new PatientAttributesDTO();
+            patientAttributesDTO.setUuid(UUID.randomUUID().toString());
+            patientAttributesDTO.setPatientuuid(uuid);
+            patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("Consent for Subscription"));
+            patientAttributesDTO.setValue(StringUtils.getValue(subscriptionConsent));
             patientAttributesDTOList.add(patientAttributesDTO);
 
             patientAttributesDTO = new PatientAttributesDTO();
@@ -3294,14 +3445,20 @@ public class IdentificationActivity extends AppCompatActivity {
         }
 */
 
-        if (!mFirstName.getText().toString().equals("")
+        if ( !mCCName.getText().toString().equals("")
+                && !mFirstName.getText().toString().equals("")
                 && !countryText.getText().toString().equals("") && !mCity.getText().toString().equals("") &&
-                !autocompleteState.getText().toString().equals("") && !autocompleteDistrict.getText().toString().equals("") && !mAge.getText().toString().equals("")
+                !autocompleteState.getText().toString().equals("") && !autocompleteDistrict.getText().toString().equals("") && !mAge.getText().toString().equals("") && (mSubscrYes.isChecked() || mSubscrNo.isChecked() || mSubscrAlready.isChecked())
                 && (mGenderF.isChecked() || mGenderM.isChecked() || mGenderOther.isChecked())) {
 
             Log.v(TAG, "Result");
 
         } else {
+
+             if (mCCName.getText().toString().equals("")) {
+                mCCName.setError(getString(R.string.error_field_required));
+            }
+
             if (mFirstName.getText().toString().equals("")) {
                 mFirstName.setError(getString(R.string.error_field_required));
             }
@@ -3355,6 +3512,25 @@ public class IdentificationActivity extends AppCompatActivity {
 
             }
 
+            if (!mSubscrYes.isChecked() && !mSubscrNo.isChecked() && !mSubscrAlready.isChecked()) {
+                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(IdentificationActivity.this);
+                alertDialogBuilder.setTitle(R.string.error);
+                alertDialogBuilder.setMessage(R.string.identification_screen_dialog_error_subscription);
+                alertDialogBuilder.setPositiveButton(R.string.generic_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+                Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setTextColor(getResources().getColor(R.color.colorPrimary));
+                //positiveButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                IntelehealthApplication.setAlertDialogCustomTheme(IdentificationActivity.this, alertDialog);
+
+            }
 
             Toast.makeText(IdentificationActivity.this, R.string.identification_screen_required_fields, Toast.LENGTH_LONG).show();
             return;
@@ -3689,6 +3865,15 @@ public class IdentificationActivity extends AppCompatActivity {
             patientdto.setCountry(StringUtils.getValue(mCountry.getSelectedItem().toString()));
             patientdto.setPatient_photo(mCurrentPhotoPath);
 //                patientdto.setEconomic(StringUtils.getValue(m));
+
+            patientAttributesDTO = new PatientAttributesDTO();
+            patientAttributesDTO.setUuid(UUID.randomUUID().toString());
+            patientAttributesDTO.setPatientuuid(uuid);
+            patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("CHW Name"));
+            patientAttributesDTO.setValue(StringUtils.getValue("Agent - " + mCCName.getText().toString()));
+            patientAttributesDTOList.add(patientAttributesDTO);
+
+
             patientdto.setState_province(StringUtils.getValue(patientdto.getState_province()));
             patientAttributesDTO = new PatientAttributesDTO();
             patientAttributesDTO.setUuid(UUID.randomUUID().toString());
@@ -3716,6 +3901,13 @@ public class IdentificationActivity extends AppCompatActivity {
             patientAttributesDTO.setPatientuuid(uuid);
             patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("Preferred Language"));
             patientAttributesDTO.setValue(StringUtils.getValue(callerPrefLanguage));
+            patientAttributesDTOList.add(patientAttributesDTO);
+
+            patientAttributesDTO = new PatientAttributesDTO();
+            patientAttributesDTO.setUuid(UUID.randomUUID().toString());
+            patientAttributesDTO.setPatientuuid(uuid);
+            patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("Consent for Subscription"));
+            patientAttributesDTO.setValue(StringUtils.getValue(subscriptionConsent));
             patientAttributesDTOList.add(patientAttributesDTO);
 
             patientAttributesDTO = new PatientAttributesDTO();

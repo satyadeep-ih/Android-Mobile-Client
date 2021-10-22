@@ -36,6 +36,8 @@ public class Patient {
     private String structure_house;
     private String hectars_land;
     private String emergency;
+    private String subscription_consent;
+    private String chw_name;
 
     public String getUuid() {
         return uuid;
@@ -316,4 +318,21 @@ public class Patient {
     public void setPreferred_language(String preferred_language) {
         this.preferred_language = preferred_language;
     }
+
+    public String getChw_name() {
+        return chw_name;
+    }
+
+    public void setChw_name(String chw_name) {
+        this.chw_name = chw_name;
+    }
+
+    public String getSubscription_consent() {
+        return subscription_consent;
+    }
+
+    public void setSubscription_consent(String subscription_consent) {
+        this.subscription_consent = subscription_consent;
+    }
+
 }

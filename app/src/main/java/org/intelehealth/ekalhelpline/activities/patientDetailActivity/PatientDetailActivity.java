@@ -134,6 +134,7 @@ import static org.intelehealth.ekalhelpline.utilities.StringUtils.switch_hi_call
 import static org.intelehealth.ekalhelpline.utilities.StringUtils.switch_hi_helplineInfo;
 import static org.intelehealth.ekalhelpline.utilities.StringUtils.switch_hi_numberRelation;
 import static org.intelehealth.ekalhelpline.utilities.StringUtils.switch_hi_subs_response;
+import static org.intelehealth.ekalhelpline.utilities.StringUtils.switch_hi_whatsapp_edit;
 import static org.intelehealth.ekalhelpline.utilities.StringUtils.switch_mr_callerRelation;
 import static org.intelehealth.ekalhelpline.utilities.StringUtils.switch_mr_helplineInfo;
 import static org.intelehealth.ekalhelpline.utilities.StringUtils.switch_mr_numberRelation;
@@ -201,8 +202,7 @@ public class PatientDetailActivity extends AppCompatActivity {
     private BucketResponse.Bucket selectedBucket, selectedBucket2;
     String callNoteText = "";
     String gender;
-
-//    int preferred_time;
+    CardView subscription1, subscription2;
     ArrayAdapter<CharSequence> timeAdapter;
 
     private Spinner spinner_pref_bucket2, spinner_pref_time2, spinner_pref_language2;
@@ -240,6 +240,8 @@ public class PatientDetailActivity extends AppCompatActivity {
         height = metrics.heightPixels;
         additionalPhoneNumTR = findViewById(R.id.additionalNumberTableRow);
         gender = sessionManager.getChwGender();
+        subscription1 = findViewById(R.id.cardView_subscription);
+        subscription2 = findViewById(R.id.cardView_subscription2);
 
         //change gender in the same format as using in api
 //        if(gender.equalsIgnoreCase("Male"))
@@ -587,7 +589,7 @@ public class PatientDetailActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0)
                     return;
-                selectedSubscriptionTime = timeAdapter.getItem(position);
+                selectedSubscriptionTime = String.valueOf(position);
             }
 
             @Override
@@ -721,6 +723,7 @@ public class PatientDetailActivity extends AppCompatActivity {
                 data.bucketsubscribedto = selectedBucket.bucketId;
                 data.slotselected = selectedSubscriptionTime.toString();
                 data.subscribedby = sessionManager.getProviderID();
+                data.apptype = "agent";
                 data.language = getResources().getStringArray(R.array.language_values)[spinner_pref_language.getSelectedItemPosition()];
                 apiInterface.subscribe(urlModifiers.getSubscriptionUrl(), subscriptionAuthHeader, data).enqueue(new Callback<SubscriptionStatus>() {
                     @Override
@@ -885,6 +888,7 @@ public class PatientDetailActivity extends AppCompatActivity {
                 data.bucketsubscribedto = selectedBucket2.bucketId;
                 data.slotselected = selectedSubscriptionTime2.toString();
                 data.subscribedby = sessionManager.getProviderID();
+                data.apptype = "agent";
                 data.language = getResources().getStringArray(R.array.language_values)[spinner_pref_language2.getSelectedItemPosition()];
                 apiInterface.subscribe(urlModifiers.getSubscriptionUrl(), subscriptionAuthHeader, data).enqueue(new Callback<SubscriptionStatus>() {
                     @Override
@@ -1047,7 +1051,7 @@ public class PatientDetailActivity extends AppCompatActivity {
         String[] patientColumns = {"uuid", "openmrs_id", "first_name", "middle_name", "last_name",
                 "date_of_birth", "address1", "address2", "city_village", "state_province",
                 "postal_code", "country", "phone_number", "secondary_phone_number","preferred_language", "gender", "sdw",
-                "patient_photo"};
+                "patient_photo","subscription_consent"};
         Cursor idCursor = db.query("tbl_patient", patientColumns, patientSelection, patientArgs, null, null, null);
         if (idCursor.moveToFirst()) {
             do {
@@ -1068,6 +1072,7 @@ public class PatientDetailActivity extends AppCompatActivity {
                 patient_new.setPreferred_language(idCursor.getString(idCursor.getColumnIndexOrThrow("preferred_language")));
                 patient_new.setGender(idCursor.getString(idCursor.getColumnIndexOrThrow("gender")));
                 patient_new.setPatient_photo(idCursor.getString(idCursor.getColumnIndexOrThrow("patient_photo")));
+                patient_new.setSubscription_consent(idCursor.getString(idCursor.getColumnIndexOrThrow("subscription_consent")));
             } while (idCursor.moveToNext());
         }
         idCursor.close();
@@ -1098,6 +1103,10 @@ public class PatientDetailActivity extends AppCompatActivity {
 
                 if (name.equalsIgnoreCase("Preferred Language")) {
                     patient_new.setPreferred_language(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
+                }
+
+                if (name.equalsIgnoreCase("Consent for Subscription")) {
+                    patient_new.setSubscription_consent(idCursor1.getString(idCursor1.getColumnIndexOrThrow("value")));
                 }
 
               /*  if (name.equalsIgnoreCase("Education Level")) {
@@ -1146,11 +1155,18 @@ public class PatientDetailActivity extends AppCompatActivity {
         TableRow economicRow = findViewById(R.id.tableRow_Economic_Status);
         TableRow educationRow = findViewById(R.id.tableRow_Education_Status);
         TableRow casteRow = findViewById(R.id.tableRow_Caste);
-
+        TextView subscrConsent = findViewById(R.id.textView_subscStatus);
         TextView medHistView = findViewById(R.id.textView_patHist);
         TextView famHistView = findViewById(R.id.textView_famHist);
         ImageView whatsapp_no = findViewById(R.id.whatsapp_no);
         calling = findViewById(R.id.calling);
+
+        //card should not show if the user has not given his/her consent for audio subscription.
+        if(patient_new.getSubscription_consent()!= null && patient_new.getSubscription_consent().equalsIgnoreCase("No"))
+        {
+            subscription1.setVisibility(View.GONE);
+            subscription2.setVisibility(View.GONE);
+        }
 
         if (!sessionManager.getLicenseKey().isEmpty()) {
             hasLicense = true;
@@ -1235,6 +1251,8 @@ public class PatientDetailActivity extends AppCompatActivity {
             idView.setText(getString(R.string.patient_not_registered));
         }
 
+
+
 //        if (!NetworkConnection.isOnline(getApplication())) {
 //            if (!sessionManager.getOfllineOpenMRSID().equals("")) {
 //                idView.setText(sessionManager.getOfllineOpenMRSID());
@@ -1256,6 +1274,8 @@ public class PatientDetailActivity extends AppCompatActivity {
         if (sessionManager.getAppLanguage().equalsIgnoreCase("hi")) {
             String dob_text = en__hi_dob(dob); //to show text of English into Hindi...
             dobView.setText(dob_text);
+            String subscriptionConsent = switch_hi_whatsapp_edit(patient_new.getSubscription_consent());
+            subscrConsent.setText(subscriptionConsent);
         } else if (sessionManager.getAppLanguage().equalsIgnoreCase("or")) {
             String dob_text = en__or_dob(dob); //to show text of English into Odiya...
             dobView.setText(dob_text);
@@ -1268,6 +1288,7 @@ public class PatientDetailActivity extends AppCompatActivity {
 */
         else {
             dobView.setText(dob);
+            subscrConsent.setText(patient_new.getSubscription_consent());
         }
 
         if (patient_new.getGender() != null) {

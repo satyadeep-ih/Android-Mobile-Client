@@ -80,6 +80,8 @@ public class InteleHealthDatabaseHelper extends SQLiteOpenHelper {
             "economic_status TEXT," +
             "education_status TEXT," +
             "caste TEXT," +
+            "subscription_consent TEXT," +
+            "chw_name TEXT," +
             "dead Text," +
             "modified_date TEXT," +
             "voided TEXT DEFAULT '0'," +
@@ -213,6 +215,9 @@ public class InteleHealthDatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("INSERT OR REPLACE INTO tbl_uuid_dictionary (uuid,name) VALUES('36d207d6-bee7-4b3e-9196-7d053c6eddce','COMMENTS')");
             db.execSQL("INSERT OR REPLACE INTO tbl_uuid_dictionary (uuid,name) VALUES('d2ac5af4-392b-4749-9a53-baca25821452','ATTRIBUTE_SECONDARY_PHONE_NUMBER')");
             db.execSQL("INSERT OR REPLACE INTO tbl_uuid_dictionary (uuid,name) VALUES('796db5bc-8001-42fd-a652-cabddf3f39bf','ATTRIBUTE_PREFERRED_LANGUAGE')");
+            db.execSQL("INSERT OR REPLACE INTO tbl_uuid_dictionary (uuid,name) VALUES('5e0c2f9d-978b-4e9b-8e99-e8fc291ee475','ATTRIBUTE_SUBSCRIPTION_CONSENT')");
+            db.execSQL("INSERT OR REPLACE INTO tbl_uuid_dictionary (uuid,name) VALUES('3e114fc0-d073-496a-b5fc-fce35bede93d','ATTRIBUTE_CHW_NAME')");
+
         }
     }
 

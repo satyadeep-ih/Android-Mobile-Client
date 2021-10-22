@@ -805,4 +805,15 @@
     <string name="closed_visits_HomeScreen">Closed Visits</string>
     <string name="Completed_Visits">Completed Visits</string>
     <string name="Closed_Visits">Closed Visits</string>
+
+
+    //New Registration Changes
+    <string name="identification_screen_prompt_cc_name">एजेंट का नाम*</string>
+    <string name="agent_information">एजेंट की जानकारी</string>
+    <string name="subscription_information">सदस्यता की जानकारी</string>
+    <string name="subscription_consent">क्या आप ऑडियो कहानियों की सदस्यता लेना चाहते हैं?</string>
+    <string name="already_subscribed">सदस्यता ले रखी</string>
+    <string name="subsc_status">सदस्यता सहमति</string>
+    <string name="identification_screen_dialog_error_subscription">सदस्यता सहमति नहीं दी गई है</string>
+
 </resources>

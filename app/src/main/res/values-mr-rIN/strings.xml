@@ -745,4 +745,13 @@
     <string name="Completed_Visits">Completed Visits</string>
         <string name="Closed_Visits">Closed Visits</string>
 
+        //New Registration Changes
+        <string name="identification_screen_prompt_cc_name">एजंट नाव*</string>
+        <string name="agent_information">एजंट माहिती</string>
+        <string name="subscription_information">सदस्यता माहिती</string>
+        <string name="subscription_consent">तुम्हाला ऑडिओ स्टोरी सदस्यता घ्यायची आहे का?</string>
+        <string name="already_subscribed">आधीच सदस्यता घेतली आहे</string>
+        <string name="subsc_status">सदस्यता संमती</string>
+        <string name="identification_screen_dialog_error_subscription">सदस्यता संमती दिली जात नाही</string>
+
 </resources>

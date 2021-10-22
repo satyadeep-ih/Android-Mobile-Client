@@ -794,4 +794,14 @@
     <string name="closed_visits_HomeScreen">Closed Visits</string>
     <string name="Completed_Visits">Completed Visits</string>
     <string name="Closed_Visits">Closed Visits</string>
+
+    //New Registration Changes
+    <string name="identification_screen_prompt_cc_name">Agent\'s name *</string>
+    <string name="agent_information">Agent Information</string>
+    <string name="subscription_information">Subscription Information</string>
+    <string name="subscription_consent">Do you want to subscribe to audio stories?</string>
+    <string name="already_subscribed">Already Subscribed</string>
+    <string name="subsc_status">Subscription Consent</string>
+    <string name="identification_screen_dialog_error_subscription">Subscription Consent is not given</string>
+
 </resources>
