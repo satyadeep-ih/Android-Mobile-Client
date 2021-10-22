@@ -2,3 +2,13 @@
 salt.env
 /.idea/
 /webrtc/build/.transforms/
+*.iml
+*.json
+.gradle
+/assets
+/local.properties
+.DS_Store
+/captures
+.externalNativeBuild
+*.jpg
+/app/release/
