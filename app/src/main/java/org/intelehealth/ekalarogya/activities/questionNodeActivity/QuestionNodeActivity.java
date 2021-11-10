@@ -145,6 +145,7 @@ public class QuestionNodeActivity extends AppCompatActivity implements Questions
         complaintDetails = new HashMap<>();
         physicalExams = new ArrayList<>();
         complaintsNodes = new ArrayList<>();
+        imageName = UUID.randomUUID().toString();
 
         boolean hasLicense = false;
         if (!sessionManager.getLicenseKey().isEmpty())
@@ -244,7 +245,7 @@ public class QuestionNodeActivity extends AppCompatActivity implements Questions
                     if (!filePath.exists()) {
                         filePath.mkdirs();
                     }
-                    imageName = UUID.randomUUID().toString();
+
                     Node.handleQuestion(question, QuestionNodeActivity.this, adapter, filePath.toString(), imageName);
                 } else {
                     Node.handleQuestion(question, QuestionNodeActivity.this, adapter, null, null);
@@ -292,6 +293,7 @@ public class QuestionNodeActivity extends AppCompatActivity implements Questions
             }
 
             if (!question.isTerminal() && question.isSelected()) {
+                //add Imagename here...
                 Node.subLevelQuestion(question, QuestionNodeActivity.this, adapter, filePath.toString(), imageName);
                 //If the knowledgeEngine is not terminal, that means there are more questions to be asked for this branch.
             }
