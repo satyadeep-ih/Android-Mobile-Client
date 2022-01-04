@@ -50,5 +50,7 @@
     <string name="please_wait_for_doctor">Please wait for the doctor\'s availability.</string>
     <string name="call_end_aler_txt">Do you want to end the video call ?</string>
     <string name="yes">Yes</string>
+
+    <string name="call_recordings">Call Recordings</string>
     <string name="no">No</string>
 </resources>

@@ -1,6 +1,7 @@
 package org.intelehealth.app.networkApiCalls;
 
 
+import org.intelehealth.app.activities.recordings.RecordingResponse;
 import org.intelehealth.app.models.CheckAppUpdateRes;
 import org.intelehealth.app.models.DownloadMindMapRes;
 import org.intelehealth.app.models.Location;
@@ -100,4 +101,9 @@ public interface ApiInterface {
 
     @GET("/intelehealth/app_update.json")
     Single<CheckAppUpdateRes> checkAppUpdate();
+
+//    @GET
+//    Call<RecordingResponse> getRecordings(@Url String url,
+//                                          @Header("Authorization") String authHeader);
+
 }

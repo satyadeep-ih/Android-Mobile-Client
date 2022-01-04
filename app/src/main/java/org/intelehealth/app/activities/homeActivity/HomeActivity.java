@@ -57,7 +57,9 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import org.intelehealth.app.R;
 import org.intelehealth.app.activities.activePatientsActivity.ActivePatientActivity;
 import org.intelehealth.app.activities.followuppatients.FollowUpPatientActivity;
+import org.intelehealth.app.activities.ivrCallResponseActivity.IVRCallResponseActivity;
 import org.intelehealth.app.activities.loginActivity.LoginActivity;
+import org.intelehealth.app.activities.recordings.RecordingsActivity;
 import org.intelehealth.app.activities.searchPatientActivity.SearchPatientActivity;
 import org.intelehealth.app.activities.settingsActivity.SettingsActivity;
 import org.intelehealth.app.activities.todayPatientActivity.TodayPatientActivity;
@@ -542,6 +544,19 @@ public class HomeActivity extends AppCompatActivity {
             case R.id.settingsOption:
                 settings();
                 return true;
+            case R.id.recordingsOption:
+                if (NetworkConnection.isOnline(context)) {
+                    RecordingsActivity.start(context);
+                } else {
+                    Toast.makeText(context, R.string.no_network, Toast.LENGTH_SHORT).show();
+                }
+                return true;
+
+            case R.id.performanceOption:
+                Intent intent = new Intent(HomeActivity.this, IVRCallResponseActivity.class);
+                startActivity(intent);
+                return true;
+
             case R.id.updateProtocolsOption: {
 
 

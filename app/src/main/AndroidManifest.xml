@@ -50,7 +50,15 @@
                 <action android:name="app.intelehealth.client.RTC_MESSAGING_EVENT" />
             </intent-filter>
         </receiver>
-
+        <activity
+            android:name=".activities.recordings.RecordingsActivity"
+            android:configChanges="uiMode"
+            android:label="@string/call_recordings"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.ivrCallResponseActivity.IVRCallResponseActivity"
+            android:label="@string/Daily_Performance_Activity_Title" />
         <activity
             android:name=".activities.privacyNoticeActivity.PrivacyNotice_Activity"
             android:configChanges="uiMode"

@@ -51,6 +51,8 @@ public class SessionManager {
     private static final String IS_LOGOUT = "IS_LOGOUT";
     private static final String HOUSEHOLD_UUID = "HOUSEHOLD_UUID";
     private static final String IS_FIRST_TIME_LAUNCH = "IS_FIRST_TIME_LAUNCH";
+
+    private static final String PROVIDER_PHONENO = "PROVIDER_PHONENO";
     // LogCat tag
     private static String TAG = SessionManager.class.getSimpleName();
     // Shared Preferences
@@ -454,4 +456,12 @@ public class SessionManager {
     public boolean isFirstTimeLaunch() {
         return pref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
     }
+
+    public void setProviderPhoneNo(String providerPhoneNo) {
+        editor.putString(PROVIDER_PHONENO, providerPhoneNo);
+        editor.commit();
+    }
+    public String getProviderPhoneno() { return pref.getString(PROVIDER_PHONENO, ""); }
+
+
 }
