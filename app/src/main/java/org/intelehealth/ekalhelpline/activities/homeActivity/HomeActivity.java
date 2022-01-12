@@ -723,15 +723,19 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        //IntentFilter filter = new IntentFilter(AppConstants.SYNC_INTENT_ACTION);
-        //registerReceiver(syncBroadcastReceiver, filter);
-        checkAppVer();  //auto-update feature.
+        try {
+            //IntentFilter filter = new IntentFilter(AppConstants.SYNC_INTENT_ACTION);
+            //registerReceiver(syncBroadcastReceiver, filter);
+            checkAppVer();  //auto-update feature.
 //        lastSyncTextView.setText(getString(R.string.last_synced) + " \n" + sessionManager.getLastSyncDateTime());
-        if (!sessionManager.getLastSyncDateTime().equalsIgnoreCase("- - - -")
-                && Locale.getDefault().toString().equals("en")) {
+//        if (!sessionManager.getLastSyncDateTime().equalsIgnoreCase("- - - -")
+//                && Locale.getDefault().toString().equals("en")) {
 //            lastSyncAgo.setText(CalculateAgoTime());
+//        }
+            super.onResume();
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
         }
-        super.onResume();
     }
 
     @Override

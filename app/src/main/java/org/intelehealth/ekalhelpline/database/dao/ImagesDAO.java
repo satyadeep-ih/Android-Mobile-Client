@@ -384,15 +384,16 @@ public class ImagesDAO {
                     imagesList.add(idCursor.getString(idCursor.getColumnIndexOrThrow("uuid")));
                 }
             }
-            localdb.setTransactionSuccessful(); //need to set transactionsuccessful for the db object to know that the task is completed...
             idCursor.close();
-            localdb.setTransactionSuccessful();
+            localdb.setTransactionSuccessful();//need to set transactionsuccessful for the db object to know that the task is completed...
         } catch (SQLiteException e) {
             throw new DAOException(e);
         }catch (IllegalStateException e) {
             e.printStackTrace();
         } finally {
-            localdb.endTransaction();
+            if(localdb != null && localdb.inTransaction()){
+                localdb.endTransaction();
+            }
         }
 
         return imagesList;
