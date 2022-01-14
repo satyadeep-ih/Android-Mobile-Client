@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -157,22 +158,26 @@ public class AdditionalDocumentsActivity extends AppCompatActivity {
             }
         }
         else if (requestCode == PICK_IMAGE_FROM_GALLERY) {
-            Uri selectedImage = data.getData();
-            String[] filePath = {MediaStore.Images.Media.DATA};
-            Cursor c = getContentResolver().query(selectedImage, filePath, null, null, null);
-            c.moveToFirst();
-            int columnIndex = c.getColumnIndex(filePath[0]);
-            String picturePath = c.getString(columnIndex);
-            c.close();
-            //Bitmap thumbnail = (BitmapFactory.decodeFile(picturePath));
-            Log.v("path", picturePath + "");
+            if (resultCode == RESULT_OK) {
+                Uri selectedImage = data.getData();
+                String[] filePath = {MediaStore.Images.Media.DATA};
+                Cursor c = getContentResolver().query(selectedImage, filePath, null, null, null);
+                c.moveToFirst();
+                int columnIndex = c.getColumnIndex(filePath[0]);
+                String picturePath = c.getString(columnIndex);
+                c.close();
+                //Bitmap thumbnail = (BitmapFactory.decodeFile(picturePath));
+                Log.v("path", picturePath + "");
 
-            // copy & rename the file
-            String finalImageName = UUID.randomUUID().toString();
-            final String finalFilePath = AppConstants.IMAGE_PATH + finalImageName + ".jpg";
-            BitmapUtils.copyFile(picturePath, finalFilePath);
-            compressImageAndSave(finalFilePath);
+                // copy & rename the file
+                String finalImageName = UUID.randomUUID().toString();
+                final String finalFilePath = AppConstants.IMAGE_PATH + finalImageName + ".jpg";
+                BitmapUtils.copyFile(picturePath, finalFilePath);
+                compressImageAndSave(finalFilePath);
+            }
+            else{
 
+            }
         }
     }
     private void updateImageDatabase(String imageuuid) {
@@ -229,6 +234,7 @@ public class AdditionalDocumentsActivity extends AppCompatActivity {
 
                 } else if (item == 1) {
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("image/*");
                     startActivityForResult(intent, PICK_IMAGE_FROM_GALLERY);
                 } else if (options[item].equals("Cancel")) {
                     dialog.dismiss();
