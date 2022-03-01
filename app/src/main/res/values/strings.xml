@@ -560,7 +560,7 @@
 
 
     <!--New Ayu Related Changes-->
-    <string name="what_is_the_reason_for_your_visit" >What is the reason for your visit?</string>
+    <string name="what_is_the_reason_for_your_visit">What is the reason for your visit?</string>
     <string name="swipe_down_to_return">Swipe Down for previous / Up for next</string>
     <string name="swipe_up">Swipe to Up for Next</string>
     <string name="swipe_down">Swipe to Down for previous</string>
@@ -679,6 +679,6 @@
     <string name="notification_title">Realtime sync is ON!</string>
     <string name="notification_message"></string>
     <string name="ticker_text">Looking for new task</string>
-    <string name="identification_screen_prompt_citizen_id">Citizen ID(*)</string>
+    <string name="identification_screen_prompt_citizen_id">Citizen ID</string>
     <string name="citizen_id_validation_message">Please enter 14 digits Citizen ID</string>
 </resources>

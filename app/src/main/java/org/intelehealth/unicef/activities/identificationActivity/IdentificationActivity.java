@@ -1213,7 +1213,7 @@ public class IdentificationActivity extends AppCompatActivity {
 */
 
 
-        if (!mCitizenIdEditText.getText().toString().equals("") && !mFirstNameEditText.getText().toString().equals("") && !mLastNameEditText.getText().toString().equals("")
+        if (!mFirstNameEditText.getText().toString().equals("") && !mLastNameEditText.getText().toString().equals("")
                 && !mCityAutoCompleteTextView.getText().toString().equals("") && !mCountryEditText.getText().toString().equals("") &&
                 !mStateEditText.getText().toString().equals("") && !mDOBEditText.getText().toString().equals("") && !mAgeEditText.getText().toString().equals("") && (mGenderFRadioButton.isChecked() || mGenderMRadioButton.isChecked())) {
 
@@ -1265,6 +1265,7 @@ public class IdentificationActivity extends AppCompatActivity {
             return;
         }
 
+/*
         if (mCitizenIdEditText.getText().toString().equals("")) {
             mCitizenIdEditText.setError(getString(R.string.error_field_required));
             return;
@@ -1274,6 +1275,7 @@ public class IdentificationActivity extends AppCompatActivity {
         }else{
             mCountryEditText.setError(null);
         }
+*/
 
         if (mCountrySpinner.getSelectedItemPosition() == 0) {
             mCountryEditText.setError(getString(R.string.error_field_required));
@@ -1690,6 +1692,13 @@ public class IdentificationActivity extends AppCompatActivity {
             patientAttributesDTO.setPatientuuid(uuid);
             patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("Son/wife/daughter"));
             patientAttributesDTO.setValue(StringUtils.getValue(mRelationshipEditText.getText().toString()));
+            patientAttributesDTOList.add(patientAttributesDTO);
+
+            patientAttributesDTO = new PatientAttributesDTO();
+            patientAttributesDTO.setUuid(UUID.randomUUID().toString());
+            patientAttributesDTO.setPatientuuid(uuid);
+            patientAttributesDTO.setPersonAttributeTypeUuid(patientsDAO.getUuidForAttribute("Citizen Id"));
+            patientAttributesDTO.setValue(StringUtils.getValue(mCitizenIdEditText.getText().toString()));
             patientAttributesDTOList.add(patientAttributesDTO);
 
             patientAttributesDTO = new PatientAttributesDTO();
