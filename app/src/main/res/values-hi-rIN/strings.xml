@@ -709,4 +709,15 @@
     <string name="start_newvisit_confirmation_msg">क्या आप वाकई विज़िट शुरू करना चाहते हैं?</string>
     <string name="prescription_notprovided_msg">डॉक्टर ने प्रिस्क्रिप्शन नहीं दिया है। कृपया यात्रा समाप्त करने के लिए प्रिस्क्रिप्शन की प्रतीक्षा करें।</string>
 
+    //--------------reset app strings------------------------
+    <string name="app_reset_toast">ऐप रीसेट हो गया!</string>
+    <string name="sure_to_reset_app">क्या आप ऐप रीसेट करना चाहते हैं?</string>
+    <string name="resetting_app_dialog">ऐप रीसेट हो रही है</string>
+    <string name="reset_app">ऐप रीसेट करें</string>
+
+    //Reset App functionality
+    <string name="sync_failed">ऐप सिंक विफल! बाद में पुन: प्रयास करें।</string>
+    <string name="no_network_sync">आप इंटरनेट से कनेक्ट नहीं हैं। बाद में पुन: प्रयास करें।</string>
+    <string name="app_sync">ऐप सिंक किया जा रहा है..</string>
+
 </resources>

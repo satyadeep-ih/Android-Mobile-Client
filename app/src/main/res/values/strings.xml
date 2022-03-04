@@ -709,4 +709,17 @@
     <string name="start_newvisit_confirmation_msg">Are you sure you want to start a visit?</string>
     <string name="prescription_notprovided_msg">Doctor has not given prescription. Please wait for prescription to end the visit.</string>
 
+    //----------reset app strings-------------
+    <string name="reset_app">Reset App</string>
+    <string name="app_reset_toast">App Reset is done!</string>
+    <string name="resetting_app_dialog">Resetting App</string>
+    <string name="sure_to_reset_app">Are you sure you want to reset app?</string>
+
+    //Reset App functionality
+    <string name="sync_failed">Sync Failed! Please try again later.</string>
+    <string name="no_network_sync">You are not connected to the internet. Please try again later.</string>
+    <string name="app_sync">Syncing App..</string>
+
+    <string name="saving_captured_image">Saving Captured Image...</string>
+    <string name="alert_message_for_discard_visit">New started visit will be not saved!</string>
 </resources>
