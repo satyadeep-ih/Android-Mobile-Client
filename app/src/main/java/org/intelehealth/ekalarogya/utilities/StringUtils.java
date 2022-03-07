@@ -14,11 +14,13 @@
 
 package org.intelehealth.ekalarogya.utilities;
 
+import android.content.Context;
 import android.widget.Spinner;
 
 import java.io.File;
 import java.util.List;
 
+import org.intelehealth.ekalarogya.R;
 import org.intelehealth.ekalarogya.app.IntelehealthApplication;
 
 public final class StringUtils {
@@ -178,7 +180,16 @@ public final class StringUtils {
         return val;
     }
 
-
+    public static String getLocaleGender(Context context, String gender) {
+        switch (gender) {
+            case "M":
+                return context.getString(R.string.gender_male);
+            case "F":
+                return context.getString(R.string.gender_female);
+            default:
+                return gender;
+        }
+    }
 
     public static String getSpinnerHi_En(Spinner spinner) {
         String val = "";
