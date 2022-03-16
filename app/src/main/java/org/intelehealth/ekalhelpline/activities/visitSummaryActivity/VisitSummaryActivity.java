@@ -543,6 +543,14 @@ public class VisitSummaryActivity extends AppCompatActivity {
         card_call_patient = findViewById(R.id.card_call_patient);
         card_call_doctor = findViewById(R.id.card_call_doctor);
 
+        diagnosisTextView = findViewById(R.id.textView_content_diagnosis);
+        prescriptionTextView = findViewById(R.id.textView_content_rx);
+        medicalAdviceTextView = findViewById(R.id.textView_content_medical_advice);
+        requestedTestsTextView = findViewById(R.id.textView_content_tests);
+        additionalCommentsTextView = findViewById(R.id.textView_content_additional_comments);
+        followUpDateTextView = findViewById(R.id.textView_content_follow_up_date);
+        ivPrescription = findViewById(R.id.iv_prescription);
+
         queryData(String.valueOf(patientUuid));
 
         UrlModifiers urlModifiers = new UrlModifiers();
@@ -667,34 +675,6 @@ public class VisitSummaryActivity extends AppCompatActivity {
 
                 findViewById(R.id.speciality_spinner);
 
-        diagnosisTextView =
-
-                findViewById(R.id.textView_content_diagnosis);
-
-        prescriptionTextView =
-
-                findViewById(R.id.textView_content_rx);
-
-        medicalAdviceTextView =
-
-                findViewById(R.id.textView_content_medical_advice);
-
-        requestedTestsTextView =
-
-                findViewById(R.id.textView_content_tests);
-
-        additionalCommentsTextView =
-
-                findViewById(R.id.textView_content_additional_comments);
-
-        followUpDateTextView =
-
-                findViewById(R.id.textView_content_follow_up_date);
-
-        ivPrescription =
-
-                findViewById(R.id.iv_prescription);
-
         //if row is present i.e. if true is returned by the function then the spinner will be disabled.
         Log.d("visitUUID", "onCreate_uuid: " + visitUuid);
         isVisitSpecialityExists = speciality_row_exist_check(visitUuid);
@@ -811,65 +791,32 @@ public class VisitSummaryActivity extends AppCompatActivity {
 
         physicalDoumentsUpdates();
 
-        mNotificationManager =
-                (NotificationManager)
+        mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 
-                        getSystemService(Context.NOTIFICATION_SERVICE);
-
-        editVitals =
-
-                findViewById(R.id.imagebutton_edit_vitals);
-
-        editComplaint =
-
-                findViewById(R.id.imagebutton_edit_complaint);
-
-        editPhysical =
-
-                findViewById(R.id.imagebutton_edit_physexam);
-
-        editFamHist =
-
-                findViewById(R.id.imagebutton_edit_famhist);
-
-        editMedHist =
-
-                findViewById(R.id.imagebutton_edit_pathist);
-
-        editAddDocs =
-
-                findViewById(R.id.imagebutton_edit_additional_document);
-
-        uploadButton =
-
-                findViewById(R.id.button_upload);
-
-        downloadButton =
-
-                findViewById(R.id.button_download);
+        editVitals =findViewById(R.id.imagebutton_edit_vitals);
+        editComplaint =findViewById(R.id.imagebutton_edit_complaint);
+        editPhysical =findViewById(R.id.imagebutton_edit_physexam);
+        editFamHist =findViewById(R.id.imagebutton_edit_famhist);
+        editMedHist =findViewById(R.id.imagebutton_edit_pathist);
+        editAddDocs =findViewById(R.id.imagebutton_edit_additional_document);
+        uploadButton =findViewById(R.id.button_upload);
+        downloadButton =findViewById(R.id.button_download);
 
         //additionalDocumentsDownlaod = findViewById(R.id.imagebutton_download_additional_document);
-        onExaminationDownload =
-
-                findViewById(R.id.imagebutton_download_physexam);
+        onExaminationDownload =findViewById(R.id.imagebutton_download_physexam);
 
         //additionalDocumentsDownlaod.setVisibility(View.GONE);
 
-        physcialExaminationDownloadText =
-
-                findViewById(R.id.physcial_examination_download);
+        physcialExaminationDownloadText =findViewById(R.id.physcial_examination_download);
         onExaminationDownload.setVisibility(View.GONE);
 
         //image download for additional documents
-        additionalImageDownloadText =
-
-                findViewById(R.id.additional_documents_download);
+        additionalImageDownloadText =findViewById(R.id.additional_documents_download);
 
         Paint p = new Paint();
         p.setColor(Color.BLUE);
         additionalImageDownloadText.setPaintFlags(p.getColor());
         additionalImageDownloadText.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
-
 
         additionalDocumentImagesDownload();
 
@@ -878,7 +825,6 @@ public class VisitSummaryActivity extends AppCompatActivity {
         physcialExaminationDownloadText.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
 
         physcialExaminationImagesDownload();
-
 
         downloadButton.setEnabled(false);
         downloadButton.setVisibility(View.GONE);
@@ -3625,6 +3571,9 @@ public class VisitSummaryActivity extends AppCompatActivity {
      * @param value      variable of type String.
      */
     private void parseData(String concept_id, String value) {
+        if(value==null){
+            value="";
+        }
         switch (concept_id) {
             case UuidDictionary.CURRENT_COMPLAINT: { //Current Complaint
                 complaint.setValue(value.replace("?<b>", Node.bullet_arrow));
