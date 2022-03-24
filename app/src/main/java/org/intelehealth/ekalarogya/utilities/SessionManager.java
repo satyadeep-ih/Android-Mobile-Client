@@ -18,6 +18,7 @@ public class SessionManager {
     private static final String SESSION_ID = "sessionid";
     private static final String CREATOR_ID = "creatorid";
     private static final String PROVIDER_ID = "providerid";
+    private static final String HWORKER_ID = "healthworkerid";
     private static final String CHWNAME = "chwname";
     private static final String KEY_PREF_SERVER_URL_REST = "serverurl";
     private static final String KEY_PREF_SERVER_URL = "url";
@@ -57,6 +58,8 @@ public class SessionManager {
     private static final String VILLAGENAME = "VILLAGENAME";
 
     private static final String USERDETAILS = "USERDETAILS";
+
+    private static final String IS_FIRST_TIME_LAUNCH = "IS_FIRST_TIME_LAUNCH";
     // LogCat tag
     private static String TAG = SessionManager.class.getSimpleName();
     // Shared Preferences
@@ -151,6 +154,15 @@ public class SessionManager {
 
     public void setProviderID(String providerID) {
         editor.putString(PROVIDER_ID, providerID);
+        editor.commit();
+    }
+
+    public String getHwID() {
+        return pref.getString(HWORKER_ID, "");
+    }
+
+    public void setHwID(String hwID) {
+        editor.putString(HWORKER_ID, hwID);
         editor.commit();
     }
 
@@ -513,5 +525,14 @@ public class SessionManager {
 
     public String getUserProfileDetail() {
         return pref.getString(USERDETAILS, "");
+    }
+
+    public void setFirstTimeLaunch(boolean isFirstTime) {
+        editor.putBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
+        editor.commit();
+    }
+
+    public boolean isFirstTimeLaunch() {
+        return pref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
     }
 }

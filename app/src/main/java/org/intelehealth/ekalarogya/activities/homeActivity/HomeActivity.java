@@ -108,7 +108,7 @@ public class HomeActivity extends AppCompatActivity {
 
     TextView lastSyncTextView;
     TextView lastSyncAgo;
-    Button manualSyncButton;
+    CardView manualSyncButton;
     //IntentFilter filter;
 
     SyncUtils syncUtils = new SyncUtils();
@@ -189,7 +189,7 @@ public class HomeActivity extends AppCompatActivity {
         help_textview.setText(R.string.Whatsapp_Help_Cardview);
 
         // manualSyncButton.setText(R.string.sync_now);
-        manualSyncButton.setText(R.string.refresh);
+        //manualSyncButton.setText(R.string.refresh);
 
         //Help section of watsapp...
         c6.setOnClickListener(new View.OnClickListener() {
@@ -248,6 +248,10 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 videoLibrary();
+
+
+
+
             }
         });
 

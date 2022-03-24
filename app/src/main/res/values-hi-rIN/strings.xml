@@ -709,4 +709,23 @@
     <string name="start_newvisit_confirmation_msg">क्या आप वाकई विज़िट शुरू करना चाहते हैं?</string>
     <string name="prescription_notprovided_msg">डॉक्टर ने प्रिस्क्रिप्शन नहीं दिया है। कृपया यात्रा समाप्त करने के लिए प्रिस्क्रिप्शन की प्रतीक्षा करें।</string>
 
+    <string name="take_photo">फोटो लो</string>
+    <string name="choose_from_gallery">गैलरी से चयन करो</string>
+    <string name="hw_profile_image_picker_title">स्वास्थ्य कार्यकर्ता प्रोफ़ाइल छवि!</string>
+
+    <string name="hw_qualification_hint">योग्यता</string>
+    <string name="hw_aboutme_hint">मेरे बारे में</string>
+    //-------setup Location string-----
+    <string name="setup_select_state_str">राज्य चुनें</string>
+    <string name="setup_select_dropdown_state_msg">ड्रॉपडाउन से राज्य का चयन करें</string>
+    <string name="setup_select_district_str">जिला चुनें</string>
+    <string name="setup_select_dropdown_district_msg">ड्रॉपडाउन से जिला का चयन करें</string>
+    <string name="setup_select_sanch_str">सांच चुनें</string>
+    <string name="setup_select_dropdown_sanch_msg">ड्रॉपडाउन से सांच का चयन करें</string>
+    <string name="setup_select_village_str">गांव चुनेंं</string>
+    <string name="setup_select_dropdown_village_msg">ड्रॉपडाउन से गांव का चयन करें</string>
+    <string name="visit_closed">विजिट बंद हुई</string>
+    <string name="gender_male">पुरुष</string>
+    <string name="gender_female">महिला</string>
+    <string name="loading_more">और लोड हो रहा है...</string>
 </resources>
