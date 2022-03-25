@@ -92,6 +92,7 @@
                     <EditText
                         android:id="@+id/hw_aboutme_value"
                         android:layout_width="match_parent"
+                        android:visibility="gone"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/lato_regular"
                         android:imeOptions="actionUnspecified"

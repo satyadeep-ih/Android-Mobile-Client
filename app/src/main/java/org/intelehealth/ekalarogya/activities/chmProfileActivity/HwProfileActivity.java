@@ -470,6 +470,7 @@ public class HwProfileActivity extends AppCompatActivity {
                             obj.put("emailId",hw_email_value.getText().toString().trim());
                        p.setEmailId(hw_email_value.getText().toString().trim());
                         }
+
                     }
                     if(obj!=null) {
                         updateOnSever(obj,p);
