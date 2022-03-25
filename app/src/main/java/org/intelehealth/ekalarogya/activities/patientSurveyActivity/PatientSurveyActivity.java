@@ -164,8 +164,10 @@ public class PatientSurveyActivity extends AppCompatActivity {
         encounterDTO.setEncounterTypeUuid(encounterDAO.getEncounterTypeUuid("ENCOUNTER_PATIENT_EXIT_SURVEY"));
 
         //As per issue #785 - we fixed it by subtracting 1 minute from Encounter Time
+        // time difrrence is must be less then the STart Visit time .. So Reduce the time 5 to 3.
         try {
-            encounterDTO.setEncounterTime(fiveMinutesAgo(AppConstants.dateAndTimeUtils.currentDateTime()));
+            encounterDTO.setEncounterTime(mThreeMinutesAgo(AppConstants.dateAndTimeUtils.currentDateTime()));
+//            encounterDTO.setEncounterTime(fiveMinutesAgo(AppConstants.dateAndTimeUtils.currentDateTime()));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -209,6 +211,15 @@ public class PatientSurveyActivity extends AppCompatActivity {
     public String fiveMinutesAgo(String timeStamp) throws ParseException {
 
         long FIVE_MINS_IN_MILLIS = 5 * 60 * 1000;
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        long time = df.parse(timeStamp).getTime();
+
+        return df.format(new Date(time - FIVE_MINS_IN_MILLIS));
+    }
+
+    public String mThreeMinutesAgo(String timeStamp) throws ParseException {
+
+        long FIVE_MINS_IN_MILLIS = 3 * 60 * 1000;
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         long time = df.parse(timeStamp).getTime();
 
