@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -24,18 +26,19 @@ import android.preference.RingtonePreference;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-import java.util.List;
-import java.util.Locale;
 
 import org.intelehealth.ekalarogya.R;
 import org.intelehealth.ekalarogya.activities.appCompatPreferenceActivity.AppCompatPreferenceActivity;
@@ -44,6 +47,9 @@ import org.intelehealth.ekalarogya.utilities.AdminPassword;
 import org.intelehealth.ekalarogya.utilities.SessionManager;
 
 import org.intelehealth.ekalarogya.activities.homeActivity.HomeActivity;
+
+import java.util.List;
+import java.util.Locale;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
     private static boolean admin_password = false;
@@ -223,9 +229,25 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(R.string.menu_option_settings);
+
+        sessionManager = new SessionManager(this);
+
+        String language = sessionManager.getAppLanguage();
+        if (!language.equalsIgnoreCase("")) {
+            Locale locale = new Locale(language);
+            Locale.setDefault(locale);
+            Configuration config = new Configuration();
+            config.locale = locale;
+            getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+        }
+
+        getFragmentManager().beginTransaction()
+                .replace(android.R.id.content, new LanguagePreferenceFragment())
+                .commit();
+        setTitle(R.string.languages);
         sessionManager = new SessionManager(this);
         setupActionBar();
+
     }
 
     /**
@@ -262,10 +284,30 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     /**
      * {@inheritDoc}
      */
+
     @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<PreferenceActivity.Header> target) {
-        loadHeadersFromResource(R.xml.pref_headers, target);
+    public void onBuildHeaders(List<Header> target) {
+//        loadHeadersFromResource(R.xml.pref_headers, target);
+
+        //code for adding version text on the bottom of the screen: By Nishita
+
+        RelativeLayout lContainerLayout = new RelativeLayout(this);
+        RelativeLayout.LayoutParams rlayout = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT , RelativeLayout.LayoutParams.WRAP_CONTENT );
+        lContainerLayout.setLayoutParams(rlayout);
+        Typeface typeface = ResourcesCompat.getFont(this, R.font.lato_light);
+        TextView mCustomView = new TextView(this);
+//        mCustomView.setText(getResources().getString(R.string.version_settings));
+        mCustomView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        mCustomView.setTextColor(Color.BLACK);
+        mCustomView.setTypeface(typeface);
+        RelativeLayout.LayoutParams lParams = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lParams.bottomMargin=10;
+        mCustomView.setLayoutParams(lParams);
+        lContainerLayout.addView(mCustomView);
+        addContentView(lContainerLayout, lParams);
     }
 
     /**
@@ -372,7 +414,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
-    //this activity is called to select a different language for the app.
+    //this activity is called to select a different language for the org.
     //prajwal
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class LanguagePreferenceFragment extends PreferenceFragment {
@@ -421,6 +463,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_languages);
             setHasOptionsMenu(true);
+
 
 
             bindPreferenceSummaryToValue(findPreference("hindiLang"));
@@ -476,5 +519,4 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 
     }
-
 }
