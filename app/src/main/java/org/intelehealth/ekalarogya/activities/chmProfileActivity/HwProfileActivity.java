@@ -432,8 +432,12 @@ public class HwProfileActivity extends AppCompatActivity {
                 "gender":"female"
         }*/
         try{
+
             if(mainProfileModel!=null){
                 JSONObject obj=new JSONObject();
+                UpdateInfoModel p = new UpdateInfoModel();
+
+                p.setWhatsapp(hw_whatsapp_value.getText().toString().trim());
                 HwProfileModel hwProfileModel = mainProfileModel.getHwProfileModel();
                 if(hwProfileModel!=null) {
                     if (!hw_designation_value.getText().toString().equalsIgnoreCase(hwProfileModel.getDesignation())){
@@ -449,22 +453,26 @@ public class HwProfileActivity extends AppCompatActivity {
                     if(personalInformationModel!=null) {
                         if (!hw_gender_value.getText().toString().equalsIgnoreCase(personalInformationModel.getGender())){
                             obj.put("gender",hw_gender_value.getText().toString().trim());
+                            p.setGender(hw_gender_value.getText().toString().trim());
                         }
 
                         if (!hw_mobile_value.getText().toString().equalsIgnoreCase(personalInformationModel.getMobile())){
                             obj.put("phoneNumber",hw_mobile_value.getText().toString().trim());
+                            p.setPhoneNumber(hw_mobile_value.getText().toString().trim());
                         }
 
                         if (!hw_whatsapp_value.getText().toString().equalsIgnoreCase(personalInformationModel.getWhatsApp())){
                             obj.put("whatsapp",hw_whatsapp_value.getText().toString().trim());
-                        }
+
+                       p.setWhatsapp(hw_whatsapp_value.getText().toString()); }
 
                         if (!hw_email_value.getText().toString().equalsIgnoreCase(personalInformationModel.getEmail())){
                             obj.put("emailId",hw_email_value.getText().toString().trim());
+                       p.setEmailId(hw_email_value.getText().toString().trim());
                         }
                     }
                     if(obj!=null) {
-                        updateOnSever(obj);
+                        updateOnSever(obj,p);
                     }
                 }
             }
@@ -473,21 +481,34 @@ public class HwProfileActivity extends AppCompatActivity {
         }
     }
 
-    public void updateOnSever(JSONObject obj){
+    public void updateOnSever(JSONObject obj,UpdateInfoModel mUpdateModel){
         //https://afitraining.ekalarogya.org:3004/api/user/profile/a4ac4fee-538f-11e6-9cfe-86f436325720
+
+
+        Dialog progressDialog = new Dialog(this, android.R.style.Theme_Black);
+        View view = LayoutInflater.from(HwProfileActivity.this).inflate(
+                R.layout.custom_progress_dialog, null);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                R.color.transparent);
+        progressDialog.setContentView(view);
+        progressDialog.show();
         String url = "https://" + sessionManager.getServerUrl() + ":3004/api/user/profile/"+sessionManager.getCreatorID() ;
         String encoded = sessionManager.getEncoded();
-        Single<ResponseBody> hwUpdateApiCallObservable = AppConstants.apiInterface.HwUpdateInfo_API_CALL_OBSERVABLE(url, "Basic " + encoded, obj);
+
+        Single<ResponseBody> hwUpdateApiCallObservable = AppConstants.apiInterface.HwUpdateInfo_API_CALL_OBSERVABLE(url, "Basic " + encoded, mUpdateModel);
         hwUpdateApiCallObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new DisposableSingleObserver<ResponseBody>() {
                     @Override
                     public void onSuccess(ResponseBody responseBody) {
                         Logger.logD(TAG, "success" + responseBody);
+                        progressDialog.dismiss();
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        progressDialog.dismiss();
                         Logger.logD(TAG, "Onerror " + e.getMessage());
                     }
                 });

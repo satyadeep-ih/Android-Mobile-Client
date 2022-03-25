@@ -1,6 +1,7 @@
 package org.intelehealth.ekalarogya.networkApiCalls;
 
 
+import org.intelehealth.ekalarogya.activities.chmProfileActivity.UpdateInfoModel;
 import org.intelehealth.ekalarogya.models.CheckAppUpdateRes;
 import org.intelehealth.ekalarogya.models.DownloadMindMapRes;
 import org.intelehealth.ekalarogya.models.Location;
@@ -127,6 +128,6 @@ public interface ApiInterface {
     @Headers({"Accept: application/json"})
     @PUT
     Single<ResponseBody> HwUpdateInfo_API_CALL_OBSERVABLE(@Url String url,
-                                                        @Header("Authorization") String authHeader,
-                                                        @Body JSONObject obj);
+                                                          @Header("Authorization") String authHeader,
+                                                          @Body UpdateInfoModel up);
 }
