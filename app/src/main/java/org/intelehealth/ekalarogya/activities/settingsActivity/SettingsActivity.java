@@ -230,6 +230,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getFragmentManager().beginTransaction()
+                .replace(android.R.id.content, new LanguagePreferenceFragment())
+                .commit();
+        setTitle(R.string.languages);
+
         sessionManager = new SessionManager(this);
 
         String language = sessionManager.getAppLanguage();

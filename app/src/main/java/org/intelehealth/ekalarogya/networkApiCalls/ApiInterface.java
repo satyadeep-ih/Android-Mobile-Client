@@ -1,6 +1,7 @@
 package org.intelehealth.ekalarogya.networkApiCalls;
 
 
+import org.intelehealth.ekalarogya.activities.chmProfileActivity.UpdateInfoModel;
 import org.intelehealth.ekalarogya.models.CheckAppUpdateRes;
 import org.intelehealth.ekalarogya.models.DownloadMindMapRes;
 import org.intelehealth.ekalarogya.models.Location;
@@ -32,6 +33,7 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -124,8 +126,8 @@ public interface ApiInterface {
                                                                   @Body UserStatusUpdateApiCall userStatusUpdateApiCall);
 
     @Headers({"Accept: application/json"})
-    @POST
+    @PUT
     Single<ResponseBody> HwUpdateInfo_API_CALL_OBSERVABLE(@Url String url,
-                                                        @Header("Authorization") String authHeader,
-                                                        @Body JSONObject obj);
+                                                          @Header("Authorization") String authHeader,
+                                                          @Body UpdateInfoModel up);
 }
