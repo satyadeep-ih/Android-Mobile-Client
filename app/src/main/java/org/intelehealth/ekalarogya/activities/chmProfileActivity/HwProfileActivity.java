@@ -436,8 +436,6 @@ public class HwProfileActivity extends AppCompatActivity {
             if(mainProfileModel!=null){
                 JSONObject obj=new JSONObject();
                 UpdateInfoModel p = new UpdateInfoModel();
-
-                p.setWhatsapp(hw_whatsapp_value.getText().toString().trim());
                 HwProfileModel hwProfileModel = mainProfileModel.getHwProfileModel();
                 if(hwProfileModel!=null) {
                     if (!hw_designation_value.getText().toString().equalsIgnoreCase(hwProfileModel.getDesignation())){
