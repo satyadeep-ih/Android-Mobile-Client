@@ -46,6 +46,8 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 import java.io.File;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -59,7 +61,7 @@ public class HwProfileActivity extends AppCompatActivity {
     public static String TAG = "HwProfileUpdate";
     private static final int PICK_IMAGE_FROM_GALLERY = 2001;
     SessionManager sessionManager = null;
-    String mCurrentPhotoPath;
+    String mCurrentPhotoPath, validationMsg="";
 
     EditText hw_designation_value, hw_aboutme_value, hw_gender_value, hw_mobile_value,hw_whatsapp_value,
             hw_email_value;
@@ -107,7 +109,11 @@ public class HwProfileActivity extends AppCompatActivity {
         save_hw_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                  updateHwDetail();
+                if(!checkValidation()) {
+                    updateHwDetail();
+                }else{
+                    Toast.makeText(HwProfileActivity.this, validationMsg, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -204,6 +210,8 @@ public class HwProfileActivity extends AppCompatActivity {
                 hw_gender_value.setFocusable(true);
                 hw_gender_value.setCursorVisible(true);
                 hw_gender_value.setFocusableInTouchMode(true);
+                hw_gender_value.requestFocus();
+                hw_gender_value.setSelection(hw_gender_value.getText().length());
 
                 hw_mobile_value.setClickable(true);
                 hw_mobile_value.setFocusable(true);
@@ -221,6 +229,8 @@ public class HwProfileActivity extends AppCompatActivity {
                 hw_email_value.setFocusableInTouchMode(true);
 
                 save_hw_detail.setVisibility(View.VISIBLE);
+
+                hw_profile_image.setClickable(true);
                 hw_profile_image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -415,22 +425,6 @@ public class HwProfileActivity extends AppCompatActivity {
     }
 
     public void updateHwDetail(){
-
-        /*{
-            "phoneNumber": "7867",
-                "qualification": "MBBS, MD",
-                "fontOfSign": "almondita",
-                "whatsapp": "7972269174",
-                "registrationNumber": "MAR1208632",
-                "emailId": "hiren@elxrsmarthealth.com",
-                "address": "14, Shreeji Arcade, Opp Nitin Company, 400601",
-                "textOfSign": "DrGenPhy",
-                "specialization": "Allopathy",
-                "visitState": "All",
-                "aboutMe": "test",
-                "timings": "12:00 AM - 3:00 AM"
-                "gender":"female"
-        }*/
         try{
 
             if(mainProfileModel!=null){
@@ -482,8 +476,6 @@ public class HwProfileActivity extends AppCompatActivity {
 
     public void updateOnSever(JSONObject obj,UpdateInfoModel mUpdateModel){
         //https://afitraining.ekalarogya.org:3004/api/user/profile/a4ac4fee-538f-11e6-9cfe-86f436325720
-
-
         Dialog progressDialog = new Dialog(this, android.R.style.Theme_Black);
         View view = LayoutInflater.from(HwProfileActivity.this).inflate(
                 R.layout.custom_progress_dialog, null);
@@ -503,6 +495,7 @@ public class HwProfileActivity extends AppCompatActivity {
                     public void onSuccess(ResponseBody responseBody) {
                         Logger.logD(TAG, "success" + responseBody);
                         progressDialog.dismiss();
+                        disableEditable();
                     }
 
                     @Override
@@ -511,5 +504,76 @@ public class HwProfileActivity extends AppCompatActivity {
                         Logger.logD(TAG, "Onerror " + e.getMessage());
                     }
                 });
+    }
+
+    public void disableEditable(){
+        hw_gender_value.setClickable(false);
+        hw_gender_value.setFocusable(false);
+        hw_gender_value.setCursorVisible(false);
+        hw_gender_value.setFocusableInTouchMode(false);
+
+        hw_mobile_value.setClickable(false);
+        hw_mobile_value.setFocusable(false);
+        hw_mobile_value.setCursorVisible(false);
+        hw_mobile_value.setFocusableInTouchMode(false);
+
+        hw_whatsapp_value.setClickable(false);
+        hw_whatsapp_value.setFocusable(false);
+        hw_whatsapp_value.setCursorVisible(false);
+        hw_whatsapp_value.setFocusableInTouchMode(false);
+
+        hw_email_value.setClickable(false);
+        hw_email_value.setFocusable(false);
+        hw_email_value.setCursorVisible(false);
+        hw_email_value.setFocusableInTouchMode(false);
+
+        save_hw_detail.setVisibility(View.GONE);
+        hw_profile_image.setClickable(false);
+    }
+
+    public boolean checkValidation(){
+        boolean flag=false;
+
+        if(hw_gender_value.getText().toString().trim().length()!=0 && !(hw_gender_value.getText().toString().trim().equalsIgnoreCase("F")
+                || hw_gender_value.getText().toString().trim().equalsIgnoreCase("M") || hw_gender_value.getText().toString().trim().equalsIgnoreCase("Female")
+                || hw_gender_value.getText().toString().trim().equalsIgnoreCase("Male"))){
+            hw_gender_value.requestFocus();
+            validationMsg=getResources().getString(R.string.hw_gender_validation_error);
+            flag=true;
+            return flag;
+        }
+
+        if(hw_mobile_value.getText().toString().trim().length()!=0 && hw_mobile_value.getText().toString().trim().length()<10){
+            hw_mobile_value.requestFocus();
+            validationMsg=getResources().getString(R.string.hw_number_validation_error);
+            flag=true;
+            return flag;
+        }
+
+        if(hw_whatsapp_value.getText().toString().trim().length()!=0 && hw_whatsapp_value.getText().toString().trim().length()<10){
+            hw_mobile_value.requestFocus();
+            validationMsg=getResources().getString(R.string.hw_whatsappnumber_validation_error);
+            flag=true;
+            return flag;
+        }
+
+        if(hw_email_value.getText().toString().trim().length()!=0 && !emailValidator(hw_email_value.getText().toString().trim())){
+            hw_email_value.requestFocus();
+            validationMsg=getResources().getString(R.string.hw_email_validation_error);
+            flag=true;
+            return flag;
+        }
+
+        return flag;
+    }
+
+    public boolean emailValidator(String email)
+    {
+        Pattern pattern;
+        Matcher matcher;
+        final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+        pattern = Pattern.compile(EMAIL_PATTERN);
+        matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 }

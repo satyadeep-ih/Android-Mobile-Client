@@ -715,4 +715,9 @@
 
     <string name="hw_qualification_hint">Qualification</string>
     <string name="hw_aboutme_hint">About Me</string>
+
+    <string name="hw_number_validation_error">Please Enter a valid Mobile Number</string>
+    <string name="hw_gender_validation_error">Please Enter a valid Gender</string>
+    <string name="hw_whatsappnumber_validation_error">Please Enter a valid WhatsApp Number</string>
+    <string name="hw_email_validation_error">Please Enter a valid Email Id</string>
 </resources>
