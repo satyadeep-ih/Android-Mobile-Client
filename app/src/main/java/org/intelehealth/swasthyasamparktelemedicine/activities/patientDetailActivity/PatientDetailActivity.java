@@ -3,6 +3,7 @@ package org.intelehealth.swasthyasamparktelemedicine.activities.patientDetailAct
 import static org.intelehealth.swasthyasamparktelemedicine.utilities.StringUtils.switch_hi_helplineInfo_edit;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.PathInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -131,7 +133,7 @@ public class PatientDetailActivity extends AppCompatActivity {
     String profileImage1 = "";
     SessionManager sessionManager = null;
     Patient patient_new = new Patient();
-
+    String remark = "";
     EncounterDTO encounterDTO = new EncounterDTO();
     PatientsDAO patientsDAO = new PatientsDAO();
     private boolean hasLicense = false;
@@ -1756,22 +1758,7 @@ public class PatientDetailActivity extends AppCompatActivity {
                     selectedItem[0] = org.intelehealth.swasthyasamparktelemedicine.utilities.StringUtils.switch_hi_en_call_reason(selectedItem[0]);
 
                 dialogInterface.dismiss();
-                if(!success) {
-                    storeCallData("Unable to reach patient", selectedItem[0]); //these strings has to be sent in same format and in english only
-                    onBackPressed();
-                }
-                else {
-                    storeCallData("Able to reach patient", selectedItem[0]); //these strings has to be sent in same format and in english only
-                    if(selectedItem[0].equalsIgnoreCase("Patient Registered - Specialist") || selectedItem[0].equalsIgnoreCase("Patient Registered- Tele Caller") )
-                    {
-                        if (selectedItem[0].equalsIgnoreCase("Patient Registered - Specialist") && newVisit.isEnabled() && newVisit.isClickable())
-                            startNewVisit();
-                        else if (selectedItem[0].equalsIgnoreCase("Patient Registered- Tele Caller") && newAdvice.isEnabled() && newAdvice.isClickable())
-                            MedicalAdviceExistingPatientsActivity.start(PatientDetailActivity.this, patientUuid);
-                        else
-                            Toast.makeText(PatientDetailActivity.this, getResources().getString(R.string.patient_has_active_visit), Toast.LENGTH_LONG).show();
-                    }
-                }
+                showRemarkDialog(success, selectedItem[0]);
             }
         });
         AlertDialog alert = alertDialog.create();
@@ -1779,7 +1766,76 @@ public class PatientDetailActivity extends AppCompatActivity {
         alert.show();
     }
 
-    private void storeCallData(String callStatus, String callAction) {
+    private void showRemarkDialog(boolean success, String selectedItem) {
+        remark = "Not Applicable";
+        MaterialAlertDialogBuilder remarkDialog = new MaterialAlertDialogBuilder(this);
+        // AlertDialog.Builder dialog = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
+        LayoutInflater li = LayoutInflater.from(this);
+        View promptsView = li.inflate(R.layout.dialog_remark, null);
+        remarkDialog.setTitle(getString(R.string.additional_remarks));
+        remarkDialog.setView(promptsView);
+        /*AlertDialog.Builder remarkDialog = new AlertDialog.Builder(this);
+        final EditText remarkET = new EditText(PatientDetailActivity.this);
+        remarkDialog.setTitle(getString(R.string.additional_remarks));
+        remarkET.setHint(R.string.enter_remarks);
+        remarkDialog.setView(remarkET);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        remarkET.setLayoutParams(layoutParams);
+        remarkDialog.setView(remarkET);*/
+        remarkDialog.setPositiveButton(getString(R.string.exit_survey_submit), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                Dialog d = (Dialog) dialog;
+                EditText remarkET = d.findViewById(R.id.remarksET);
+                if(!remark.equals(""))
+                remark = remarkET.getText().toString(); // variable to collect user input
+                if(!success) {
+                    storeCallData("Unable to reach patient", selectedItem, remark); //these strings has to be sent in same format and in english only
+                    onBackPressed();
+                }
+                else {
+                    storeCallData("Able to reach patient", selectedItem, remark); //these strings has to be sent in same format and in english only
+                    if(selectedItem.equalsIgnoreCase("Patient Registered - Specialist") || selectedItem.equalsIgnoreCase("Patient Registered- Tele Caller") )
+                    {
+                        if (selectedItem.equalsIgnoreCase("Patient Registered - Specialist") && newVisit.isEnabled() && newVisit.isClickable())
+                            startNewVisit();
+                        else if (selectedItem.equalsIgnoreCase("Patient Registered- Tele Caller") && newAdvice.isEnabled() && newAdvice.isClickable())
+                            MedicalAdviceExistingPatientsActivity.start(PatientDetailActivity.this, patientUuid);
+                        else
+                            Toast.makeText(PatientDetailActivity.this, getResources().getString(R.string.patient_has_active_visit), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
+        remarkDialog.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                dialog.cancel();
+                if(!success) {
+                    storeCallData("Unable to reach patient", selectedItem, "Not Applicable"); //these strings has to be sent in same format and in english only
+                    onBackPressed();
+                }
+                else {
+                    storeCallData("Able to reach patient", selectedItem, "Not Applicable"); //these strings has to be sent in same format and in english only
+                    if(selectedItem.equalsIgnoreCase("Patient Registered - Specialist") || selectedItem.equalsIgnoreCase("Patient Registered- Tele Caller") )
+                    {
+                        if (selectedItem.equalsIgnoreCase("Patient Registered - Specialist") && newVisit.isEnabled() && newVisit.isClickable())
+                            startNewVisit();
+                        else if (selectedItem.equalsIgnoreCase("Patient Registered- Tele Caller") && newAdvice.isEnabled() && newAdvice.isClickable())
+                            MedicalAdviceExistingPatientsActivity.start(PatientDetailActivity.this, patientUuid);
+                        else
+                            Toast.makeText(PatientDetailActivity.this, getResources().getString(R.string.patient_has_active_visit), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
+        AlertDialog dialog = remarkDialog.show();
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        positiveButton.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        negativeButton.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        IntelehealthApplication.setAlertDialogCustomTheme(context, dialog);
+    }
+
+    private void storeCallData(String callStatus, String callAction, String remark) {
 
         //get system date; Format need to be same as per Satyadeep's request.
         SimpleDateFormat currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
@@ -1793,7 +1849,7 @@ public class PatientDetailActivity extends AppCompatActivity {
         sendCallData.callStatus = callStatus;
         sendCallData.callAction = callAction;
         sendCallData.callDate = callDate;
-        sendCallData.remarks = "Not Applicable";
+        sendCallData.remarks = remark;
         sendCallData.callNumber = sessionManager.getProviderPhoneno();
         sendCallData.facility = "Unknown"; //facility column needs to be send to maintain dashboard attributes but this value is of no use and also not getting it anywhere in our data thus sending "Unknown"
         UrlModifiers urlModifiers = new UrlModifiers();
