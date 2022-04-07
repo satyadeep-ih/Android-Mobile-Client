@@ -40,7 +40,9 @@
         tools:ignore="LockedOrientationActivity,UnusedAttribute">
         <activity
             android:name=".activities.dailyPerformance.DailyPerformanceActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.missedCallActivity.MissedCallActivity"
             android:exported="false"
