@@ -776,6 +776,8 @@
     <string name="total_call_made">Total Calls Made:</string>
     <string name="able_to_reach">Able to reach:</string>
     <string name="unable_to_reach">Unable to reach:</string>
+    <string name="additional_remarks">Any additional remarks?</string>
+    <string name="enter_remarks">Enter remarks</string>
 
 
 </resources>

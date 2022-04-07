@@ -752,6 +752,12 @@
     <string name="missed_calls">मिस्ड कॉल</string>
     <string name="saved">सहेजा गया!</string>
     <string name="no_calls">कोई आउटगोइंग मिस्ड कॉल मौजूद नहीं है।</string>
+    <string name="daily_performance">दैनिक प्रदर्शन रिपोर्ट</string>
+    <string name="total_call_made">कुल कॉल किए गए:</string>
+    <string name="able_to_reach">पहुंचने में सक्षम:</string>
+    <string name="unable_to_reach">पहुंचने में असमर्थ:</string>
+    <string name="additional_remarks">कोई अतिरिक्त टिप्पणी?</string>
+    <string name="enter_remarks">टिप्पणी दर्ज करें</string>
 
 
 
