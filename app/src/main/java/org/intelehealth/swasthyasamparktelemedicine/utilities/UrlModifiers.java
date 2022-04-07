@@ -115,4 +115,11 @@ public class UrlModifiers {
         String BASE_URL = "https://" + sessionManager.getServerUrl() + "/";
         return BASE_URL + urlModifier;
     }
+
+    public String getDailyPerformanceUrl() {
+        sessionManager = new SessionManager(IntelehealthApplication.getAppContext());
+        String urlModifier = "dailyperformance";
+        String BASE_URL = "https://" + sessionManager.getServerUrl() + "/";
+        return BASE_URL + urlModifier;
+    }
 }

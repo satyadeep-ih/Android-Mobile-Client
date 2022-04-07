@@ -3,6 +3,7 @@ package org.intelehealth.swasthyasamparktelemedicine.networkApiCalls;
 
 import org.intelehealth.swasthyasamparktelemedicine.models.CheckAppUpdateRes;
 import org.intelehealth.swasthyasamparktelemedicine.models.ClsUserGetResponse;
+import org.intelehealth.swasthyasamparktelemedicine.models.DailyPerformanceModel;
 import org.intelehealth.swasthyasamparktelemedicine.models.DownloadMindMapRes;
 import org.intelehealth.swasthyasamparktelemedicine.models.GetPassword;
 import org.intelehealth.swasthyasamparktelemedicine.models.GetUserCallRes.UserCallRes;
@@ -127,4 +128,7 @@ public interface ApiInterface {
 
     @GET
     Single<MissedCallModel> MISSED_CALL(@Url String url, @Header("Authorization") String authHeader);
+
+    @GET
+    Single<DailyPerformanceModel> DAILY_PERFORMANCE(@Url String url, @Header("Authorization") String authHeader);
 }

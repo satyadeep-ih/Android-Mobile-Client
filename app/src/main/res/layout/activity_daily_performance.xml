@@ -6,4 +6,186 @@
     android:layout_height="match_parent"
     tools:context=".activities.dailyPerformance.DailyPerformanceActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/total_call_made"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/calls_made_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/able_to_reach"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/able_to_reach_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/denied_covid"
+            android:textSize="18sp"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/denied_covid_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/died"
+            android:textSize="18sp"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/died_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/need_not_registered"
+            android:textSize="18sp"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/need_no_reg_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/patient_reg_specialist"
+            android:textSize="18sp"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/patient_specialist_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/patient_reg_caller"
+            android:textSize="18sp"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/patient_caller_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/unable_to_reach"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/unable_to_reach_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/not_picked_up"
+            android:textSize="18sp"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/not_pickup_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/not_reachable"
+            android:textSize="18sp"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/not_reach_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/not_valid_number"
+            android:textSize="18sp"
+            android:fontFamily="@font/lato_bold"
+            android:id="@+id/not_valid_number_TV"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

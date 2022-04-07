@@ -1739,7 +1739,7 @@ public class PatientDetailActivity extends AppCompatActivity {
     }
 
     private void showOptionDialog(String[] items, int[] checkedItems, boolean success) {
-        final String[] selectedItem = {""};
+        final String[] selectedItem = {items[0]};
         MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(PatientDetailActivity.this);
         alertDialog.setTitle(getString(R.string.select_call_output));
         alertDialog.setSingleChoiceItems(items, checkedItems[0], new DialogInterface.OnClickListener() {
@@ -1760,15 +1760,17 @@ public class PatientDetailActivity extends AppCompatActivity {
                     storeCallData("Unable to reach patient", selectedItem[0]); //these strings has to be sent in same format and in english only
                     onBackPressed();
                 }
-                else
-                {
+                else {
                     storeCallData("Able to reach patient", selectedItem[0]); //these strings has to be sent in same format and in english only
-                    if(selectedItem[0].equalsIgnoreCase("Patient Registered - Specialist") && newVisit.isEnabled() && newVisit.isClickable())
-                        startNewVisit();
-                    else if(selectedItem[0].equalsIgnoreCase("Patient Registered- Tele Caller") && newAdvice.isEnabled() && newAdvice.isClickable())
-                        MedicalAdviceExistingPatientsActivity.start(PatientDetailActivity.this, patientUuid);
-                    else
-                        Toast.makeText(PatientDetailActivity.this, getResources().getString(R.string.patient_has_active_visit), Toast.LENGTH_LONG).show();
+                    if(selectedItem[0].equalsIgnoreCase("Patient Registered - Specialist") || selectedItem[0].equalsIgnoreCase("Patient Registered- Tele Caller") )
+                    {
+                        if (selectedItem[0].equalsIgnoreCase("Patient Registered - Specialist") && newVisit.isEnabled() && newVisit.isClickable())
+                            startNewVisit();
+                        else if (selectedItem[0].equalsIgnoreCase("Patient Registered- Tele Caller") && newAdvice.isEnabled() && newAdvice.isClickable())
+                            MedicalAdviceExistingPatientsActivity.start(PatientDetailActivity.this, patientUuid);
+                        else
+                            Toast.makeText(PatientDetailActivity.this, getResources().getString(R.string.patient_has_active_visit), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });

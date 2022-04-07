@@ -773,5 +773,9 @@
     <string name="saved">Saved!</string>
     <string name="no_calls">No outgoing missed calls present.</string>
     <string name="daily_performance">Daily Performance Report</string>
+    <string name="total_call_made">Total Calls Made:</string>
+    <string name="able_to_reach">Able to reach:</string>
+    <string name="unable_to_reach">Unable to reach:</string>
+
 
 </resources>
