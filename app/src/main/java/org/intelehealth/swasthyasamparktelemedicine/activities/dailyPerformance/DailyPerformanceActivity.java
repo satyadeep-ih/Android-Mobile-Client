@@ -92,21 +92,21 @@ public class DailyPerformanceActivity extends AppCompatActivity {
                             {
                                 if(dailyPerformanceModel.getData().get(i).getDateOfCalls().equals(todayDate_string)) {
                                     if (dailyPerformanceModel.getData().get(i).getActionIfCompleted() != null && !dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("")) {
-                                        if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals(getString(R.string.need_not_registered)))
+                                        if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("Need not be registered"))
                                             count_not_reg = dailyPerformanceModel.getData().get(i).getCount();
-                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals(getString(R.string.patient_reg_caller)))
+                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("Patient Registered- Tele Caller"))
                                             count_teleCaller = dailyPerformanceModel.getData().get(i).getCount();
-                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals(getString(R.string.patient_reg_specialist)))
+                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("Patient Registered - Specialist"))
                                             count_specialist = dailyPerformanceModel.getData().get(i).getCount();
-                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals(getString(R.string.denied_covid)))
+                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("Denied having covid"))
                                             count_denied_covid = dailyPerformanceModel.getData().get(i).getCount();
-                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals(getString(R.string.died)))
+                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("Died"))
                                             count_died = dailyPerformanceModel.getData().get(i).getCount();
-                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals(getString(R.string.not_valid_number)))
+                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("Not a valid number"))
                                             count_not_valid = dailyPerformanceModel.getData().get(i).getCount();
-                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals(getString(R.string.not_picked_up)))
+                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("Patient Did Not Pick Up"))
                                             count_not_pickUp = dailyPerformanceModel.getData().get(i).getCount();
-                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals(getString(R.string.not_reachable)))
+                                        else if (dailyPerformanceModel.getData().get(i).getActionIfCompleted().equals("Not reachable"))
                                             count_not_reachable = dailyPerformanceModel.getData().get(i).getCount();
                                     }
                                 }
