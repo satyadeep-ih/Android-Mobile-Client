@@ -49,6 +49,13 @@ public class IntelehealthApplication extends MultiDexApplication implements Appl
         return androidId;
     }
 
+    private static IntelehealthApplication sIntelehealthApplication;
+    public String refreshedFCMTokenID = "";
+
+    public static IntelehealthApplication getInstance() {
+        return sIntelehealthApplication;
+    }
+
 
     @Override
     protected void attachBaseContext(Context base) {

@@ -1,5 +1,6 @@
 package org.intelehealth.ekalarogya.activities.visitSummaryActivity;
 
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,22 +24,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.print.PdfPrint;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrintManager;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.telephony.SmsManager;
 import android.text.Html;
 import android.text.InputFilter;
@@ -47,13 +37,13 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -64,16 +54,73 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.MenuItemCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 
+
 import org.apache.commons.lang3.StringUtils;
+import org.intelehealth.apprtc.ChatActivity;
+import org.intelehealth.ekalarogya.R;
+import org.intelehealth.ekalarogya.activities.additionalDocumentsActivity.AdditionalDocumentsActivity;
+import org.intelehealth.ekalarogya.activities.complaintNodeActivity.ComplaintNodeActivity;
+import org.intelehealth.ekalarogya.activities.familyHistoryActivity.FamilyHistoryActivity;
+import org.intelehealth.ekalarogya.activities.homeActivity.HomeActivity;
+import org.intelehealth.ekalarogya.activities.pastMedicalHistoryActivity.PastMedicalHistoryActivity;
+import org.intelehealth.ekalarogya.activities.patientSurveyActivity.PatientSurveyActivity;
+import org.intelehealth.ekalarogya.activities.physcialExamActivity.PhysicalExamActivity;
+import org.intelehealth.ekalarogya.activities.vitalActivity.VitalsActivity;
+import org.intelehealth.ekalarogya.app.AppConstants;
+import org.intelehealth.ekalarogya.app.IntelehealthApplication;
+import org.intelehealth.ekalarogya.appointment.ScheduleListingActivity;
+import org.intelehealth.ekalarogya.appointment.api.ApiClientAppointment;
+import org.intelehealth.ekalarogya.appointment.dao.AppointmentDAO;
+import org.intelehealth.ekalarogya.appointment.model.AppointmentDetailsResponse;
+import org.intelehealth.ekalarogya.appointment.model.CancelRequest;
+import org.intelehealth.ekalarogya.appointment.model.CancelResponse;
+import org.intelehealth.ekalarogya.database.dao.EncounterDAO;
+import org.intelehealth.ekalarogya.database.dao.ImagesDAO;
+import org.intelehealth.ekalarogya.database.dao.ObsDAO;
+import org.intelehealth.ekalarogya.database.dao.PatientsDAO;
+import org.intelehealth.ekalarogya.database.dao.ProviderAttributeLIstDAO;
+import org.intelehealth.ekalarogya.database.dao.RTCConnectionDAO;
+import org.intelehealth.ekalarogya.database.dao.SyncDAO;
+import org.intelehealth.ekalarogya.database.dao.VisitAttributeListDAO;
+import org.intelehealth.ekalarogya.database.dao.VisitsDAO;
+import org.intelehealth.ekalarogya.knowledgeEngine.Node;
+import org.intelehealth.ekalarogya.models.ClsDoctorDetails;
+import org.intelehealth.ekalarogya.models.Patient;
+import org.intelehealth.ekalarogya.models.dto.EncounterDTO;
+import org.intelehealth.ekalarogya.models.dto.ObsDTO;
+import org.intelehealth.ekalarogya.models.dto.RTCConnectionDTO;
+import org.intelehealth.ekalarogya.services.DownloadService;
+import org.intelehealth.ekalarogya.syncModule.SyncUtils;
+import org.intelehealth.ekalarogya.utilities.DateAndTimeUtils;
+import org.intelehealth.ekalarogya.utilities.FileUtils;
+import org.intelehealth.ekalarogya.utilities.Logger;
+import org.intelehealth.ekalarogya.utilities.NetworkConnection;
+import org.intelehealth.ekalarogya.utilities.SessionManager;
+import org.intelehealth.ekalarogya.utilities.UrlModifiers;
+import org.intelehealth.ekalarogya.utilities.UuidDictionary;
+import org.intelehealth.ekalarogya.utilities.exception.DAOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -89,47 +136,14 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
-import org.intelehealth.ekalarogya.R;
-import org.intelehealth.ekalarogya.activities.additionalDocumentsActivity.AdditionalDocumentsActivity;
-import org.intelehealth.ekalarogya.activities.complaintNodeActivity.ComplaintNodeActivity;
-import org.intelehealth.ekalarogya.activities.familyHistoryActivity.FamilyHistoryActivity;
-import org.intelehealth.ekalarogya.activities.pastMedicalHistoryActivity.PastMedicalHistoryActivity;
-import org.intelehealth.ekalarogya.activities.patientSurveyActivity.PatientSurveyActivity;
-import org.intelehealth.ekalarogya.app.AppConstants;
-import org.intelehealth.ekalarogya.app.IntelehealthApplication;
-import org.intelehealth.ekalarogya.database.dao.EncounterDAO;
-import org.intelehealth.ekalarogya.database.dao.ImagesDAO;
-import org.intelehealth.ekalarogya.database.dao.ObsDAO;
-import org.intelehealth.ekalarogya.database.dao.PatientsDAO;
-import org.intelehealth.ekalarogya.database.dao.ProviderAttributeLIstDAO;
-import org.intelehealth.ekalarogya.database.dao.SyncDAO;
-import org.intelehealth.ekalarogya.database.dao.VisitAttributeListDAO;
-import org.intelehealth.ekalarogya.database.dao.VisitsDAO;
-import org.intelehealth.ekalarogya.knowledgeEngine.Node;
-import org.intelehealth.ekalarogya.models.ClsDoctorDetails;
-import org.intelehealth.ekalarogya.models.Patient;
-import org.intelehealth.ekalarogya.models.dto.ObsDTO;
-import org.intelehealth.ekalarogya.services.DownloadService;
-import org.intelehealth.ekalarogya.syncModule.SyncUtils;
-import org.intelehealth.ekalarogya.utilities.DateAndTimeUtils;
-import org.intelehealth.ekalarogya.utilities.FileUtils;
-import org.intelehealth.ekalarogya.utilities.Logger;
-
-import android.print.PdfPrint;
-
-import org.intelehealth.ekalarogya.utilities.SessionManager;
-import org.intelehealth.ekalarogya.utilities.UrlModifiers;
-import org.intelehealth.ekalarogya.utilities.UuidDictionary;
-
-import org.intelehealth.ekalarogya.activities.homeActivity.HomeActivity;
-import org.intelehealth.ekalarogya.activities.physcialExamActivity.PhysicalExamActivity;
-import org.intelehealth.ekalarogya.activities.vitalActivity.VitalsActivity;
-import org.intelehealth.ekalarogya.utilities.NetworkConnection;
-import org.intelehealth.ekalarogya.utilities.exception.DAOException;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class VisitSummaryActivity extends AppCompatActivity {
 
     private static final String TAG = VisitSummaryActivity.class.getSimpleName();
+    private static final int SCHEDULE_LISTING_INTENT = 2001;
     private WebView mWebView;
     private LinearLayout mLayout;
 
@@ -414,7 +428,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
                         //alertDialog.show();
                         IntelehealthApplication.setAlertDialogCustomTheme(this, alertDialog);
                     }
-                }else{
+                } else {
                     MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
 //                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this,R.style.AlertDialogStyle);
                     alertDialogBuilder.setMessage(R.string.prescription_notprovided_msg);
@@ -517,6 +531,34 @@ public class VisitSummaryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         mLayout = findViewById(R.id.summary_layout);
         context = getApplicationContext();
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EncounterDAO encounterDAO = new EncounterDAO();
+                EncounterDTO encounterDTO = encounterDAO.getEncounterByVisitUUID(visitUuid);
+                RTCConnectionDAO rtcConnectionDAO = new RTCConnectionDAO();
+                RTCConnectionDTO rtcConnectionDTO = rtcConnectionDAO.getByVisitUUID(visitUuid);
+                Intent chatIntent = new Intent(VisitSummaryActivity.this, ChatActivity.class);
+                chatIntent.putExtra("patientName", patientName);
+                chatIntent.putExtra("visitUuid", visitUuid);
+                chatIntent.putExtra("patientUuid", patientUuid);
+                chatIntent.putExtra("fromUuid", /*sessionManager.getProviderID()*/ encounterDTO.getProvideruuid()); // provider uuid
+
+                if (rtcConnectionDTO != null) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(rtcConnectionDTO.getConnectionInfo());
+                        chatIntent.putExtra("toUuid", jsonObject.getString("toUUID")); // assigned doctor uuid
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    chatIntent.putExtra("toUuid", ""); // assigned doctor uuid
+                }
+                startActivity(chatIntent);
+            }
+        });
 //we can remove by data binding
         mAdditionalDocsRecyclerView = findViewById(R.id.recy_additional_documents);
         mPhysicalExamsRecyclerView = findViewById(R.id.recy_physexam);
@@ -1108,15 +1150,15 @@ public class VisitSummaryActivity extends AppCompatActivity {
         }
 
         sugarRandomView.setText(sugarrandom.getValue());
-        if(sugarfasting.getValue()!=null || sugaraftermeal.getValue()!=null
+        if (sugarfasting.getValue() != null || sugaraftermeal.getValue() != null
                 && !sugarfasting.getValue().equalsIgnoreCase("null") && !sugaraftermeal.getValue().equalsIgnoreCase("null")) {
-            if(sugarfasting.getValue().trim().length()!=0 && sugaraftermeal.getValue().trim().length()!=0) {
+            if (sugarfasting.getValue().trim().length() != 0 && sugaraftermeal.getValue().trim().length() != 0) {
                 sugarFastAndMealView.setText(sugarfasting.getValue() + " | " + sugaraftermeal.getValue());
-            }else{
+            } else {
                 sugarFastAndMealView.setText("");
             }
-        }else{
-            System.out.println("error====="+"");
+        } else {
+            System.out.println("error=====" + "");
             sugarFastAndMealView.setText("");
         }
 
@@ -1247,7 +1289,7 @@ public class VisitSummaryActivity extends AppCompatActivity {
         final Cursor visitCursor = db.query("tbl_visit", null, visitIDSelection, visitIDArgs, null, null, null);
         if (visitCursor != null && visitCursor.moveToFirst()) {
             String val = visitCursor.getString(visitCursor.getColumnIndexOrThrow("sync"));
-            if (val.equalsIgnoreCase("1")){
+            if (val.equalsIgnoreCase("1")) {
                 editComplaint.setVisibility(View.GONE);
             }
         }
@@ -1639,6 +1681,44 @@ public class VisitSummaryActivity extends AppCompatActivity {
                 flag.setChecked(false);
             }
         }
+
+        mDoctorAppointmentBookingTextView = findViewById(R.id.tvDoctorAppointmentBooking);
+        mCancelAppointmentBookingTextView = findViewById(R.id.tvDoctorAppointmentBookingCancel);
+        mInfoAppointmentBookingTextView = findViewById(R.id.tvDoctorAppointmentBookingInfo);
+        mCancelAppointmentBookingTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelAppointment();
+            }
+        });
+        mDoctorAppointmentBookingTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doQuery();
+                if (speciality_selected == null
+                        || speciality_selected.isEmpty()
+                        || "Select Specialization".equalsIgnoreCase(speciality_selected)
+                        || "Выберите специализацию".equalsIgnoreCase(speciality_selected)
+                ) {
+                    Toast.makeText(VisitSummaryActivity.this, getString(R.string.please_select_speciality), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (isSynedFlag.equalsIgnoreCase("0")) {
+                    Toast.makeText(VisitSummaryActivity.this, getString(R.string.please_upload_visit), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                startActivityForResult(new Intent(VisitSummaryActivity.this, ScheduleListingActivity.class)
+                        .putExtra("visitUuid", visitUuid)
+                        .putExtra("patientUuid", patientUuid)
+                        .putExtra("patientName", patientName)
+                        .putExtra("appointmentId", mAppointmentId)
+                        .putExtra("openMrsId", patient.getOpenmrs_id())
+                        .putExtra("speciality", speciality_selected), SCHEDULE_LISTING_INTENT
+                );
+
+
+            }
+        });
     }
 
     /**
@@ -2116,8 +2196,8 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                     "</div>"
                             , heading, heading2, heading3, mPatientName, age, mGender, /*mSdw*/ address, mPatientOpenMRSID, mDate, (!TextUtils.isEmpty(mHeight)) ? mHeight : "", (!TextUtils.isEmpty(mWeight)) ? mWeight : "",
                             (!TextUtils.isEmpty(mBMI)) ? mBMI : "", (!TextUtils.isEmpty(bp)) ? bp : "", (!TextUtils.isEmpty(mPulse)) ? mPulse : "", (!TextUtils.isEmpty(mTemp)) ? mTemp : "", (!TextUtils.isEmpty(mresp)) ? mresp : "", (!TextUtils.isEmpty(mSPO2)) ? mSPO2 : "",
-                            (!TextUtils.isEmpty(mHemoglobin)) ? mHemoglobin : "",(!TextUtils.isEmpty(mBlood)) ? mBlood : "",(!TextUtils.isEmpty(mSugarRandom)) ? mSugarRandom : "",
-                            (!TextUtils.isEmpty(mSugarFasting)) ? mSugarFasting : "",(!TextUtils.isEmpty(mSugarAfterMeal)) ? mSugarAfterMeal : "",
+                            (!TextUtils.isEmpty(mHemoglobin)) ? mHemoglobin : "", (!TextUtils.isEmpty(mBlood)) ? mBlood : "", (!TextUtils.isEmpty(mSugarRandom)) ? mSugarRandom : "",
+                            (!TextUtils.isEmpty(mSugarFasting)) ? mSugarFasting : "", (!TextUtils.isEmpty(mSugarAfterMeal)) ? mSugarAfterMeal : "",
                             /*pat_hist, fam_hist,*/ mComplaint, diagnosis_web, rx_web, tests_web, advice_web, followUp_web, doctor_web);
             webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
         } else {
@@ -2156,8 +2236,8 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                     "</div>"
                             , heading, heading2, heading3, mPatientName, age, mGender, /*mSdw*/ address, mPatientOpenMRSID, mDate, (!TextUtils.isEmpty(mHeight)) ? mHeight : "", (!TextUtils.isEmpty(mWeight)) ? mWeight : "",
                             (!TextUtils.isEmpty(mBMI)) ? mBMI : "", (!TextUtils.isEmpty(bp)) ? bp : "", (!TextUtils.isEmpty(mPulse)) ? mPulse : "", (!TextUtils.isEmpty(mTemp)) ? mTemp : "", (!TextUtils.isEmpty(mSPO2)) ? mSPO2 : "",
-                            (!TextUtils.isEmpty(mHemoglobin)) ? mHemoglobin : "",(!TextUtils.isEmpty(mBlood)) ? mBlood : "",(!TextUtils.isEmpty(mSugarRandom)) ? mSugarRandom : "",
-                            (!TextUtils.isEmpty(mSugarFasting)) ? mSugarFasting : "",(!TextUtils.isEmpty(mSugarAfterMeal)) ? mSugarAfterMeal : "",
+                            (!TextUtils.isEmpty(mHemoglobin)) ? mHemoglobin : "", (!TextUtils.isEmpty(mBlood)) ? mBlood : "", (!TextUtils.isEmpty(mSugarRandom)) ? mSugarRandom : "",
+                            (!TextUtils.isEmpty(mSugarFasting)) ? mSugarFasting : "", (!TextUtils.isEmpty(mSugarAfterMeal)) ? mSugarAfterMeal : "",
                             /*pat_hist, fam_hist,*/ mComplaint, diagnosis_web, rx_web, tests_web, advice_web, followUp_web, doctor_web);
             webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
         }
@@ -2450,8 +2530,8 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                     "</div>"
                             , heading, heading2, heading3, mPatientName, age, mGender, /*mSdw*/ address, mPatientOpenMRSID, mDate, (!TextUtils.isEmpty(mHeight)) ? mHeight : "", (!TextUtils.isEmpty(mWeight)) ? mWeight : "",
                             (!TextUtils.isEmpty(mBMI)) ? mBMI : "", (!TextUtils.isEmpty(bp)) ? bp : "", (!TextUtils.isEmpty(mPulse)) ? mPulse : "", (!TextUtils.isEmpty(mTemp)) ? mTemp : "", (!TextUtils.isEmpty(mresp)) ? mresp : "", (!TextUtils.isEmpty(mSPO2)) ? mSPO2 : "",
-                            (!TextUtils.isEmpty(mHemoglobin)) ? mHemoglobin : "",(!TextUtils.isEmpty(mBlood)) ? mBlood : "",(!TextUtils.isEmpty(mSugarRandom)) ? mSugarRandom : "",
-                            (!TextUtils.isEmpty(mSugarFasting)) ? mSugarFasting : "",(!TextUtils.isEmpty(mSugarAfterMeal)) ? mSugarAfterMeal : "",
+                            (!TextUtils.isEmpty(mHemoglobin)) ? mHemoglobin : "", (!TextUtils.isEmpty(mBlood)) ? mBlood : "", (!TextUtils.isEmpty(mSugarRandom)) ? mSugarRandom : "",
+                            (!TextUtils.isEmpty(mSugarFasting)) ? mSugarFasting : "", (!TextUtils.isEmpty(mSugarAfterMeal)) ? mSugarAfterMeal : "",
                             /*pat_hist, fam_hist,*/ mComplaint, diagnosis_web, rx_web, tests_web, advice_web, followUp_web, doctor_web);
             webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
         } else {
@@ -2490,8 +2570,8 @@ public class VisitSummaryActivity extends AppCompatActivity {
                                     "</div>"
                             , heading, heading2, heading3, mPatientName, age, mGender, /*mSdw*/ address, mPatientOpenMRSID, mDate, (!TextUtils.isEmpty(mHeight)) ? mHeight : "", (!TextUtils.isEmpty(mWeight)) ? mWeight : "",
                             (!TextUtils.isEmpty(mBMI)) ? mBMI : "", (!TextUtils.isEmpty(bp)) ? bp : "", (!TextUtils.isEmpty(mPulse)) ? mPulse : "", (!TextUtils.isEmpty(mTemp)) ? mTemp : "", (!TextUtils.isEmpty(mresp)) ? mresp : "", (!TextUtils.isEmpty(mSPO2)) ? mSPO2 : "",
-                            (!TextUtils.isEmpty(mHemoglobin)) ? mHemoglobin : "",(!TextUtils.isEmpty(mBlood)) ? mBlood : "",(!TextUtils.isEmpty(mSugarRandom)) ? mSugarRandom : "",
-                            (!TextUtils.isEmpty(mSugarFasting)) ? mSugarFasting : "",(!TextUtils.isEmpty(mSugarAfterMeal)) ? mSugarAfterMeal : "",
+                            (!TextUtils.isEmpty(mHemoglobin)) ? mHemoglobin : "", (!TextUtils.isEmpty(mBlood)) ? mBlood : "", (!TextUtils.isEmpty(mSugarRandom)) ? mSugarRandom : "",
+                            (!TextUtils.isEmpty(mSugarFasting)) ? mSugarFasting : "", (!TextUtils.isEmpty(mSugarAfterMeal)) ? mSugarAfterMeal : "",
                             /*pat_hist, fam_hist,*/ mComplaint, diagnosis_web, rx_web, tests_web, advice_web, followUp_web, doctor_web);
             webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
         }
@@ -3780,5 +3860,193 @@ public class VisitSummaryActivity extends AppCompatActivity {
         visitCursor.close();
     }
 
+    /*Appointment modules*/
+    private TextView mDoctorAppointmentBookingTextView;
+    private TextView mCancelAppointmentBookingTextView;
+    private TextView mInfoAppointmentBookingTextView;
+
+    private AppointmentDetailsResponse mAppointmentDetailsResponse;
+    private int mAppointmentId = 0;
+
+    private void getAppointmentDetails(String visitUUID) {
+        mInfoAppointmentBookingTextView.setVisibility(View.VISIBLE);
+        mInfoAppointmentBookingTextView.setText(getString(R.string.please_wait));
+        Log.v("VisitSummary", "getAppointmentDetails");
+        String baseurl = "https://" + sessionManager.getServerUrl() + ":3004";
+        ApiClientAppointment.getInstance(baseurl).getApi()
+                .getAppointmentDetails(visitUUID)
+                .enqueue(new Callback<AppointmentDetailsResponse>() {
+                    @Override
+                    public void onResponse(Call<AppointmentDetailsResponse> call, retrofit2.Response<AppointmentDetailsResponse> response) {
+                        if (response == null || response.body() == null) return;
+                        mAppointmentDetailsResponse = response.body();
+                        if (!mAppointmentDetailsResponse.isStatus()) {
+                            Toast.makeText(VisitSummaryActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                        }
+                        if (mAppointmentDetailsResponse.getData() == null) {
+                            mCancelAppointmentBookingTextView.setVisibility(View.GONE);
+                            mInfoAppointmentBookingTextView.setVisibility(View.GONE);
+                            mDoctorAppointmentBookingTextView.setVisibility(View.VISIBLE);
+                            mDoctorAppointmentBookingTextView.setText(getString(R.string.book_appointment));
+                            mAppointmentId = 0;
+                        } else {
+                            //-------------------insert into local db--------------------
+                            try {
+                                AppointmentDAO appointmentDAO = new AppointmentDAO();
+                                appointmentDAO.insert(mAppointmentDetailsResponse.getData());
+                                mAppointmentId = mAppointmentDetailsResponse.getData().getId();
+                                mCancelAppointmentBookingTextView.setVisibility(View.VISIBLE);
+                                mInfoAppointmentBookingTextView.setVisibility(View.VISIBLE);
+                                mDoctorAppointmentBookingTextView.setVisibility(View.VISIBLE);
+                                mDoctorAppointmentBookingTextView.setText(getString(R.string.reschedule_appointment));
+                                mInfoAppointmentBookingTextView.setText(getString(R.string.appointment_booked) + ":\n\n" +
+                                        org.intelehealth.ekalarogya.utilities.StringUtils.getTranslatedDays(mAppointmentDetailsResponse.getData().getSlotDay(), new SessionManager(VisitSummaryActivity.this).getAppLanguage()) + "\n" +
+                                        mAppointmentDetailsResponse.getData().getSlotDate() + "\n" +
+                                        mAppointmentDetailsResponse.getData().getSlotTime()
+                                );
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        checkAndDisplayAppointment();
+                    }
+
+                    @Override
+                    public void onFailure(Call<AppointmentDetailsResponse> call, Throwable t) {
+                        Log.v("onFailure", t.getMessage());
+                        checkAndDisplayAppointment();
+                    }
+                });
+
+    }
+
+    private void checkAndDisplayAppointment() {
+        EncounterDAO encounterDAO = new EncounterDAO();
+        boolean isCompletedOrExited = false;
+        try {
+            isCompletedOrExited = encounterDAO.isCompletedOrExited(visitUuid);
+        } catch (DAOException e) {
+            e.printStackTrace();
+        }
+        if (isCompletedOrExited) {
+            mCancelAppointmentBookingTextView.setVisibility(View.GONE);
+            mInfoAppointmentBookingTextView.setVisibility(View.GONE);
+            mDoctorAppointmentBookingTextView.setVisibility(View.GONE);
+        }
+    }
+
+    private void cancelAppointment() {
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setMessage(getString(R.string.appointment_booking_cancel_confirmation_txt))
+                //set positive button
+                .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        askReason();
+                    }
+                })
+                //set negative button
+                .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .show();
+
+
+    }
+
+    private void cancelAppointmentRequest(String reason) {
+        CancelRequest request = new CancelRequest();
+        request.setVisitUuid(mAppointmentDetailsResponse.getData().getVisitUuid());
+        request.setId(mAppointmentDetailsResponse.getData().getId());
+        request.setReason(reason);
+        request.setHwUUID(new SessionManager(VisitSummaryActivity.this).getProviderID()); // user id / healthworker id
+        String baseurl = "https://" + sessionManager.getServerUrl() + ":3004";
+        ApiClientAppointment.getInstance(baseurl).getApi()
+                .cancelAppointment(request)
+                .enqueue(new Callback<CancelResponse>() {
+                    @Override
+                    public void onResponse(Call<CancelResponse> call, Response<CancelResponse> response) {
+                        if (response.body() == null) return;
+                        CancelResponse cancelResponse = response.body();
+                        if (cancelResponse.isStatus()) {
+                            AppointmentDAO appointmentDAO = new AppointmentDAO();
+                            //AppointmentInfo appointmentInfo=appointmentDAO.getAppointmentByVisitId(visitUuid);
+                            //if(appointmentInfo!=null && appointmentInfo.getStatus().equalsIgnoreCase("booked")) {
+                            appointmentDAO.deleteAppointmentByVisitId(visitUuid);
+                            //}
+
+                            Toast.makeText(VisitSummaryActivity.this, getString(R.string.appointment_cancelled_success_txt), Toast.LENGTH_SHORT).show();
+                            getAppointmentDetails(mAppointmentDetailsResponse.getData().getVisitUuid());
+                        } else {
+                            Toast.makeText(VisitSummaryActivity.this, getString(R.string.failed_to_cancel_appointment), Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CancelResponse> call, Throwable t) {
+                        Log.v("onFailure", t.getMessage());
+                    }
+                });
+    }
+
+
+    private void askReason() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.appointment_cancel_reason_view);
+
+        final TextView titleTextView = (TextView) dialog.findViewById(R.id.titleTv);
+        titleTextView.setText(getString(R.string.please_select_your_cancel_reason));
+        final EditText reasonEtv = dialog.findViewById(R.id.reasonEtv);
+        reasonEtv.setVisibility(View.GONE);
+        final RadioGroup optionsRadioGroup = dialog.findViewById(R.id.reasonRG);
+        optionsRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.rbR1) {
+                    reasonEtv.setVisibility(View.GONE);
+                    reasonEtv.setText(getString(R.string.doctor_is_not_available));
+                } else if (checkedId == R.id.rbR2) {
+                    reasonEtv.setVisibility(View.GONE);
+                    reasonEtv.setText(getString(R.string.patient_is_not_available));
+                } else if (checkedId == R.id.rbR3) {
+                    reasonEtv.setText("");
+                    reasonEtv.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        final TextView textView = dialog.findViewById(R.id.submitTV);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                String reason = reasonEtv.getText().toString().trim();
+                if (reason.isEmpty()) {
+                    Toast.makeText(VisitSummaryActivity.this, getString(R.string.please_enter_reason_txt), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                cancelAppointmentRequest(reason);
+            }
+        });
+
+        dialog.show();
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SCHEDULE_LISTING_INTENT) {
+            getAppointmentDetails(visitUuid);
+        }
+    }
 
 }

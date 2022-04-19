@@ -1,0 +1,113 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    xmlns:tools="http://schemas.android.com/tools"
+4    package="org.intelehealth.apprtc"
+5    android:versionCode="1"
+6    android:versionName="1.0" >
+7
+8    <uses-sdk
+9        android:minSdkVersion="19"
+9-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml
+10        android:targetSdkVersion="30" />
+10-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml
+11
+12    <uses-feature android:name="android.hardware.camera" />
+12-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:6:5-60
+12-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:6:19-57
+13    <uses-feature android:name="android.hardware.camera.autofocus" />
+13-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:7:5-70
+13-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:7:19-67
+14
+15    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+15-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:9:5-78
+15-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:9:22-75
+16
+17    <uses-feature
+17-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:10:5-12:35
+18        android:glEsVersion="0x00020000"
+18-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:11:9-41
+19        android:required="true" />
+19-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:12:9-32
+20
+21    <uses-permission android:name="android.permission.CAMERA" />
+21-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:14:5-65
+21-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:14:22-62
+22    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+22-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:15:5-79
+22-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:15:22-76
+23    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+23-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:16:5-80
+23-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:16:22-77
+24    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+24-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:17:5-71
+24-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:17:22-68
+25    <uses-permission android:name="android.permission.INTERNET" />
+25-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:18:5-67
+25-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:18:22-64
+26    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+26-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:19:5-81
+26-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:19:22-78
+27    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+27-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:20:5-79
+27-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:20:22-76
+28    <uses-permission android:name="android.permission.BLUETOOTH" />
+28-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:21:5-68
+28-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:21:22-65
+29    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+29-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:22:5-75
+29-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:22:22-72
+30
+31    <application
+31-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:24:5-62:19
+32        android:allowBackup="true"
+32-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:25:9-35
+33        android:supportsRtl="true"
+33-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:26:9-35
+34        android:theme="@style/AppTheme"
+34-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:27:9-40
+35        tools:ignore="LockedOrientationActivity" >
+35-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:28:9-49
+36        <activity
+36-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:30:9-33:63
+37            android:name="org.intelehealth.apprtc.ChatActivity"
+37-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:31:13-64
+38            android:screenOrientation="portrait"
+38-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:32:13-49
+39            android:windowSoftInputMode="stateAlwaysHidden" />
+39-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:33:13-60
+40        <!--
+41          <activity
+42              android:name="com.shivam.androidwebrtc.app_rtc_sample.main.AppRTCMainActivity"
+43              android:label="@string/app_name"
+44              android:windowSoftInputMode="adjustPan" />
+45          <activity
+46              android:name="com.shivam.androidwebrtc.app_rtc_sample.call.CallActivity"
+47              android:configChanges="orientation|screenSize"
+48              android:label="@string/app_name"
+49              android:screenOrientation="fullUser"
+50              android:theme="@style/AppTheme.Call" />
+51        -->
+52        <!--
+53<activity
+54            android:name="com.shivam.androidwebrtc.LauncherActivity"
+55            android:theme="@style/AppTheme.NoActionBar">
+56            <intent-filter>
+57                <action android:name="android.intent.action.MAIN" />
+58
+59                <category android:name="android.intent.category.LAUNCHER" />
+60            </intent-filter>
+61        </activity>
+62        -->
+63        <activity
+63-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:57:9-61:59
+64            android:name="org.intelehealth.apprtc.CompleteActivity"
+64-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:58:13-68
+65            android:screenOrientation="portrait"
+65-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:59:13-49
+66            android:showOnLockScreen="true"
+66-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:60:13-44
+67            android:theme="@style/AppTheme.NoActionBar" />
+67-->/home/user/DEV/POC-general/FS/C-NK/inthealth/WS/nurse-app/Android-Mobile-Client-default-INH-EKAL-Telemed/webrtc/src/main/AndroidManifest.xml:61:13-56
+68    </application>
+69
+70</manifest>

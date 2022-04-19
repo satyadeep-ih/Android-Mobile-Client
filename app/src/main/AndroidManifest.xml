@@ -269,6 +269,24 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
+
+        <receiver
+            android:name=".utilities.RTCMessageReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.intelehealth.unicef.RTC_MESSAGING_EVENT" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".services.firebase_services.CallRTCNotifyReceiver"
+            android:exported="false">
+            <intent-filter android:priority="100">
+                <action
+                    android:name="org.intelehealth.ekalarogya.RTC_MESSAGE_EVENT"
+                    android:enabled="true" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
