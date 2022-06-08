@@ -154,6 +154,11 @@ public class MissedCallActivity extends AppCompatActivity {
                             errorTV.setVisibility(View.VISIBLE);
                         }
                         }
+                        else
+                        {
+                            customProgressDialog.dismiss();
+                            errorTV.setVisibility(View.VISIBLE);
+                        }
                     }
                     @Override
                     public void onError(Throwable e) {
