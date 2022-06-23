@@ -312,7 +312,6 @@ public class HomeActivity extends AppCompatActivity {
         //filter = new IntentFilter("lasysync");
 
         sessionManager.setCurrentLang(getResources().getConfiguration().locale.toString());
-
         checkAppVer();  //auto-update feature.
 
         Logger.logD(TAG, "onCreate: " + getFilesDir().toString());
