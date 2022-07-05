@@ -2653,9 +2653,9 @@ public final class StringUtils {
             if (context.getString(R.string.salaried_worker_fixed_monthly_salary).equalsIgnoreCase(text)) {
                 return updatedContext.getString(R.string.salaried_worker_fixed_monthly_salary);
             }
-            // Translate string Salaried Worker to English
-            if (context.getString(R.string.self_employed_non_agricultural_petty_business).equalsIgnoreCase(text)) {
-                return updatedContext.getString(R.string.self_employed_non_agricultural_petty_business);
+            // Translate string Petty Business Shop Owner to English
+            if (context.getString(R.string.petty_business_shop_owner).equalsIgnoreCase(text)) {
+                return updatedContext.getString(R.string.petty_business_shop_owner);
             }
             // Translate string Salaried Worker to English
             if (context.getString(R.string.self_employed_non_agricultural_petty_business).equalsIgnoreCase(text)) {
@@ -3117,6 +3117,10 @@ public final class StringUtils {
             if (context.getString(R.string.retired_without_pension).equalsIgnoreCase(text)) {
                 return updatedContext.getString(R.string.retired_without_pension);
             }
+            // Translate string Petty Business Shop Owner to English
+            if (context.getString(R.string.petty_business_shop_owner).equalsIgnoreCase(text)) {
+                return updatedContext.getString(R.string.petty_business_shop_owner);
+            }
         }
         return text;
     }
@@ -3483,6 +3487,22 @@ public final class StringUtils {
             if (context.getString(R.string.occasionally_once_a_month_or_less).equalsIgnoreCase(text)) {
                 return updatedContext.getString(R.string.occasionally_once_a_month_or_less);
             }
+            // Translate string 0 - 50 ml to English
+            if (context.getString(R.string.zero_fifty_ml).equalsIgnoreCase(text)) {
+                return updatedContext.getString(R.string.zero_fifty_ml);
+            }
+            // Translate string 50 - 100 ml to English
+            if (context.getString(R.string.fifty_hundred_ml).equalsIgnoreCase(text)) {
+                return updatedContext.getString(R.string.fifty_hundred_ml);
+            }
+            // Translate string 100 - 250 ml to English
+            if (context.getString(R.string.hundred_two_hundred_fifty_ml).equalsIgnoreCase(text)) {
+                return updatedContext.getString(R.string.hundred_two_hundred_fifty_ml);
+            }
+            // Translate string 250 - 500 ml to English
+            if (context.getString(R.string.two_hundred_fifty_five_hundred_ml).equalsIgnoreCase(text)) {
+                return updatedContext.getString(R.string.two_hundred_fifty_five_hundred_ml);
+            }
             // Translate string More than 500 ml to English
             if (context.getString(R.string.more_than_five_hundred_ml).equalsIgnoreCase(text)) {
                 return updatedContext.getString(R.string.more_than_five_hundred_ml);
@@ -3583,8 +3603,8 @@ public final class StringUtils {
                 return updatedContext.getString(R.string.yes_family_member);
             }
             // Translate string Yes (Personal) to English
-            if (context.getString(R.string.yes_family_member).equalsIgnoreCase(text)) {
-                return updatedContext.getString(R.string.yes_family_member);
+            if (context.getString(R.string.yes_personal).equalsIgnoreCase(text)) {
+                return updatedContext.getString(R.string.yes_personal);
             }
             // Translate string No to English
             if (context.getString(R.string.survey_no).equalsIgnoreCase(text)) {

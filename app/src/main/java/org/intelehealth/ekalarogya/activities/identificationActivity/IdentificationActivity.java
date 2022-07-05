@@ -124,6 +124,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -1546,36 +1547,37 @@ public class IdentificationActivity extends AppCompatActivity implements Alcohol
                     binding.noOfEarningMembersEditText.setText(patient1.getNumberOfEarningMembers());
                 }
 
-                if (patient1.getWaterSupplyStatus() != null && !patient1.getWaterSupplyStatus().equalsIgnoreCase("")) {
+                if (patient1.getWaterSupplyStatus() != null && !patient1.getWaterSupplyStatus().equalsIgnoreCase("-")) {
                     setSelectedCheckboxes(binding.householdRunningWaterRadioGroup, patient1.getWaterSupplyStatus(), updatedContext, getBaseContext(), sessionManager.getAppLanguage());
                 }
 
-                if (patient1.getWaterSupplyHoursPerDay() != null && !patient1.getWaterSupplyStatus().equalsIgnoreCase("") &&
+                if (patient1.getWaterSupplyHoursPerDay() != null && !patient1.getWaterSupplyHoursPerDay().equalsIgnoreCase("-") &&
                         !patient1.getWaterSupplyStatus().equalsIgnoreCase(getString(R.string.survey_no))) {
                     String[] timeArray = patient1.getWaterSupplyHoursPerDay().split(" ");
                     String time = timeArray[0] + " " + getTimeStrings(timeArray[1], updatedContext, context, sessionManager.getAppLanguage());
                     binding.runningWaterHoursEditText.setText(time);
                 }
 
-                if (patient1.getWaterSupplyDaysPerWeek() != null && !patient1.getWaterSupplyDaysPerWeek().equalsIgnoreCase("") &&
+                if (patient1.getWaterSupplyDaysPerWeek() != null && !patient1.getWaterSupplyDaysPerWeek().equalsIgnoreCase("-") &&
                         !patient1.getWaterSupplyStatus().equalsIgnoreCase(getString(R.string.survey_no))) {
                     String[] timeArray = patient1.getWaterSupplyDaysPerWeek().split(" ");
+                    Logger.logD("Crash", Arrays.toString(timeArray));
                     String time = timeArray[0] + " " + getTimeStrings(timeArray[1], updatedContext, context, sessionManager.getAppLanguage());
                     binding.runningWaterDaysEditText.setText(time);
                 }
 
-                if (patient1.getElectricityStatus() != null && !patient1.getElectricityStatus().equalsIgnoreCase("")) {
+                if (patient1.getElectricityStatus() != null && !patient1.getElectricityStatus().equalsIgnoreCase("-")) {
                     setSelectedCheckboxes(binding.householdElectricityRadioGroup, patient1.getElectricityStatus(), updatedContext, getBaseContext(), sessionManager.getAppLanguage());
                 }
 
-                if (patient1.getLoadSheddingHoursPerDay() != null && !patient1.getLoadSheddingHoursPerDay().equalsIgnoreCase("")
+                if (patient1.getLoadSheddingHoursPerDay() != null && !patient1.getLoadSheddingHoursPerDay().equalsIgnoreCase("-")
                         && !patient1.getElectricityStatus().equalsIgnoreCase(getString(R.string.survey_no))) {
                     String[] timeArray = patient1.getLoadSheddingHoursPerDay().split(" ");
                     String time = timeArray[0] + " " + getTimeStrings(timeArray[1], updatedContext, context, sessionManager.getAppLanguage());
                     binding.loadSheddingHoursEditText.setText(time);
                 }
 
-                if (patient1.getLoadSheddingDaysPerWeek() != null && !patient1.getLoadSheddingDaysPerWeek().equalsIgnoreCase("")
+                if (patient1.getLoadSheddingDaysPerWeek() != null && !patient1.getLoadSheddingDaysPerWeek().equalsIgnoreCase("-")
                         && !patient1.getElectricityStatus().equalsIgnoreCase(getString(R.string.survey_no))) {
                     String[] timeArray = patient1.getLoadSheddingDaysPerWeek().split(" ");
                     String time = timeArray[0] + " " + getTimeStrings(timeArray[1], updatedContext, context, sessionManager.getAppLanguage());
