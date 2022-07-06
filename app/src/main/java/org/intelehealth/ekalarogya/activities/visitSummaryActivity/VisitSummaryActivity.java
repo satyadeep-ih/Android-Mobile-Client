@@ -905,6 +905,12 @@ public class VisitSummaryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                // The below condition has been added keeping in mind that no HW will be able to upload empty complaints: (Ticket AEAT-259): Nishita Goyal
+                if(complaint.getValue()==null || complaintView.getText().equals("") || complaintView.getText().equals(" "))
+                {
+                    Toast.makeText(VisitSummaryActivity.this, "Visit Upload Failed! Make a valid complaint selection.", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 isVisitSpecialityExists = speciality_row_exist_check(visitUUID);
 
                 VisitAttributeListDAO speciality_attributes = new VisitAttributeListDAO();
