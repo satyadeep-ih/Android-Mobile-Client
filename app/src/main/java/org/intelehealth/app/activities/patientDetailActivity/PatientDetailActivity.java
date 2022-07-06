@@ -88,6 +88,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 import io.reactivex.Observable;
@@ -379,6 +380,8 @@ public class PatientDetailActivity extends AppCompatActivity {
                 eDTO.setVoided(0);
 
                 Log.d("DTO", "DTOcomp: " + eDTO.getProvideruuid());
+
+
                 try {
                     isInserted = eDAO.createEncountersToDB(eDTO);
                 } catch (DAOException e) {
@@ -641,6 +644,21 @@ public class PatientDetailActivity extends AppCompatActivity {
 //
 //        }
 
+        //unique Ezazi registration number
+        TextView textView_UER_No=findViewById(R.id.textView_UER_No);
+
+
+
+        Log.d("country_vijay", patient_new.getCountry().substring(0,2)+"/"+patient_new.getState_province().substring(0,2)+"/"+patient_new.getCity_village().substring(0,2));
+//        String RegNo= patient_new.getCountry().substring(0,2)+"/"+patient_new.getState_province().substring(0,2)+"/"+patient_new.getCity_village().substring(0,2));
+//        Log.d("RegNo_vijay", RegNo);
+//        textView_UER_No.setText(RegNo);
+        if (patient_new.getCity_village() !=null && patient_new.getState_province() !=null && patient_new.getCity_village() !=null){
+            Random random=new Random();
+            int resRandom = random.nextInt(90) + 10 ;
+            String RegNo= patient_new.getCountry().substring(0,2)+"/"+patient_new.getState_province().substring(0,2)+"/"+patient_new.getCity_village().substring(0,2)+"/"+resRandom;
+            textView_UER_No.setText(RegNo);
+        }
 
         if (!sessionManager.getLicenseKey().isEmpty()) {
             hasLicense = true;
