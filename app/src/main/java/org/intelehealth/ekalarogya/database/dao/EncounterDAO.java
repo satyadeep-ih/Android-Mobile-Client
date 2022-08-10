@@ -11,10 +11,14 @@ import android.util.Log;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.intelehealth.ekalarogya.utilities.Logger;
 import org.intelehealth.ekalarogya.utilities.SessionManager;
 import org.intelehealth.ekalarogya.utilities.UuidDictionary;
@@ -310,6 +314,10 @@ public class EncounterDAO {
 
     public boolean updateEncounterModifiedDate(String encounterUuid) throws DAOException {
         boolean isUpdated = true;
+        SimpleDateFormat currentDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.ENGLISH);
+        Date todayDate = new Date();
+        String thisDate = currentDate.format(todayDate);
+
         Logger.logD("encounterdao", "update encounter date and time" + encounterUuid + "" + AppConstants.dateAndTimeUtils.currentDateTime());
         SQLiteDatabase db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
         db.beginTransaction();
@@ -317,7 +325,7 @@ public class EncounterDAO {
         String whereclause = "uuid=?";
         String[] whereargs = {encounterUuid};
         try {
-            values.put("modified_date", AppConstants.dateAndTimeUtils.currentDateTime());
+            values.put("modified_date", thisDate);
             values.put("encounter_time", AppConstants.dateAndTimeUtils.currentDateTime());
             int i = db.update("tbl_encounter", values, whereclause, whereargs);
             Logger.logD(tag, "updated" + i);
