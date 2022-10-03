@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
@@ -45,13 +46,16 @@ import android.widget.TextView;
 
 
 import org.apache.commons.lang3.StringUtils;
+import org.intelehealth.app.models.FollowUpModel;
 import org.intelehealth.app.utilities.LocaleHelper;
 import org.intelehealth.app.utilities.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -561,7 +565,47 @@ public class FamilyHistoryActivity extends AppCompatActivity implements Question
         {
             //the following changes are being done under ticket SYR-127. Check out ticket description for more details... - Nishita Goyal
             //update previous obs value's void = 1
+            SQLiteDatabase db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
+            String query = "SELECT uuid FROM tbl_encounter WHERE visituuid = ? AND encounter_type_uuid = ?";
+            final Cursor searchCursor = db.rawQuery(query,  new String[]{visitUuid, UuidDictionary.ENCOUNTER_ADULTINITIAL});  //"e8caffd6-5d22-41c4-8d6a-bc31a44d0c86"
+            if (searchCursor.moveToFirst()) {
+                do {
+                    try {
+                        String encounteruuid = searchCursor.getString(searchCursor.getColumnIndexOrThrow("uuid"));
+                        updateObsVoid(encounteruuid);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } while (searchCursor.moveToNext());
+            }
+            searchCursor.close();
         }
+    }
+
+    private boolean updateObsVoid(String encounteruuid) throws DAOException{
+        boolean isUpdated = true;
+        SQLiteDatabase db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
+        db.beginTransaction();
+        ContentValues values = new ContentValues();
+        String whereclause = "encounteruuid=? AND conceptuuid = ?";
+        String[] whereargs = {encounteruuid, UuidDictionary.RHK_FAMILY_HISTORY_BLURB};
+        try {
+            values.put("voided", 1);
+            int i = db.update("tbl_obs", values, whereclause, whereargs);
+            db.setTransactionSuccessful();
+        } catch (SQLException sql) {
+            throw new DAOException(sql.getMessage());
+        } finally {
+            db.endTransaction();
+        }
+        EncounterDAO encounterDAO = new EncounterDAO();
+        try {
+            encounterDAO.updateEncounterSync("false", encounterAdultIntials);
+            encounterDAO.updateEncounterModifiedDate(encounterAdultIntials);
+        } catch (DAOException e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+        }
+        return isUpdated;
     }
 
     @Override

@@ -910,6 +910,7 @@ public class VisitSummaryActivity extends AppCompatActivity /*implements Printer
             String visitIDorderBy = "startdate";
             String visitIDSelection = "uuid = ?";
             String[] visitIDArgs = {visitUuid};
+            db = AppConstants.inteleHealthDatabaseHelper.getReadableDatabase();
             final Cursor visitIDCursor = db.query("tbl_visit", null, visitIDSelection, visitIDArgs, null, null, visitIDorderBy);
             if (visitIDCursor != null && visitIDCursor.moveToFirst() && visitIDCursor.getCount() > 0) {
                 visitIDCursor.moveToFirst();
@@ -1183,7 +1184,7 @@ public class VisitSummaryActivity extends AppCompatActivity /*implements Printer
         spO2View.setText(spO2.getValue());
         if (complaint.getValue() != null)
             complaintView.setText(Html.fromHtml(complaint.getValue(sessionManager.getAppLanguage())));
-        if (famHistory.getValue() != null)
+        if (famHistory.getValue() != null && !famHistory.getValue().isEmpty() && !famHistory.getValue().equalsIgnoreCase(""))
             famHistView.setText(Node.bullet + Html.fromHtml(famHistory.getValue(sessionManager.getAppLanguage())));
         if (patHistory.getValue() != null)
             patHistView.setText(Html.fromHtml(patHistory.getValue(sessionManager.getAppLanguage())));
@@ -3420,7 +3421,7 @@ public class VisitSummaryActivity extends AppCompatActivity /*implements Printer
         String[] columns = {"value", " conceptuuid"};
 
         try {
-            String famHistSelection = "encounteruuid = ? AND conceptuuid = ?";
+            String famHistSelection = "encounteruuid = ? AND conceptuuid = ? AND voided = 0";
             String[] famHistArgs = {encounterUuidAdultIntial, UuidDictionary.RHK_FAMILY_HISTORY_BLURB};
             Cursor famHistCursor = db.query("tbl_obs", columns, famHistSelection, famHistArgs, null, null, null);
             famHistCursor.moveToLast();

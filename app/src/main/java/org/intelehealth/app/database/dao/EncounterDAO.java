@@ -338,7 +338,7 @@ public class EncounterDAO {
 
     public String getStartVisitNoteEncounterByVisitUUID(String visitUUID) {
         String encounterUuid = "";
-        SQLiteDatabase db = AppConstants.inteleHealthDatabaseHelper.getWritableDatabase();
+        SQLiteDatabase db = AppConstants.inteleHealthDatabaseHelper.getWriteDb();
         db.beginTransaction();
         Cursor idCursor = db.rawQuery("SELECT uuid FROM tbl_encounter where visituuid = ? AND encounter_type_uuid = ? AND sync = ?",
                 new String[]{visitUUID, ENCOUNTER_VISIT_NOTE, "true"});
